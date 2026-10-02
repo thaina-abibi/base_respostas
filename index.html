@@ -426,7 +426,8 @@ var DOMINIOS = ["apoiodetran.sp.gov.br", "detran.sp.gov.br"];
 
 (function(){
 "use strict";
-var configOk = !!firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf("COLE_AQUI") === -1;
+var sdkOk = typeof firebase !== 'undefined';
+var configOk = sdkOk && !!firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf("COLE_AQUI") === -1;
 var auth = null, db = null;
 if(configOk){
   firebase.initializeApp(firebaseConfig);
@@ -692,13 +693,30 @@ function msgEm(el, t, info){ el.className = 'lmsg' + (info ? ' info' : ''); el.t
 async function showLogin(){
   $('#login').classList.add('on'); $('#fLogin').style.display = ''; $('#fTroca').style.display = 'none'; $('#fBoot').style.display = 'none';
   if(configOk){
-    var sis = null;
-    try { sis = (await db.ref('sistema').once('value')).val(); } catch(e){ sis = { configurado:true }; }
+    msgEm($('#lMsg'), 'Verificando o sistema…', true);
+    var sis, falha = null;
+    try {
+      /* espera no máximo 8 s pela resposta do banco */
+      sis = await Promise.race([
+        db.ref('sistema').once('value').then(function(s){ return s.val(); }),
+        new Promise(function(_, rej){ setTimeout(function(){ rej(new Error('TEMPO_ESGOTADO')); }, 8000); })
+      ]);
+    } catch(e){ falha = e; }
+    if(falha){
+      var m = String(falha.message || falha);
+      msgEm($('#lMsg'), m.toUpperCase().indexOf('PERMISSION_DENIED') !== -1
+        ? 'O Firebase recusou a leitura do nó "sistema". Publique as regras do arquivo regras-firebase.json em Realtime Database → Regras e recarregue a página.'
+        : m === 'TEMPO_ESGOTADO'
+          ? 'O banco não respondeu. Confira se o databaseURL no código é o mesmo que aparece no topo da página do Realtime Database.'
+          : 'Não foi possível ler o banco: ' + m);
+      return;
+    }
     if(!sis || !sis.configurado){ mostrarBoot(); return; }
+    msgEm($('#lMsg'), erroLogin);
   }
   $('#lSenha').value = ''; $('#lBtn').disabled = false;
-  if(!configOk) msgEm($('#lMsg'), 'Falta configurar o Firebase: cole a apiKey no início do <script> deste arquivo (procure "insira a apiKey do firebase aqui").');
-  else msgEm($('#lMsg'), erroLogin);
+  if(!sdkOk) msgEm($('#lMsg'), 'Os arquivos do Firebase não carregaram (sem internet ou bloqueio de rede para www.gstatic.com).');
+  else if(!configOk) msgEm($('#lMsg'), 'Falta configurar o Firebase: cole a apiKey no início do <script> deste arquivo (procure "insira a apiKey do firebase aqui").');
   erroLogin = '';
   setTimeout(function(){ $('#lUser').focus(); }, 50);
 }
@@ -804,6 +822,8 @@ auth.onAuthStateChanged(async function(user){
   try {
     var sis = (await db.ref('sistema').once('value')).val() || {};
     ADMIN_UID = sis.adminPrincipal || '';
+    /* Sistema ainda sem primeiro acesso: qualquer sessão antiga é encerrada e a tela de primeiro acesso aparece */
+    if(!sis.configurado && !criandoAdmin){ erroLogin = ''; await auth.signOut(); return; }
     var acesso = (await db.ref('acessos/' + user.uid).once('value')).val();
     if(!acesso){
       if(!criandoAdmin || sis.configurado) return negar('Sua conta foi autenticada, mas não tem cadastro neste app. Fale com o administrador.');
