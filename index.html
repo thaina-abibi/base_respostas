@@ -333,7 +333,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
    "https://seu-projeto-default-rtdb.firebaseio.com"
    (Firebase Console > Realtime Database > link que aparece no topo)
    ===================================================================== */
-const FIREBASE_URL = "https://base-de-respostas-default-rtdb.firebaseio.com/"; // insira o link firebase aqui
+const FIREBASE_URL = "https://respostasbase-default-rtdb.firebaseio.com/"; // insira o link firebase aqui
 
 /* Nó (pasta) dentro do banco onde o app guarda tudo:
    respostasSAC/usuarios  e  respostasSAC/sugestoes                    */
@@ -345,18 +345,41 @@ const INTERVALO_ATUALIZACAO = 15000;
 
 (function(){
 const FB_ON = /^https:\/\//i.test(FIREBASE_URL.trim());
-const FB_BASE = FIREBASE_URL.trim().replace(/\/+$/,'') + '/' + FIREBASE_RAIZ;
+let FB_BASE = FIREBASE_URL.trim().replace(/\/+$/,'') + '/' + FIREBASE_RAIZ;
 const LOCAL_KEY = 'respostasSAC_local';
 
 /* ---------- Camada de dados ---------- */
 let db = {usuarios:{}, sugestoes:{}};
 
-async function fb(caminho, metodo='GET', corpo){
+let ultimoErroFB = '';
+async function fb(caminho, metodo='GET', corpo, tentativa=0){
   const url = FB_BASE + (caminho ? '/' + caminho : '') + '.json';
-  const r = await fetch(url, {method:metodo, headers:{'Content-Type':'application/json'},
-                              body: corpo===undefined ? undefined : JSON.stringify(corpo)});
-  if(!r.ok) throw new Error('Firebase respondeu ' + r.status);
-  return r.json();
+  let r, texto;
+  try{
+    /* sem cabeçalho Content-Type: evita a checagem CORS extra que alguns ambientes bloqueiam */
+    r = await fetch(url, {method:metodo, body: corpo===undefined ? undefined : JSON.stringify(corpo)});
+    texto = await r.text();
+  }catch(e){
+    ultimoErroFB = 'O navegador não conseguiu acessar ' + FB_BASE.split('/').slice(0,3).join('/') +
+      '. A rede pode estar bloqueando o Firebase, ou a página está aberta num ambiente que não permite conexões externas.';
+    throw new Error(ultimoErroFB);
+  }
+  let dados = null; try{ dados = texto ? JSON.parse(texto) : null; }catch(e){}
+  if(!r.ok){
+    const erro = (dados && dados.error) || texto || ('HTTP ' + r.status);
+    /* Banco criado fora dos EUA: o Firebase informa o endereço certo. Ajusta sozinho e tenta de novo. */
+    const certo = String(erro).match(/https:\/\/[a-z0-9.-]+\.firebasedatabase\.app/i);
+    if(certo && tentativa === 0){
+      FB_BASE = certo[0] + '/' + FIREBASE_RAIZ;
+      console.warn('Firebase: usando o endereço da região certa → ' + certo[0] + ' (atualize FIREBASE_URL no código)');
+      return fb(caminho, metodo, corpo, 1);
+    }
+    ultimoErroFB = /permission/i.test(erro) ? 'O Firebase recusou o acesso (regras do banco).' :
+                   r.status === 404 ? 'Banco não encontrado nesse endereço. Confira o link no topo da aba Dados do Realtime Database.' :
+                   'O Firebase respondeu: ' + erro;
+    throw new Error(ultimoErroFB);
+  }
+  return dados;
 }
 /* Usuários cadastrados direto pelo Firebase podem vir só com alguns campos.
    Aqui completamos o que faltar (a chave do nó vira o usuário). */
@@ -383,7 +406,7 @@ async function gravar(colecao, id, obj){
   db[colecao][id] = obj;
   if(FB_ON){
     try{ await fb(colecao + '/' + id, 'PUT', obj); }
-    catch(e){ toast('NÃO FOI POSSÍVEL SALVAR NO FIREBASE', true); throw e; }
+    catch(e){ toast('NÃO FOI POSSÍVEL SALVAR: ' + e.message, true); throw e; }
   } else {
     try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(db)); }catch(e){}
   }
@@ -606,7 +629,7 @@ function entrar(u){
 $('#fLogin').onsubmit = async e => {
   e.preventDefault();
   const user = $('#lUser').value.trim().toLowerCase().replace(/\s+/g,'');
-  try{ await carregar(); }catch(err){ msg($('#lMsg'), 'Não foi possível conectar ao Firebase. Confira o link e as regras do banco.'); return; }
+  try{ await carregar(); }catch(err){ msg($('#lMsg'), 'Não foi possível conectar ao Firebase. ' + (err && err.message ? err.message : '')); return; }
   if(primeiroAcesso()){
     const nome = $('#lNome').value.trim().toUpperCase(), email = $('#lEmail').value.trim().toLowerCase();
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg($('#lMsg'), 'Informe um e-mail válido.'); return; }
