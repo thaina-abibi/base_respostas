@@ -244,6 +244,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
             <div>
               <label for="uUser">USUÁRIO</label><input id="uUser" placeholder="ex.: maria_silva">
               <label for="uNome">NOME</label><input id="uNome" placeholder="ex.: Maria Silva">
+              <label for="uEmail">E-MAIL</label><input id="uEmail" type="email" autocapitalize="none" placeholder="ex.: maria.silva@detran.sp.gov.br">
               <label for="uPerfil">PERFIL</label>
               <select id="uPerfil"><option value="colab">Colaborador</option><option value="admin">Administrador</option></select>
             </div>
@@ -560,15 +561,18 @@ function renderUsers(){
 }
 $('#addUser').onsubmit = async e => {
   e.preventDefault();
-  const u = $('#uUser').value.trim().toLowerCase(), n = $('#uNome').value.trim().toUpperCase();
-  if(!u || !n){ $('#addMsg').textContent = 'Preencha usuário e nome.'; return; }
-  if(!/^[a-z0-9._-]+$/.test(u) || /\./.test(u) && FB_ON){ $('#addMsg').textContent = 'Use só letras, números, hífen ou sublinhado no usuário (sem espaço, ponto ou acento).'; return; }
+  const u = $('#uUser').value.trim().toLowerCase(), n = $('#uNome').value.trim().toUpperCase(), email = $('#uEmail').value.trim().toLowerCase();
+  if(!u || !n || !email){ $('#addMsg').textContent = 'Preencha usuário, nome e e-mail.'; return; }
+  if(!/^[a-z0-9_-]+$/.test(u)){ $('#addMsg').textContent = 'Use só letras, números, hífen ou sublinhado no usuário (sem espaço, ponto ou acento).'; return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ $('#addMsg').textContent = 'Informe um e-mail válido.'; return; }
+  try{ await carregar(); }catch(e){}
   if(Object.keys(db.usuarios).some(k => k.toLowerCase() === u)){ $('#addMsg').textContent = 'Esse usuário já está cadastrado.'; return; }
+  if(Object.values(db.usuarios).some(x => String(x.email || '').toLowerCase() === email)){ $('#addMsg').textContent = 'Esse e-mail já está em outro acesso.'; return; }
   const senha = gerarSenha();
   try{
-    await gravar('usuarios', u, {u, nome:n, perfil:$('#uPerfil').value, ativo:true, criadoEm:Date.now(), ...(await credencial(senha)), trocarSenha:true});
-    $('#addMsg').textContent = ''; $('#uUser').value = $('#uNome').value = ''; $('#uPerfil').value = 'colab';
-    renderUsers(); await mostrarSenha(`Usuário ${u} criado. Envie esta senha provisória para ${titulo(n)}:`, senha);
+    await gravar('usuarios', u, {u, nome:n, email, perfil:$('#uPerfil').value, ativo:true, criadoEm:Date.now(), ...(await credencial(senha)), trocarSenha:true});
+    $('#addMsg').textContent = ''; $('#uUser').value = $('#uNome').value = $('#uEmail').value = ''; $('#uPerfil').value = 'colab';
+    renderUsers(); await mostrarSenha(`Usuário ${u} (${email}) criado. Envie esta senha provisória para ${titulo(n)}:`, senha);
   }catch(e){}
 };
 
