@@ -155,17 +155,6 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 .login img{display:block;margin:20px auto 0;width:140px}
 .lmsg{grid-column:1/3;color:var(--red);font-size:13px;min-height:16px;letter-spacing:.5px;line-height:1.5}
 .lmsg.info{color:#3d5a26}
-.ou{grid-column:1/3;display:flex;align-items:center;gap:10px;color:#8a8a8a;font-size:12px;letter-spacing:2px;margin:4px 0 0}
-.ou::before,.ou::after{content:"";flex:1;height:1px;background:#d6d9d0}
-.btn-google{grid-column:1/3;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#333;border:1px solid #cfd4c6;border-radius:10px;padding:10px 14px;font-size:14px;letter-spacing:1.5px}
-.btn-google:hover{background:#f6f7f4;border-color:#9bb57f}
-.btn-google svg{width:20px;height:20px}
-.btn-google:disabled{opacity:.6;cursor:not-allowed}
-.vinc-google{margin-top:auto;margin-bottom:6px;background:none;border:1px solid rgba(201,219,178,.5);color:#c9dbb2;border-radius:9px;padding:7px 12px;font-size:12px;letter-spacing:1.5px;display:none;align-items:center;gap:8px}
-.vinc-google svg{width:16px;height:16px}
-.vinc-google:hover{color:#fff;border-color:#c9dbb2}
-.vinc-google.on{display:flex}
-.vinc-google.on + .sair-bottom{margin-top:6px}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--side);color:#fff;padding:10px 20px;border-radius:10px;font-size:14px;letter-spacing:2px;display:none;z-index:40}
 .toast.on{display:block}
 .toast.err{background:#9a2b2b}
@@ -207,7 +196,6 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
       <button data-v="adm" data-admin>Edições ADM</button>
       <button data-v="historico">Histórico</button>
     </nav>
-    <button class="vinc-google" id="vincGoogle" title="Depois de vincular, você pode entrar com o botão do Google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>VINCULAR GOOGLE</button>
     <button class="sair-bottom" data-sair>Sair <svg viewBox="0 0 24 24"><path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/></svg></button>
   </aside>
 
@@ -310,15 +298,17 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
       <label class="full">USUÁRIO OU E-MAIL<input id="lUser" required autocomplete="username" autocapitalize="none"></label>
       <label class="full" id="lSenhaWrap">SENHA<input id="lSenha" type="password" autocomplete="current-password"></label>
       <div class="lmsg" id="lMsg"></div>
-      <div class="acts" style="justify-content:space-between;align-items:center">
-        <button type="button" class="reset" id="lEsqueci">ESQUECI MINHA SENHA</button>
-        <button class="btn btn-dark" type="submit" id="lBtn">ENTRAR</button>
-      </div>
-      <div class="ou">OU</div>
-      <button type="button" class="btn-google" id="lGoogle"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>ENTRAR COM GOOGLE</button>
+      <div class="acts"><button class="btn btn-dark" type="submit" id="lBtn">ENTRAR</button></div>
+    </form>
+    <form id="fBoot" autocomplete="off" style="display:none">
+      <p class="txt full"><b>Primeiro acesso ao sistema.</b> Informe seu e-mail e o usuário que vai usar. O app gera uma senha provisória e, em seguida, você escolhe a sua. Esta conta será a administradora principal.</p>
+      <label class="full">E-MAIL<input id="bEmail" type="email" autocapitalize="none" placeholder="ex.: gustavo@detran.sp.gov.br" required></label>
+      <label class="full">USUÁRIO<input id="bUser" autocapitalize="none" placeholder="ex.: gustavo.vilar" required></label>
+      <div class="lmsg" id="bMsg"></div>
+      <div class="acts"><button class="btn btn-dark" type="submit" id="bBtn">GERAR SENHA PROVISÓRIA</button></div>
     </form>
     <form id="fTroca" autocomplete="off" style="display:none">
-      <p class="txt full">Primeiro acesso: confirme seu e-mail e escolha sua senha pessoal. O e-mail é usado para entrar e para recuperar a senha.</p>
+      <p class="txt full">Primeiro acesso: troque a senha provisória pela sua senha pessoal e confirme seu e-mail.</p>
       <label class="full">E-MAIL<input id="tEmail" type="email" autocomplete="email" autocapitalize="none" required></label>
       <label class="full">NOVA SENHA<input id="tNova" type="password" autocomplete="new-password"></label>
       <label class="full">CONFIRMAR SENHA<input id="tConf" type="password" autocomplete="new-password"></label>
@@ -356,9 +346,13 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
   "rules": {
     ".read": false,
     ".write": false,
+    "sistema": {
+      ".read": true,
+      ".write": "auth != null && !data.exists() && newData.child('adminPrincipal').val() === auth.uid"
+    },
     "acessos": {
-      ".read": "auth != null && (auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('admin').val() === true)",
-      ".write": "auth != null && (auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('admin').val() === true)",
+      ".read": "auth != null && (root.child('sistema').child('adminPrincipal').val() === auth.uid || root.child('acessos').child(auth.uid).child('admin').val() === true)",
+      ".write": "auth != null && ((root.child('sistema').child('adminPrincipal').val() === auth.uid || root.child('acessos').child(auth.uid).child('admin').val() === true) || !root.child('sistema').exists())",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid"
       }
@@ -366,13 +360,13 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
     "logins": {
       "$username": {
         ".read": true,
-        ".write": "auth != null && ((auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('admin').val() === true) || (root.child('usuarios').child(auth.uid).child('u').val() === $username && newData.val() === auth.token.email))",
+        ".write": "auth != null && ((root.child('sistema').child('adminPrincipal').val() === auth.uid || root.child('acessos').child(auth.uid).child('admin').val() === true) || !root.child('sistema').exists() || (root.child('usuarios').child(auth.uid).child('u').val() === $username && newData.val() === auth.token.email))",
         ".validate": "newData.isString() && newData.val().length <= 120"
       }
     },
     "usuarios": {
-      ".read": "auth != null && (auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('active').val() === true)",
-      ".write": "auth != null && (auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('admin').val() === true)",
+      ".read": "auth != null && (root.child('sistema').child('adminPrincipal').val() === auth.uid || root.child('acessos').child(auth.uid).child('active').val() === true)",
+      ".write": "auth != null && ((root.child('sistema').child('adminPrincipal').val() === auth.uid || root.child('acessos').child(auth.uid).child('admin').val() === true) || !root.child('sistema').exists())",
       "$uid": {
         "tempPassword": {
           ".write": "auth != null && auth.uid === $uid",
@@ -393,9 +387,9 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
       }
     },
     "sugestoes": {
-      ".read": "auth != null && (auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('active').val() === true)",
+      ".read": "auth != null && (root.child('sistema').child('adminPrincipal').val() === auth.uid || root.child('acessos').child(auth.uid).child('active').val() === true)",
       "$id": {
-        ".write": "auth != null && ((auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('admin').val() === true) || ((auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('active').val() === true) && !data.exists() && newData.child('autorUid').val() === auth.uid && newData.child('status').val() === 'pendente'))",
+        ".write": "auth != null && ((root.child('sistema').child('adminPrincipal').val() === auth.uid || root.child('acessos').child(auth.uid).child('admin').val() === true) || ((root.child('sistema').child('adminPrincipal').val() === auth.uid || root.child('acessos').child(auth.uid).child('active').val() === true) && !data.exists() && newData.child('autorUid').val() === auth.uid && newData.child('status').val() === 'pendente'))",
         ".validate": "newData.hasChildren(['modelo','texto','status','criadoEm'])",
         "modelo": {
           ".validate": "newData.isString() && newData.val().length <= 200"
@@ -426,10 +420,6 @@ var firebaseConfig = {
   projectId:   "base-de-respostas"
 };
 
-/* UID do administrador principal (Firebase → Authentication → Usuários → UID do usuário).
-   Esta conta é sempre administradora e não pode ser inativada. */
-var ADMIN_UID = "RjgvjkYXxEffR8XGNk8dXtygCr63";
-
 /* Domínios usados para transformar "usuario" em e-mail de login */
 var DOMINIOS = ["apoiodetran.sp.gov.br", "detran.sp.gov.br"];
 /* ===================================================================== */
@@ -446,7 +436,9 @@ if(configOk){
 
 /* ---------- Estado ---------- */
 var state = { users:{}, sug:{} };
-var me = null;               // cadastro do usuário logado (+ uid e perfil)
+var me = null;
+var ADMIN_UID = '';          // administrador principal: lido de sistema/adminPrincipal
+var criandoAdmin = null;     // dados do primeiro acesso do sistema               // cadastro do usuário logado (+ uid e perfil)
 var erroLogin = "";          // mensagem para mostrar na tela de login depois de sair
 var refs = [];               // listeners ativos
 
@@ -685,61 +677,6 @@ function mostrarSenha(texto, senha){
 }
 
 /* ---------- Login (Firebase Authentication) ---------- */
-/* ---------- Login com Google ---------- */
-var provGoogle = configOk ? new firebase.auth.GoogleAuthProvider() : null;
-if(provGoogle) provGoogle.setCustomParameters({ prompt:'select_account' });
-var credPendente = null;   // Google que precisa ser vinculado a um acesso com senha
-
-function temGoogle(u){ return !!(u && (u.providerData || []).some(function(p){ return p.providerId === 'google.com'; })); }
-function soGoogle(u){ var p = (u && u.providerData) || []; return p.length > 0 && p.every(function(x){ return x.providerId === 'google.com'; }); }
-
-function erroGoogle(err){
-  var c = (err && err.code) || '';
-  if(c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request'){ msgEm($('#lMsg'), ''); return; }
-  if(c === 'auth/account-exists-with-different-credential'){
-    credPendente = firebase.auth.GoogleAuthProvider.credentialFromError(err);
-    var email = (err.customData && err.customData.email) || err.email || '';
-    if(email) $('#lUser').value = email;
-    msgEm($('#lMsg'), 'Esse e-mail já tem acesso com senha. Entre com a senha uma vez: o Google fica vinculado e, das próximas vezes, basta o botão do Google.', true);
-    $('#lSenha').focus();
-    return;
-  }
-  if(c === 'auth/unauthorized-domain'){ msgEm($('#lMsg'), 'Este endereço não está autorizado no Firebase. Adicione o domínio em Authentication → Configurações → Domínios autorizados.'); return; }
-  if(c === 'auth/operation-not-allowed'){ msgEm($('#lMsg'), 'Ative o provedor Google em Authentication → Sign-in method.'); return; }
-  msgEm($('#lMsg'), msgAuth(err));
-}
-
-$('#lGoogle').onclick = async function(){
-  if(!configOk) return showLogin();
-  var btn = this; btn.disabled = true; msgEm($('#lMsg'), 'Abrindo o Google…', true);
-  try { await auth.signInWithPopup(provGoogle); }
-  catch(err){
-    var c = err && err.code;
-    if(c === 'auth/popup-blocked' || c === 'auth/operation-not-supported-in-this-environment'){
-      try { await auth.signInWithRedirect(provGoogle); return; } catch(e2){ erroGoogle(e2); }
-    } else erroGoogle(err);
-  }
-  btn.disabled = false;
-};
-
-$('#vincGoogle').onclick = async function(){
-  if(!auth || !auth.currentUser) return;
-  try {
-    await auth.currentUser.linkWithPopup(provGoogle);
-    toast('GOOGLE VINCULADO: AGORA VOCÊ PODE ENTRAR COM ELE');
-    atualizarVinculo();
-  } catch(err){
-    var c = err && err.code;
-    if(c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') return;
-    if(c === 'auth/credential-already-in-use') return toast('ESSA CONTA GOOGLE JÁ ESTÁ LIGADA A OUTRO ACESSO', true);
-    if(c === 'auth/provider-already-linked') { atualizarVinculo(); return toast('SEU GOOGLE JÁ ESTÁ VINCULADO'); }
-    toast(msgAuth(err), true);
-  }
-};
-function atualizarVinculo(){
-  $('#vincGoogle').classList.toggle('on', !!(auth && auth.currentUser && !temGoogle(auth.currentUser)));
-}
-
 /* Usuário → e-mail: procura em logins/{usuario}; se não achar, tenta os domínios padrão */
 async function emailsDoLogin(v){
   v = String(v||'').trim().toLowerCase().replace(/\s+/g,'');
@@ -752,16 +689,42 @@ async function emailsDoLogin(v){
   return emailsCandidatos(v);
 }
 function msgEm(el, t, info){ el.className = 'lmsg' + (info ? ' info' : ''); el.textContent = t || ''; }
-function showLogin(){
-  $('#login').classList.add('on'); $('#fLogin').style.display = ''; $('#fTroca').style.display = 'none';
+async function showLogin(){
+  $('#login').classList.add('on'); $('#fLogin').style.display = ''; $('#fTroca').style.display = 'none'; $('#fBoot').style.display = 'none';
+  if(configOk){
+    var sis = null;
+    try { sis = (await db.ref('sistema').once('value')).val(); } catch(e){ sis = { configurado:true }; }
+    if(!sis || !sis.configurado){ mostrarBoot(); return; }
+  }
   $('#lSenha').value = ''; $('#lBtn').disabled = false;
   if(!configOk) msgEm($('#lMsg'), 'Falta configurar o Firebase: cole a apiKey no início do <script> deste arquivo (procure "insira a apiKey do firebase aqui").');
   else msgEm($('#lMsg'), erroLogin);
   erroLogin = '';
   setTimeout(function(){ $('#lUser').focus(); }, 50);
 }
+function mostrarBoot(){
+  $('#login').classList.add('on'); $('#fLogin').style.display = 'none'; $('#fTroca').style.display = 'none'; $('#fBoot').style.display = '';
+  msgEm($('#bMsg'), erroLogin); erroLogin = ''; $('#bBtn').disabled = false;
+  setTimeout(function(){ $('#bEmail').focus(); }, 50);
+}
+$('#fBoot').onsubmit = async function(e){
+  e.preventDefault();
+  var email = $('#bEmail').value.trim().toLowerCase(), u = chaveLogin($('#bUser').value);
+  if(!EMAIL_OK.test(email)){ msgEm($('#bMsg'), 'Informe um e-mail válido.'); return; }
+  if(!u){ msgEm($('#bMsg'), 'Informe o usuário.'); return; }
+  var senha = gerarSenha();
+  $('#bBtn').disabled = true; msgEm($('#bMsg'), 'Criando acesso…', true);
+  criandoAdmin = { u:u, email:email, senha:senha };
+  try { await auth.createUserWithEmailAndPassword(email, senha); }   // o cadastro é gravado em onAuthStateChanged
+  catch(err){
+    criandoAdmin = null; $('#bBtn').disabled = false;
+    msgEm($('#bMsg'), err && err.code === 'auth/email-already-in-use'
+      ? 'Esse e-mail já existe no Firebase Authentication. Apague-o em Authentication → Usuários ou use outro e-mail.'
+      : msgAuth(err));
+  }
+};
 function pedirTroca(){
-  $('#login').classList.add('on'); $('#fLogin').style.display = 'none'; $('#fTroca').style.display = '';
+  $('#login').classList.add('on'); $('#fLogin').style.display = 'none'; $('#fBoot').style.display = 'none'; $('#fTroca').style.display = '';
   $('#tNova').value = $('#tConf').value = ''; $('#tEmail').value = (me && me.email) || ''; msgEm($('#tMsg'), ''); $('#tBtn').disabled = false;
   setTimeout(function(){ $('#tNova').focus(); }, 50);
 }
@@ -775,15 +738,7 @@ $('#fLogin').onsubmit = async function(e){
   $('#lBtn').disabled = true; msgEm($('#lMsg'), 'Entrando…', true);
   var ultimo = null;
   for(var i = 0; i < emails.length; i++){
-    try {
-      var res = await auth.signInWithEmailAndPassword(emails[i], senha.trim());
-      if(credPendente){
-        try { await res.user.linkWithCredential(credPendente); toast('GOOGLE VINCULADO: DA PRÓXIMA VEZ, USE O BOTÃO DO GOOGLE'); atualizarVinculo(); }
-        catch(e3){ toast('NÃO FOI POSSÍVEL VINCULAR O GOOGLE: ' + msgAuth(e3), true); }
-        credPendente = null;
-      }
-      return;
-    }
+    try { await auth.signInWithEmailAndPassword(emails[i], senha.trim()); return; }
     catch(err){
       ultimo = err;
       var c = err && err.code;
@@ -791,14 +746,6 @@ $('#fLogin').onsubmit = async function(e){
     }
   }
   $('#lBtn').disabled = false; msgEm($('#lMsg'), msgAuth(ultimo));
-};
-$('#lEsqueci').onclick = async function(){
-  if(!configOk) return;
-  var emails = await emailsDoLogin($('#lUser').value);
-  if(!emails.length){ msgEm($('#lMsg'), 'Escreva seu usuário no campo acima para receber o link.'); return; }
-  auth.sendPasswordResetEmail(emails[0])
-    .then(function(){ msgEm($('#lMsg'), 'Se essa conta existir, o link foi enviado para ' + emails[0] + '.', true); })
-    .catch(function(err){ msgEm($('#lMsg'), msgAuth(err)); });
 };
 $('#tSair').onclick = function(){ if(auth) auth.signOut(); };
 $('#fTroca').onsubmit = async function(e){
@@ -833,7 +780,6 @@ function desligar(){ refs.forEach(function(r){ r.off(); }); refs = []; state.use
 
 function abrirApp(){
   $('#login').classList.remove('on');
-  atualizarVinculo();
   $$('[data-admin]').forEach(function(b){ b.style.display = isAdmin() ? '' : 'none'; });
   db.ref('usuarios/' + me.uid + '/ultimoAcesso').set(Date.now()).catch(function(){});
   ouvir('acessos/' + me.uid, function(snap){
@@ -851,31 +797,28 @@ function abrirApp(){
 if(innerWidth <= 760) $('#side').classList.add('closed');
 if(!configOk){ $('#modo').classList.add('on'); showLogin(); return; }
 
-auth.getRedirectResult().catch(erroGoogle);
 auth.onAuthStateChanged(async function(user){
   desligar();
-  if(!user){ me = null; atual = 'inicio'; $('#vincGoogle').classList.remove('on'); $('#lGoogle').disabled = false; showLogin(); return; }
+  if(!user){ me = null; atual = 'inicio'; showLogin(); return; }
   msgEm($('#lMsg'), 'Carregando…', true);
   try {
+    var sis = (await db.ref('sistema').once('value')).val() || {};
+    ADMIN_UID = sis.adminPrincipal || '';
     var acesso = (await db.ref('acessos/' + user.uid).once('value')).val();
     if(!acesso){
-      /* Primeira entrada do administrador principal: cria o cadastro dele */
-      if(user.uid !== ADMIN_UID){
-        if(soGoogle(user)){
-          var em = user.email || '';
-          try { await user.delete(); } catch(e){}
-          return negar('O Google ' + em + ' não está cadastrado. Peça ao administrador para cadastrar esse e-mail em Edições ADM, ou entre com usuário e senha e use "Vincular Google".');
-        }
-        return negar('Sua conta foi autenticada, mas não tem cadastro neste app. Fale com o administrador.');
-      }
-      var username = chaveLogin(usuarioDoEmail(user.email)), mud = {};
+      if(!criandoAdmin || sis.configurado) return negar('Sua conta foi autenticada, mas não tem cadastro neste app. Fale com o administrador.');
+      /* Primeiro acesso do sistema: grava o administrador principal com senha provisória */
+      var dados = criandoAdmin, mud = {};
+      mud['sistema'] = { configurado:true, adminPrincipal:user.uid, criadoEm:Date.now() };
       mud['acessos/' + user.uid] = { active:true, admin:true };
-      mud['logins/' + username] = user.email || '';
-      mud['usuarios/' + user.uid] = { u:username, email:user.email || '', nome:username.toUpperCase(), perfil:'admin', ativo:true, tempPassword:false, criadoEm:Date.now() };
-      try { await db.ref().update(mud); acesso = { active:true, admin:true }; toast('BEM-VINDO, ADMINISTRADOR PRINCIPAL'); }
-      catch(err){ return negar(msgBanco(err)); }
+      mud['logins/' + dados.u] = user.email || dados.email;
+      mud['usuarios/' + user.uid] = { u:dados.u, email:user.email || dados.email, nome:dados.u.toUpperCase(), perfil:'admin', ativo:true, tempPassword:true, criadoEm:Date.now() };
+      try { await db.ref().update(mud); }
+      catch(err){ criandoAdmin = null; try { await user.delete(); } catch(e){} return negar(msgBanco(err)); }
+      ADMIN_UID = user.uid; acesso = { active:true, admin:true };
+      criandoAdmin = null;
+      await mostrarSenha('Acesso criado. Usuário: ' + dados.u + ' (' + dados.email + '). Esta é a sua senha provisória. Na próxima tela você escolhe a sua senha:', dados.senha);
     }
-    if(user.uid === ADMIN_UID){ acesso.active = true; acesso.admin = true; }
     if(acesso.active === false) return negar('Este acesso está inativo. Fale com o administrador.');
     var cad = (await db.ref('usuarios/' + user.uid).once('value')).val();
     if(!cad) return negar('Sua conta não tem cadastro neste app. Fale com o administrador.');
@@ -888,11 +831,6 @@ auth.onAuthStateChanged(async function(user){
       sinc['logins/' + cad.u] = emailAuth;
       sinc['usuarios/' + user.uid + '/emailPendente'] = null;
       try { await db.ref().update(sinc); me.email = emailAuth; me.emailPendente = null; } catch(e){}
-    }
-    if(me.tempPassword && temGoogle(user)){
-      /* Entrou pelo Google: não precisa definir senha */
-      db.ref('usuarios/' + user.uid + '/tempPassword').set(false).catch(function(){});
-      me.tempPassword = false;
     }
     if(me.tempPassword) pedirTroca(); else abrirApp();
   } catch(err){
