@@ -242,7 +242,8 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
           <div class="box-h">ADICIONAR</div>
           <form class="add" id="addUser" autocomplete="off">
             <div>
-              <label for="uUser">USUÁRIO</label><input id="uUser" placeholder="ex.: maria_silva">
+              <label for="uUser">USUÁRIO</label><input id="uUser" autocapitalize="none" placeholder="ex.: maria.silva">
+              <label for="uEmail">E-MAIL</label><input id="uEmail" type="email" autocapitalize="none" placeholder="ex.: maria.silva@detran.sp.gov.br">
               <label for="uNome">NOME</label><input id="uNome" placeholder="ex.: Maria Silva">
               <label for="uPerfil">PERFIL</label>
               <select id="uPerfil"><option value="colab">Colaborador</option><option value="admin">Administrador</option></select>
@@ -294,18 +295,24 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
   <div class="dlg">
     <img src="data:image/png;base64,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" alt="DETRAN-SP SAC">
     <form id="fLogin" autocomplete="off">
-      <label class="full">USUÁRIO<input id="lUser" required autocomplete="username"></label>
+      <label class="full">USUÁRIO OU E-MAIL<input id="lUser" required autocomplete="username" autocapitalize="none"></label>
       <label class="full" id="lSenhaWrap">SENHA<input id="lSenha" type="password" autocomplete="current-password"></label>
-      <label class="full" id="lNomeWrap" style="display:none">SEU NOME<input id="lNome"></label>
       <div class="lmsg" id="lMsg"></div>
-      <div class="acts"><button class="btn btn-dark" type="submit" id="lBtn">ENTRAR</button></div>
+      <div class="acts" style="justify-content:space-between;align-items:center">
+        <button type="button" class="reset" id="lEsqueci">ESQUECI MINHA SENHA</button>
+        <button class="btn btn-dark" type="submit" id="lBtn">ENTRAR</button>
+      </div>
     </form>
     <form id="fTroca" autocomplete="off" style="display:none">
-      <p class="txt full">Primeiro acesso: escolha sua senha pessoal. Ela substitui a senha provisória.</p>
+      <p class="txt full">Primeiro acesso: confirme seu e-mail e escolha sua senha pessoal. O e-mail é usado para entrar e para recuperar a senha.</p>
+      <label class="full">E-MAIL<input id="tEmail" type="email" autocomplete="email" autocapitalize="none" required></label>
       <label class="full">NOVA SENHA<input id="tNova" type="password" autocomplete="new-password"></label>
       <label class="full">CONFIRMAR SENHA<input id="tConf" type="password" autocomplete="new-password"></label>
       <div class="lmsg" id="tMsg"></div>
-      <div class="acts"><button class="btn btn-dark" type="submit">SALVAR SENHA</button></div>
+      <div class="acts" style="justify-content:space-between;align-items:center">
+        <button type="button" class="reset" id="tSair">SAIR SEM SALVAR</button>
+        <button class="btn btn-dark" type="submit" id="tBtn">SALVAR SENHA</button>
+      </div>
     </form>
   </div>
 </div>
@@ -316,240 +323,302 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
     <form id="fSenha" style="grid-template-columns:1fr">
       <p class="txt" id="sTxt"></p>
       <div class="senha-box" id="sVal"></div>
-      <p class="txt" style="font-size:12px;color:#6b6b6b">Ela não será exibida de novo. No primeiro acesso, a pessoa escolhe a própria senha.</p>
+      <p class="txt" style="font-size:12px;color:#6b6b6b">Ela não será exibida de novo. No primeiro acesso, a pessoa entra com o usuário e esta senha e escolhe a própria senha.</p>
       <div class="acts" style="grid-column:1"><button type="button" class="btn btn-ok" id="sCopiar">COPIAR</button><button class="btn btn-dark" type="submit">OK</button></div>
     </form>
   </div>
 </div>
 <div class="toast" id="toast"></div>
-<div class="modo" id="modo">Modo local: Firebase não configurado</div>
+<div class="modo" id="modo">Firebase não configurado: cole a apiKey no código</div>
+
+<!-- Firebase (mesmo SDK do projeto Reclame Aqui) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+<!-- Regras do Realtime Database: copie o conteúdo abaixo em Realtime Database → Regras -->
+<script type="application/json" id="firebase-regras">
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "acessos": {
+      ".read": "auth != null && root.child('acessos').child(auth.uid).child('admin').val() === true",
+      ".write": "auth != null && (root.child('acessos').child(auth.uid).child('admin').val() === true || !root.child('acessos').exists())",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      }
+    },
+    "logins": {
+      "$username": {
+        ".read": true,
+        ".write": "auth != null && (root.child('acessos').child(auth.uid).child('admin').val() === true || !root.child('acessos').exists() || (root.child('usuarios').child(auth.uid).child('u').val() === $username && newData.val() === auth.token.email))",
+        ".validate": "newData.isString() && newData.val().length <= 120"
+      }
+    },
+    "usuarios": {
+      ".read": "auth != null && root.child('acessos').child(auth.uid).child('active').val() === true",
+      ".write": "auth != null && (root.child('acessos').child(auth.uid).child('admin').val() === true || !root.child('acessos').exists())",
+      "$uid": {
+        "tempPassword": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.val() === false"
+        },
+        "ultimoAcesso": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.isNumber()"
+        },
+        "email": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val() === auth.token.email"
+        },
+        "emailPendente": {
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.isString() && newData.val().length <= 120"
+        }
+      }
+    },
+    "sugestoes": {
+      ".read": "auth != null && root.child('acessos').child(auth.uid).child('active').val() === true",
+      "$id": {
+        ".write": "auth != null && (root.child('acessos').child(auth.uid).child('admin').val() === true || (root.child('acessos').child(auth.uid).child('active').val() === true && !data.exists() && newData.child('autorUid').val() === auth.uid && newData.child('status').val() === 'pendente'))",
+        ".validate": "newData.hasChildren(['modelo','texto','status','criadoEm'])",
+        "modelo": { ".validate": "newData.isString() && newData.val().length <= 200" },
+        "texto": { ".validate": "newData.isString() && newData.val().length <= 8000" },
+        "status": { ".validate": "newData.isString() && newData.val().matches(/^(pendente|aceito|recusado)$/)" }
+      }
+    }
+  }
+}
+</script>
 
 <script>
 /* =====================================================================
-   🔥 FIREBASE — CONFIGURAÇÃO
-   insira o link firebase aqui  ↓↓↓
-   Cole entre as aspas a URL do seu Realtime Database. Exemplo:
-   "https://seu-projeto-default-rtdb.firebaseio.com"
-   (Firebase Console > Realtime Database > link que aparece no topo)
+   🔥 FIREBASE — CONFIGURAÇÃO (mesmo modelo do projeto Reclame Aqui)
+   insira os dados do firebase aqui ↓↓↓
+   Firebase Console → ⚙ Configurações do projeto → Seus apps → firebaseConfig
+   Cole a apiKey entre as aspas. Os outros campos já estão preenchidos.
    ===================================================================== */
-const FIREBASE_URL = "https://base-de-respostas-default-rtdb.firebaseio.com/"; // insira o link firebase aqui
+var firebaseConfig = {
+  apiKey:      "COLE_AQUI_A_API_KEY",   // insira a apiKey do firebase aqui
+  authDomain:  "base-de-respostas.firebaseapp.com",
+  databaseURL: "https://base-de-respostas-default-rtdb.firebaseio.com",
+  projectId:   "base-de-respostas"
+};
 
-/* Nó (pasta) dentro do banco onde o app guarda tudo:
-   respostasSAC/usuarios  e  respostasSAC/sugestoes                    */
-const FIREBASE_RAIZ = "respostasSAC";
-
-/* De quanto em quanto tempo o app busca novidades no Firebase (ms) */
-const INTERVALO_ATUALIZACAO = 15000;
+/* Domínios usados para transformar "usuario" em e-mail de login */
+var DOMINIOS = ["apoiodetran.sp.gov.br", "detran.sp.gov.br"];
 /* ===================================================================== */
 
 (function(){
-const FB_ON = /^https:\/\//i.test(FIREBASE_URL.trim());
-const FB_BASE = FIREBASE_URL.trim().replace(/\/+$/,'') + '/' + FIREBASE_RAIZ;
-const LOCAL_KEY = 'respostasSAC_local';
+"use strict";
+var configOk = !!firebaseConfig.apiKey && firebaseConfig.apiKey.indexOf("COLE_AQUI") === -1;
+var auth = null, db = null;
+if(configOk){
+  firebase.initializeApp(firebaseConfig);
+  auth = firebase.auth();
+  db = firebase.database();
+}
 
-/* ---------- Camada de dados ---------- */
-let db = {usuarios:{}, sugestoes:{}};
-
-async function fb(caminho, metodo='GET', corpo){
-  const url = FB_BASE + (caminho ? '/' + caminho : '') + '.json';
-  const r = await fetch(url, {method:metodo, headers:{'Content-Type':'application/json'},
-                              body: corpo===undefined ? undefined : JSON.stringify(corpo)});
-  if(!r.ok) throw new Error('Firebase respondeu ' + r.status);
-  return r.json();
-}
-/* Usuários cadastrados direto pelo Firebase podem vir só com alguns campos.
-   Aqui completamos o que faltar (a chave do nó vira o usuário). */
-function normalizar(us){
-  const out = {};
-  Object.entries(us).forEach(([k, v]) => {
-    if(!v || typeof v !== 'object') return;
-    out[k] = {...v, u:k, nome:String(v.nome || k).toUpperCase(),
-      perfil: String(v.perfil || 'colab').toLowerCase().startsWith('adm') ? 'admin' : 'colab',
-      ativo: v.ativo === undefined ? true : (v.ativo === true || v.ativo === 'true'),
-      trocarSenha: v.senhaProvisoria !== undefined && v.senhaProvisoria !== '' ? true : !!v.trocarSenha};
-  });
-  return out;
-}
-async function carregar(){
-  if(FB_ON){
-    const d = await fb('');
-    db = {usuarios:normalizar((d&&d.usuarios)||{}), sugestoes:(d&&d.sugestoes)||{}};
-  } else {
-    try{ const d = JSON.parse(localStorage.getItem(LOCAL_KEY)); if(d) db = {usuarios:normalizar(d.usuarios||{}), sugestoes:d.sugestoes||{}}; }catch(e){}
-  }
-}
-async function gravar(colecao, id, obj){
-  db[colecao][id] = obj;
-  if(FB_ON){
-    try{ await fb(colecao + '/' + id, 'PUT', obj); }
-    catch(e){ toast('NÃO FOI POSSÍVEL SALVAR NO FIREBASE', true); throw e; }
-  } else {
-    try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(db)); }catch(e){}
-  }
-}
+/* ---------- Estado ---------- */
+var state = { users:{}, sug:{} };
+var me = null;               // cadastro do usuário logado (+ uid e perfil)
+var erroLogin = "";          // mensagem para mostrar na tela de login depois de sair
+var refs = [];               // listeners ativos
 
 /* ---------- Utilidades ---------- */
-const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const p2 = n => String(n).padStart(2,'0');
-const fmt = ts => { if(!ts) return ''; const d = new Date(ts); return `${p2(d.getDate())}/${p2(d.getMonth()+1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}`; };
-const fmt2 = ts => { const [d,h] = fmt(ts).split(' '); return d ? `${d}<br>às ${h}` : ''; };
-const novoId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
-const titulo = n => String(n||'').toLowerCase().replace(/(^|\s)\S/g, m => m.toUpperCase());
-const primeiroNome = n => titulo(String(n||'').split(' ')[0]);
-
-/* ---------- Senhas ---------- */
-const ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-function gerarSenha(tam = 8){
-  const v = new Uint32Array(tam); crypto.getRandomValues(v);
-  return [...v].map(n => ALFABETO[n % ALFABETO.length]).join('');
+var $ = function(s){ return document.querySelector(s); }, $$ = function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); };
+var p2 = function(n){ return String(n).padStart(2,'0'); };
+function fmt(ts){ if(!ts) return ''; var d = new Date(ts); return p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear()+' '+p2(d.getHours())+':'+p2(d.getMinutes()); }
+function fmt2(ts){ var p = fmt(ts).split(' '); return p[0] ? p[0]+'<br>às '+p[1] : ''; }
+function titulo(n){ return String(n||'').toLowerCase().replace(/(^|\s)\S/g, function(m){ return m.toUpperCase(); }); }
+function primeiroNome(n){ return titulo(String(n||'').split(' ')[0]); }
+function toast(t, erro){ var e = $('#toast'); e.textContent = t; e.classList.toggle('err', !!erro); e.classList.add('on'); clearTimeout(e._t); e._t = setTimeout(function(){ e.classList.remove('on'); }, 3000); }
+function tag(s){ return '<div class="tag '+esc(s.area)+'"><b>'+esc(s.area)+'</b><span>'+esc(s.cod || '-')+'</span></div>'; }
+function lista(){ return Object.keys(state.sug).map(function(k){ var s = state.sug[k]; s.id = k; return s; }); }
+function isAdmin(){ return !!(me && me.perfil === 'admin'); }
+var EMAIL_OK = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function chaveLogin(u){ return String(u||'').trim().toLowerCase().replace(/\s+/g,'').replace(/[.#$\[\]\/]/g, '_'); }
+function usuarioDoEmail(e){ return String(e||'').split('@')[0].toLowerCase(); }
+function emailsCandidatos(v){
+  v = String(v||'').trim().toLowerCase().replace(/\s+/g,'');
+  if(!v) return [];
+  if(v.indexOf('@') !== -1) return [v];
+  return DOMINIOS.map(function(d){ return v + '@' + d; });
 }
-function gerarSalt(){ const v = new Uint8Array(16); crypto.getRandomValues(v); return [...v].map(b => b.toString(16).padStart(2,'0')).join(''); }
-async function hashSenha(senha, salt){
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + senha));
-  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2,'0')).join('');
+function gerarSenha(){
+  var A = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789', v = new Uint32Array(10);
+  crypto.getRandomValues(v);
+  return Array.prototype.map.call(v, function(n){ return A[n % A.length]; }).join('');
 }
-async function credencial(senha){ const salt = gerarSalt(); return {salt, hash: await hashSenha(senha, salt)}; }
-function mostrarSenha(texto, senha){
-  return new Promise(res => {
-    $('#sTxt').textContent = texto; $('#sVal').textContent = senha;
-    $('#mSenha').classList.add('on');
-    $('#sCopiar').onclick = () => {
-      const ok = () => toast('SENHA COPIADA');
-      const alt = () => { const t = document.createElement('textarea'); t.value = senha; document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); ok(); }catch(e){} t.remove(); };
-      if(navigator.clipboard) navigator.clipboard.writeText(senha).then(ok).catch(alt); else alt();
-    };
-    $('#fSenha').onsubmit = e => { e.preventDefault(); $('#mSenha').classList.remove('on'); res(); };
-  });
+function msgAuth(err){
+  var c = (err && err.code) || '';
+  switch(c){
+    case 'auth/invalid-credential': case 'auth/wrong-password': case 'auth/user-not-found': case 'auth/invalid-email':
+      return 'Usuário ou senha não conferem.';
+    case 'auth/user-disabled': return 'Esta conta está desativada no Firebase Authentication.';
+    case 'auth/too-many-requests': return 'Muitas tentativas seguidas. Espere alguns minutos e tente de novo.';
+    case 'auth/network-request-failed': return 'Sem conexão com o Firebase. Verifique a rede.';
+    case 'auth/email-already-in-use': return 'Já existe uma conta no Authentication com esse e-mail.';
+    case 'auth/weak-password': return 'A senha precisa de pelo menos 6 caracteres.';
+    case 'auth/requires-recent-login': return 'Por segurança, saia e entre de novo antes de trocar a senha.';
+    case 'auth/operation-not-allowed': return 'Ative o método E-mail/senha em Authentication → Sign-in method.';
+    case 'auth/invalid-api-key': case 'auth/api-key-not-valid.-please-pass-a-valid-api-key.': case 'auth/configuration-not-found':
+      return 'Configuração do Firebase incompleta (confira a apiKey).';
+    default: return 'Não foi possível concluir. ' + (c || (err && err.message) || 'Erro desconhecido.');
+  }
 }
-function toast(t, erro){ const e = $('#toast'); e.textContent = t; e.classList.toggle('err', !!erro); e.classList.add('on'); clearTimeout(e._t); e._t = setTimeout(() => e.classList.remove('on'), 2600); }
-const tag = s => `<div class="tag ${s.area}"><b>${s.area}</b><span>${esc(s.cod || '-')}</span></div>`;
-const lista = () => Object.values(db.sugestoes);
-const usuarios = () => Object.values(db.usuarios).sort((a,b) => a.u.localeCompare(b.u));
-
-let me = null;
-const isAdmin = () => !!(me && me.perfil === 'admin');
-let atual = 'inicio';
+function msgBanco(err){
+  var m = String((err && err.message) || err || '');
+  return m.toUpperCase().indexOf('PERMISSION_DENIED') !== -1
+    ? 'Sem permissão no banco. Confira as regras do Realtime Database.'
+    : 'Não foi possível salvar no servidor.';
+}
 
 /* ---------- Navegação ---------- */
+var atual = 'inicio';
 function go(v){
   if(v === 'adm' && !isAdmin()){ toast('ACESSO RESTRITO AO ADMINISTRADOR', true); return; }
   atual = v;
-  $$('.view').forEach(x => x.classList.toggle('on', x.id === 'v-' + v));
-  $$('#nav button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  $$('.view').forEach(function(x){ x.classList.toggle('on', x.id === 'v-' + v); });
+  $$('#nav button[data-v]').forEach(function(b){ b.classList.toggle('on', b.dataset.v === v); });
   $('#app').classList.toggle('is-home', v === 'inicio');
   render();
   if(innerWidth <= 760) $('#side').classList.add('closed');
 }
 function render(){
-  $('#badge').textContent = lista().filter(s => s.status === 'pendente').length;
+  $('#badge').textContent = lista().filter(function(s){ return s.status === 'pendente'; }).length;
   if(atual === 'sugestoes') renderSug();
   if(atual === 'alteracoes') renderAlt();
   if(atual === 'historico') renderHist();
   if(atual === 'adm') renderUsers();
 }
-$$('#nav button[data-v]').forEach(b => b.onclick = () => go(b.dataset.v));
-$('#burger').onclick = () => $('#side').classList.toggle('closed');
-$$('[data-sair]').forEach(b => b.onclick = () => { me = null; try{ sessionStorage.removeItem(LOCAL_KEY + '_me'); }catch(e){} go('inicio'); showLogin(); });
+$$('#nav button[data-v]').forEach(function(b){ b.onclick = function(){ go(b.dataset.v); }; });
+$('#burger').onclick = function(){ $('#side').classList.toggle('closed'); };
+$$('[data-sair]').forEach(function(b){ b.onclick = function(){ if(auth) auth.signOut(); }; });
 
 /* ---------- Sugestões ---------- */
-let aba = 'pendente';
-$$('#tabs button').forEach(b => b.onclick = () => { aba = b.dataset.t; $$('#tabs button').forEach(x => x.classList.toggle('on', x === b)); renderSug(); });
+var aba = 'pendente';
+$$('#tabs button').forEach(function(b){ b.onclick = function(){ aba = b.dataset.t; $$('#tabs button').forEach(function(x){ x.classList.toggle('on', x === b); }); renderSug(); }; });
 function renderSug(){
-  // não redesenha enquanto alguém está editando um texto
   if(document.activeElement && document.activeElement.matches('#sugList textarea')) return;
-  const l = lista().filter(s => aba === 'todos' || s.status === aba).sort((a,b) => b.criadoEm - a.criadoEm);
+  var l = lista().filter(function(s){ return aba === 'todos' || s.status === aba; }).sort(function(a,b){ return (b.criadoEm||0) - (a.criadoEm||0); });
   if(!l.length){
-    $('#sugList').innerHTML = `<div class="empty">${aba === 'pendente' ? 'Nenhuma sugestão pendente.<br>Use o botão NOVA na tela inicial para enviar a primeira.' : 'Nada por aqui ainda.'}</div>`;
+    $('#sugList').innerHTML = '<div class="empty">' + (aba === 'pendente' ? 'Nenhuma sugestão pendente.<br>Use o botão NOVA na tela inicial para enviar a primeira.' : 'Nada por aqui ainda.') + '</div>';
     return;
   }
-  $('#sugList').innerHTML = l.map(s => {
-    const pode = s.status === 'pendente' && isAdmin();
-    return `<div class="sug">
-     ${tag(s)}
-     <div>
-       <div class="card-tit">${esc(s.modelo)}</div>
-       <div class="card">
-         <div class="card-head"><span class="k">${esc(s.tipo)}</span><span class="c">${esc(s.categoria)}</span></div>
-         <textarea data-id="${s.id}" ${pode ? '' : 'readonly'}>${esc(s.texto)}</textarea>
-         ${pode ? `<div class="card-act"><button class="btn btn-no" data-rec="${s.id}">RECUSAR</button><button class="btn btn-ok" data-ace="${s.id}">ACEITAR</button></div>` : ''}
-       </div>
-     </div>
-     <div class="meta"><p>SUGESTÃO DE:</p><p class="v">${esc(primeiroNome(s.autor))}</p><p>EM:</p><p class="v">${fmt(s.criadoEm)}</p>
-       ${s.status !== 'pendente' ? `<p class="st ${s.status === 'aceito' ? 's-ace' : 's-rec'}">${s.status === 'aceito' ? 'ACEITO' : 'RECUSADO'}</p>` : ''}</div>
-    </div>`;
+  $('#sugList').innerHTML = l.map(function(s){
+    var pode = s.status === 'pendente' && isAdmin();
+    return '<div class="sug">' + tag(s) +
+     '<div><div class="card-tit">' + esc(s.modelo) + '</div>' +
+       '<div class="card"><div class="card-head"><span class="k">' + esc(s.tipo) + '</span><span class="c">' + esc(s.categoria) + '</span></div>' +
+         '<textarea data-id="' + esc(s.id) + '"' + (pode ? '' : ' readonly') + '>' + esc(s.texto) + '</textarea>' +
+         (pode ? '<div class="card-act"><button class="btn btn-no" data-rec="' + esc(s.id) + '">RECUSAR</button><button class="btn btn-ok" data-ace="' + esc(s.id) + '">ACEITAR</button></div>' : '') +
+       '</div></div>' +
+     '<div class="meta"><p>SUGESTÃO DE:</p><p class="v">' + esc(primeiroNome(s.autor)) + '</p><p>EM:</p><p class="v">' + fmt(s.criadoEm) + '</p>' +
+       (s.status !== 'pendente' ? '<p class="st ' + (s.status === 'aceito' ? 's-ace' : 's-rec') + '">' + (s.status === 'aceito' ? 'ACEITO' : 'RECUSADO') + '</p>' : '') + '</div>' +
+    '</div>';
   }).join('');
-  $$('[data-ace]').forEach(b => b.onclick = () => decidir(b.dataset.ace, 'aceito'));
-  $$('[data-rec]').forEach(b => b.onclick = () => decidir(b.dataset.rec, 'recusado'));
+  $$('[data-ace]').forEach(function(b){ b.onclick = function(){ decidir(b.dataset.ace, 'aceito'); }; });
+  $$('[data-rec]').forEach(function(b){ b.onclick = function(){ decidir(b.dataset.rec, 'recusado'); }; });
 }
-async function decidir(id, st){
-  const s = db.sugestoes[id]; if(!s) return;
-  const ta = document.querySelector(`textarea[data-id="${id}"]`);
-  const novo = {...s, texto: ta ? ta.value : s.texto, status: st, atualizadoEm: Date.now(),
-                responsavel: me ? titulo(me.nome) : '', descricao: st === 'aceito' ? 'Resposta Resolutiva' : 'Editar para enviar'};
-  try{ await gravar('sugestoes', id, novo); document.activeElement.blur(); render(); toast(st === 'aceito' ? 'SUGESTÃO ACEITA' : 'SUGESTÃO RECUSADA'); }catch(e){}
+function decidir(id, st){
+  if(!isAdmin()) return;
+  var s = state.sug[id]; if(!s) return;
+  var ta = document.querySelector('textarea[data-id="' + id + '"]');
+  var mud = { texto: ta ? ta.value : s.texto, status: st, atualizadoEm: Date.now(),
+              responsavel: titulo(me.nome), descricao: st === 'aceito' ? 'Resposta Resolutiva' : 'Editar para enviar' };
+  if(document.activeElement) document.activeElement.blur();
+  db.ref('sugestoes/' + id).update(mud)
+    .then(function(){ toast(st === 'aceito' ? 'SUGESTÃO ACEITA' : 'SUGESTÃO RECUSADA'); })
+    .catch(function(e){ toast(msgBanco(e), true); });
 }
 
 /* ---------- Alterações / Histórico ---------- */
-const bate = (s, q) => !q || [s.modelo, s.descricao, s.responsavel, s.autor, fmt(s.atualizadoEm), s.area, s.cod].join(' ').toLowerCase().includes(q.toLowerCase());
-const finalizadas = q => lista().filter(s => s.status !== 'pendente' && bate(s, q)).sort((a,b) => b.atualizadoEm - a.atualizadoEm);
-const vazio = q => `<div class="empty">${q ? 'Nada encontrado para essa busca.' : 'As sugestões aceitas ou recusadas aparecem aqui.'}</div>`;
+function bate(s, q){ return !q || [s.modelo, s.descricao, s.responsavel, s.autor, fmt(s.atualizadoEm), s.area, s.cod].join(' ').toLowerCase().indexOf(q.toLowerCase()) !== -1; }
+function finalizadas(q){ return lista().filter(function(s){ return s.status !== 'pendente' && bate(s, q); }).sort(function(a,b){ return (b.atualizadoEm||0) - (a.atualizadoEm||0); }); }
+function vazio(q){ return '<div class="empty">' + (q ? 'Nada encontrado para essa busca.' : 'As sugestões aceitas ou recusadas aparecem aqui.') + '</div>'; }
 function renderAlt(){
-  const q = $('#qAlt').value.trim(), l = finalizadas(q);
-  $('#altList').innerHTML = l.length ? l.map(s => `<div class="trow">${tag(s)}
-    <div class="cell n">${esc(s.modelo)}</div>
-    <div class="cell">${s.descricao === 'Editar para enviar' ? `<button class="linkish" data-edit="${s.id}"><span class="dot"></span>Editar para enviar</button>` : esc(s.descricao)}</div>
-    <div class="cell">${fmt2(s.atualizadoEm)}</div><div class="cell">${esc(s.responsavel)}</div></div>`).join('') : vazio(q);
-  $$('[data-edit]').forEach(b => b.onclick = () => abrirForm(db.sugestoes[b.dataset.edit]));
+  var q = $('#qAlt').value.trim(), l = finalizadas(q);
+  $('#altList').innerHTML = l.length ? l.map(function(s){ return '<div class="trow">' + tag(s) +
+    '<div class="cell n">' + esc(s.modelo) + '</div>' +
+    '<div class="cell">' + (s.descricao === 'Editar para enviar' ? '<button class="linkish" data-edit="' + esc(s.id) + '"><span class="dot"></span>Editar para enviar</button>' : esc(s.descricao)) + '</div>' +
+    '<div class="cell">' + fmt2(s.atualizadoEm) + '</div><div class="cell">' + esc(s.responsavel) + '</div></div>'; }).join('') : vazio(q);
+  $$('[data-edit]').forEach(function(b){ b.onclick = function(){ abrirForm(state.sug[b.dataset.edit]); }; });
 }
 function renderHist(){
-  const q = $('#qHist').value.trim(), l = finalizadas(q);
-  $('#histList').innerHTML = l.length ? l.map(s => `<div class="trow">${tag(s)}
-    <div class="cell n">${esc(s.modelo)}</div><div class="cell">${esc(String(primeiroNome(s.autor)).toUpperCase())}</div>
-    <div class="cell">${fmt2(s.atualizadoEm)}</div><div class="cell ${s.status === 'aceito' ? 's-ace' : 's-rec'}">${s.status === 'aceito' ? 'ACEITO' : 'RECUSADO'}</div></div>`).join('') : vazio(q);
+  var q = $('#qHist').value.trim(), l = finalizadas(q);
+  $('#histList').innerHTML = l.length ? l.map(function(s){ return '<div class="trow">' + tag(s) +
+    '<div class="cell n">' + esc(s.modelo) + '</div><div class="cell">' + esc(primeiroNome(s.autor).toUpperCase()) + '</div>' +
+    '<div class="cell">' + fmt2(s.atualizadoEm) + '</div><div class="cell ' + (s.status === 'aceito' ? 's-ace' : 's-rec') + '">' + (s.status === 'aceito' ? 'ACEITO' : 'RECUSADO') + '</div></div>'; }).join('') : vazio(q);
 }
 $('#qAlt').oninput = renderAlt; $('#qHist').oninput = renderHist;
 
 /* ---------- Edições ADM ---------- */
 function renderUsers(){
-  const l = usuarios();
-  $('#userList').innerHTML = l.length ? l.map(u => `<div class="urow"><span>${esc(u.u)}</span>
-    <span>${esc(u.nome)}${u.perfil === 'admin' ? '<small>ADMINISTRADOR</small>' : ''}</span>
-    <span class="stcell"><button class="pill ${u.ativo ? 'a' : 'i'}" data-tg="${esc(u.u)}" title="Clique para alternar">${u.ativo ? 'ATIVO' : 'INATIVO'}</button>
-    <button class="reset" data-rs="${esc(u.u)}">GERAR NOVA SENHA</button>${u.trocarSenha ? '<small>AGUARDANDO 1º ACESSO</small>' : ''}</span></div>`).join('')
-    : '<div class="urow" style="margin-top:-12px;padding-top:36px"><span style="grid-column:1/4;color:var(--muted)">Nenhum usuário cadastrado.</span></div>';
-  $$('[data-tg]').forEach(b => b.onclick = async () => {
-    const u = db.usuarios[b.dataset.tg];
-    if(me && u.u === me.u){ toast('VOCÊ NÃO PODE INATIVAR O PRÓPRIO USUÁRIO', true); return; }
-    try{ await gravar('usuarios', u.u, {...u, ativo: !u.ativo}); renderUsers(); }catch(e){}
-  });
-  $$('[data-rs]').forEach(b => b.onclick = async () => {
-    const u = db.usuarios[b.dataset.rs];
-    if(!confirm(`Gerar uma nova senha provisória para ${u.nome}? A senha atual deixa de funcionar.`)) return;
-    const senha = gerarSenha();
-    try{
-      const nu = {...u, ...(await credencial(senha)), trocarSenha:true}; delete nu.senhaProvisoria;
-      await gravar('usuarios', u.u, nu);
-      renderUsers(); await mostrarSenha(`Nova senha provisória de ${u.nome} (usuário: ${u.u}):`, senha);
-    }catch(e){}
-  });
+  var l = Object.keys(state.users).map(function(k){ var u = state.users[k]; u.uid = k; return u; })
+    .sort(function(a,b){ return String(a.u).localeCompare(String(b.u)); });
+  $('#userList').innerHTML = l.length ? l.map(function(u){
+    var eu = me && u.uid === me.uid;
+    return '<div class="urow"><span>' + esc(u.u) + '<small>' + esc(u.email || 'SEM E-MAIL') + '</small>' + (u.emailPendente ? '<small>AGUARDANDO CONFIRMAR ' + esc(u.emailPendente) + '</small>' : '') + '</span>' +
+      '<span>' + esc(u.nome) + (u.perfil === 'admin' ? '<small>ADMINISTRADOR</small>' : '') + '</span>' +
+      '<span class="stcell"><button class="pill ' + (u.ativo !== false ? 'a' : 'i') + '" data-tg="' + esc(u.uid) + '"' + (eu ? ' disabled title="Seu próprio acesso"' : ' title="Clique para alternar"') + '>' + (u.ativo !== false ? 'ATIVO' : 'INATIVO') + '</button>' +
+      '<button class="reset" data-rs="' + esc(u.uid) + '">ENVIAR LINK DE NOVA SENHA</button>' +
+      (u.tempPassword ? '<small>AGUARDANDO 1º ACESSO</small>' : '') + '</span></div>';
+  }).join('') : '<div class="urow" style="margin-top:-12px;padding-top:36px"><span style="grid-column:1/4;color:var(--muted)">Nenhum usuário cadastrado.</span></div>';
+
+  $$('[data-tg]').forEach(function(b){ b.onclick = function(){
+    var u = state.users[b.dataset.tg]; if(!u || (me && u.uid === me.uid)) return;
+    var vira = u.ativo === false;
+    var mud = {}; mud['usuarios/' + u.uid + '/ativo'] = vira; mud['acessos/' + u.uid + '/active'] = vira;
+    db.ref().update(mud).then(function(){ toast(vira ? 'ACESSO ATIVADO' : 'ACESSO INATIVADO'); }).catch(function(e){ toast(msgBanco(e), true); });
+  }; });
+  $$('[data-rs]').forEach(function(b){ b.onclick = function(){
+    var u = state.users[b.dataset.rs]; if(!u || !u.email) return;
+    if(!confirm('Enviar um link de redefinição de senha para ' + u.email + '?')) return;
+    auth.sendPasswordResetEmail(u.email).then(function(){ toast('LINK ENVIADO PARA ' + u.email.toUpperCase()); }).catch(function(e){ toast(msgAuth(e), true); });
+  }; });
 }
-$('#addUser').onsubmit = async e => {
+
+/* Cria a conta no Authentication usando um app secundário (o admin continua logado) */
+function appSecundario(){
+  try { return firebase.app('criacao'); } catch(e){ return firebase.initializeApp(firebaseConfig, 'criacao'); }
+}
+$('#addUser').onsubmit = async function(e){
   e.preventDefault();
-  const u = $('#uUser').value.trim().toLowerCase(), n = $('#uNome').value.trim().toUpperCase();
-  if(!u || !n){ $('#addMsg').textContent = 'Preencha usuário e nome.'; return; }
-  if(!/^[a-z0-9._-]+$/.test(u) || /\./.test(u) && FB_ON){ $('#addMsg').textContent = 'Use só letras, números, hífen ou sublinhado no usuário (sem espaço, ponto ou acento).'; return; }
-  if(Object.keys(db.usuarios).some(k => k.toLowerCase() === u)){ $('#addMsg').textContent = 'Esse usuário já está cadastrado.'; return; }
-  const senha = gerarSenha();
-  try{
-    await gravar('usuarios', u, {u, nome:n, perfil:$('#uPerfil').value, ativo:true, criadoEm:Date.now(), ...(await credencial(senha)), trocarSenha:true});
-    $('#addMsg').textContent = ''; $('#uUser').value = $('#uNome').value = ''; $('#uPerfil').value = 'colab';
-    renderUsers(); await mostrarSenha(`Usuário ${u} criado. Envie esta senha provisória para ${titulo(n)}:`, senha);
-  }catch(e){}
+  if(!isAdmin()) return;
+  var msg = $('#addMsg'), btn = $('#addUser .ok');
+  var username = chaveLogin($('#uUser').value), nome = $('#uNome').value.trim().toUpperCase(), email = $('#uEmail').value.trim().toLowerCase();
+  if(!username || !nome || !email){ msg.textContent = 'Preencha usuário, nome e e-mail.'; return; }
+  if(!EMAIL_OK.test(email)){ msg.textContent = 'Informe um e-mail válido.'; return; }
+  var existe = Object.keys(state.users).some(function(k){ var u = state.users[k]; return u.u === username || (u.email||'').toLowerCase() === email; });
+  if(!existe){ try { existe = (await db.ref('logins/' + username).once('value')).exists(); } catch(e){} }
+  if(existe){ msg.textContent = 'Já existe um acesso com esse usuário ou e-mail.'; return; }
+
+  var senha = gerarSenha(), perfil = $('#uPerfil').value, sec = appSecundario().auth(), cred;
+  btn.disabled = true; msg.textContent = '';
+  try { cred = await sec.createUserWithEmailAndPassword(email, senha); }
+  catch(err){ msg.textContent = msgAuth(err); btn.disabled = false; return; }
+
+  var uid = cred.user.uid, mud = {};
+  mud['usuarios/' + uid] = { u:username, email:email, nome:nome, perfil:perfil, ativo:true, tempPassword:true, criadoEm:Date.now() };
+  mud['acessos/' + uid] = { active:true, admin: perfil === 'admin' };
+  mud['logins/' + username] = email;
+  try { await db.ref().update(mud); }
+  catch(err){
+    try { await cred.user.delete(); } catch(e2){}
+    try { await sec.signOut(); } catch(e3){}
+    msg.textContent = msgBanco(err); btn.disabled = false; return;
+  }
+  try { await sec.signOut(); } catch(e4){}
+  btn.disabled = false;
+  $('#uUser').value = $('#uNome').value = $('#uEmail').value = ''; $('#uPerfil').value = 'colab';
+  await mostrarSenha('Acesso criado. Usuário: ' + username + ' (' + email + '). Envie esta senha provisória para ' + titulo(nome) + ':', senha);
 };
 
 /* ---------- Nova resposta ---------- */
-const TEXTO_PADRAO = 'Prezado(a),\n\n\n\nAtenciosamente,\nServiço de Atendimento ao Cidadão.';
+var TEXTO_PADRAO = 'Prezado(a),\n\n\n\nAtenciosamente,\nServiço de Atendimento ao Cidadão.';
 function abrirForm(base){
   $('#fNova').reset();
   if(base){
@@ -557,106 +626,175 @@ function abrirForm(base){
     $('#fArea').value = base.area; $('#fCod').value = base.cod === '-' ? '' : base.cod; $('#fModelo').value = base.modelo;
     $('#fTipo').value = 'ALTERAÇÃO'; $('#fCat').value = base.categoria; $('#fTexto').value = base.texto;
   } else { $('#mTit').textContent = 'NOVA RESPOSTA'; $('#fTexto').value = TEXTO_PADRAO; }
-  $('#mNova').classList.add('on'); setTimeout(() => $('#fModelo').focus(), 50);
+  $('#mNova').classList.add('on'); setTimeout(function(){ $('#fModelo').focus(); }, 50);
 }
-const fechar = () => $('#mNova').classList.remove('on');
-$('#btnNova').onclick = () => abrirForm();
+function fechar(){ $('#mNova').classList.remove('on'); }
+$('#btnNova').onclick = function(){ abrirForm(); };
 $('#fCancel').onclick = fechar;
-$('#mNova').onclick = e => { if(e.target.id === 'mNova') fechar(); };
-document.addEventListener('keydown', e => { if(e.key === 'Escape') fechar(); });
-$('#fNova').onsubmit = async e => {
+$('#mNova').onclick = function(e){ if(e.target.id === 'mNova') fechar(); };
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') fechar(); });
+$('#fNova').onsubmit = function(e){
   e.preventDefault();
-  const id = novoId(), btn = $('#fEnviar'); btn.disabled = true;
-  try{
-    await gravar('sugestoes', id, {id, area:$('#fArea').value, cod:$('#fCod').value.trim() || '-', modelo:$('#fModelo').value.trim(),
-      tipo:$('#fTipo').value, categoria:$('#fCat').value.trim(), texto:$('#fTexto').value,
-      autor: me ? me.nome : '', autorUsuario: me ? me.u : '', criadoEm: Date.now(), status:'pendente'});
-    fechar(); render(); toast('SUGESTÃO ENVIADA');
-  }catch(e){} finally{ btn.disabled = false; }
+  if(!me) return;
+  var btn = $('#fEnviar'); btn.disabled = true;
+  db.ref('sugestoes').push({
+    area:$('#fArea').value, cod:$('#fCod').value.trim() || '-', modelo:$('#fModelo').value.trim(),
+    tipo:$('#fTipo').value, categoria:$('#fCat').value.trim(), texto:$('#fTexto').value,
+    autor:me.nome, autorUid:me.uid, criadoEm:Date.now(), status:'pendente'
+  }).then(function(){ fechar(); toast('SUGESTÃO ENVIADA'); })
+    .catch(function(err){ toast(msgBanco(err), true); })
+    .then(function(){ btn.disabled = false; });
 };
 
-/* ---------- Login ---------- */
-const primeiroAcesso = () => !Object.keys(db.usuarios).length;
-const msg = (el, t, info) => { el.className = 'lmsg' + (info ? ' info' : ''); el.textContent = t; };
+/* ---------- Senha provisória (janela) ---------- */
+function mostrarSenha(texto, senha){
+  return new Promise(function(res){
+    $('#sTxt').textContent = texto; $('#sVal').textContent = senha;
+    $('#mSenha').classList.add('on');
+    $('#sCopiar').onclick = function(){
+      var ok = function(){ toast('SENHA COPIADA'); };
+      var alt = function(){ var t = document.createElement('textarea'); t.value = senha; document.body.appendChild(t); t.select(); try{ document.execCommand('copy'); ok(); }catch(e){} t.remove(); };
+      if(navigator.clipboard) navigator.clipboard.writeText(senha).then(ok, alt); else alt();
+    };
+    $('#fSenha').onsubmit = function(e){ e.preventDefault(); $('#mSenha').classList.remove('on'); res(); };
+  });
+}
+
+/* ---------- Login (Firebase Authentication) ---------- */
+/* Usuário → e-mail: procura em logins/{usuario}; se não achar, tenta os domínios padrão */
+async function emailsDoLogin(v){
+  v = String(v||'').trim().toLowerCase().replace(/\s+/g,'');
+  if(!v) return [];
+  if(v.indexOf('@') !== -1) return [v];
+  try {
+    var em = (await db.ref('logins/' + chaveLogin(v)).once('value')).val();
+    if(em) return [String(em).toLowerCase()];
+  } catch(e){}
+  return emailsCandidatos(v);
+}
+function msgEm(el, t, info){ el.className = 'lmsg' + (info ? ' info' : ''); el.textContent = t || ''; }
 function showLogin(){
   $('#login').classList.add('on'); $('#fLogin').style.display = ''; $('#fTroca').style.display = 'none';
-  $('#lUser').value = ''; $('#lNome').value = ''; $('#lSenha').value = '';
-  const pa = primeiroAcesso();
-  $('#lNomeWrap').style.display = pa ? '' : 'none';
-  $('#lSenhaWrap').style.display = pa ? 'none' : '';
-  msg($('#lMsg'), pa ? 'Primeiro acesso ao sistema: o usuário criado agora será o administrador.' : '', pa);
-  $('#lBtn').textContent = pa ? 'CRIAR ADMINISTRADOR' : 'ENTRAR';
-  setTimeout(() => $('#lUser').focus(), 50);
+  $('#lSenha').value = ''; $('#lBtn').disabled = false;
+  if(!configOk) msgEm($('#lMsg'), 'Falta configurar o Firebase: cole a apiKey no início do <script> deste arquivo (procure "insira a apiKey do firebase aqui").');
+  else msgEm($('#lMsg'), erroLogin);
+  erroLogin = '';
+  setTimeout(function(){ $('#lUser').focus(); }, 50);
 }
-let pendenteTroca = null;
-function pedirTroca(u){
-  pendenteTroca = u;
+function pedirTroca(){
   $('#login').classList.add('on'); $('#fLogin').style.display = 'none'; $('#fTroca').style.display = '';
-  $('#tNova').value = $('#tConf').value = ''; msg($('#tMsg'), '');
-  setTimeout(() => $('#tNova').focus(), 50);
+  $('#tNova').value = $('#tConf').value = ''; $('#tEmail').value = (me && me.email) || ''; msgEm($('#tMsg'), ''); $('#tBtn').disabled = false;
+  setTimeout(function(){ $('#tNova').focus(); }, 50);
 }
-function entrar(u){
-  me = u; try{ sessionStorage.setItem(LOCAL_KEY + '_me', u.u); }catch(e){}
-  $('#login').classList.remove('on');
-  $$('[data-admin]').forEach(b => b.style.display = isAdmin() ? '' : 'none');
-  go('inicio');
-}
-$('#fLogin').onsubmit = async e => {
+function negar(msg){ erroLogin = msg; if(auth) auth.signOut(); }
+
+$('#fLogin').onsubmit = async function(e){
   e.preventDefault();
-  const user = $('#lUser').value.trim().toLowerCase().replace(/\s+/g,'');
-  try{ await carregar(); }catch(err){ msg($('#lMsg'), 'Não foi possível conectar ao Firebase. Confira o link e as regras do banco.'); return; }
-  if(primeiroAcesso()){
-    const nome = $('#lNome').value.trim().toUpperCase();
-    if(!/^[a-z0-9_-]+$/.test(user) || !nome){ msg($('#lMsg'), 'Informe um usuário (letras, números, hífen) e seu nome.'); return; }
-    const senha = gerarSenha();
-    const u = {u:user, nome, perfil:'admin', ativo:true, criadoEm:Date.now(), ...(await credencial(senha)), trocarSenha:true};
-    try{ await gravar('usuarios', user, u); }catch(err){ return; }
-    await mostrarSenha(`Administrador ${user} criado. Esta é a sua senha provisória:`, senha);
-    pedirTroca(u); return;
+  if(!configOk) return showLogin();
+  var emails = await emailsDoLogin($('#lUser').value), senha = $('#lSenha').value;
+  if(!emails.length || !senha){ msgEm($('#lMsg'), 'Preencha usuário e senha.'); return; }
+  $('#lBtn').disabled = true; msgEm($('#lMsg'), 'Entrando…', true);
+  var ultimo = null;
+  for(var i = 0; i < emails.length; i++){
+    try { await auth.signInWithEmailAndPassword(emails[i], senha.trim()); return; }
+    catch(err){
+      ultimo = err;
+      var c = err && err.code;
+      if(!(c === 'auth/invalid-credential' || c === 'auth/user-not-found' || c === 'auth/wrong-password' || c === 'auth/invalid-email')) break;
+    }
   }
-  const chave = Object.keys(db.usuarios).find(k => k.toLowerCase() === user);
-  const u = chave && db.usuarios[chave], senha = $('#lSenha').value.trim();
-  if(!u){ msg($('#lMsg'), `O usuário "${user}" não existe. Confira como ele foi cadastrado em Edições ADM.`); return; }
-  let confere;
-  if(u.senhaProvisoria !== undefined && u.senhaProvisoria !== '') confere = senha === String(u.senhaProvisoria).trim();   // cadastrado pelo Firebase
-  else if(u.hash && u.salt) confere = (await hashSenha(senha, u.salt)) === u.hash;                                        // cadastrado pelo app
-  else { msg($('#lMsg'), 'Este usuário está sem senha. Coloque o campo senhaProvisoria no Firebase ou peça ao administrador para clicar em "Gerar nova senha".'); return; }
-  if(!confere){ msg($('#lMsg'), 'Senha incorreta. Se for o primeiro acesso, use a senha provisória exatamente como foi gerada (maiúsculas e minúsculas contam).'); return; }
-  if(!u.ativo){ msg($('#lMsg'), 'Usuário inativo. Fale com o administrador.'); return; }
-  if(u.trocarSenha){ pedirTroca(u); return; }
-  entrar(u);
+  $('#lBtn').disabled = false; msgEm($('#lMsg'), msgAuth(ultimo));
 };
-$('#fTroca').onsubmit = async e => {
+$('#lEsqueci').onclick = async function(){
+  if(!configOk) return;
+  var emails = await emailsDoLogin($('#lUser').value);
+  if(!emails.length){ msgEm($('#lMsg'), 'Escreva seu usuário no campo acima para receber o link.'); return; }
+  auth.sendPasswordResetEmail(emails[0])
+    .then(function(){ msgEm($('#lMsg'), 'Se essa conta existir, o link foi enviado para ' + emails[0] + '.', true); })
+    .catch(function(err){ msgEm($('#lMsg'), msgAuth(err)); });
+};
+$('#tSair').onclick = function(){ if(auth) auth.signOut(); };
+$('#fTroca').onsubmit = async function(e){
   e.preventDefault();
-  const n = $('#tNova').value.trim(), c = $('#tConf').value.trim();
-  if(n.length < 6){ msg($('#tMsg'), 'A senha precisa ter pelo menos 6 caracteres.'); return; }
-  if(n !== c){ msg($('#tMsg'), 'As duas senhas não são iguais.'); return; }
-  const u = pendenteTroca; if(!u) return showLogin();
-  const igualProv = u.senhaProvisoria ? n === String(u.senhaProvisoria).trim() : (u.salt && (await hashSenha(n, u.salt)) === u.hash);
-  if(igualProv){ msg($('#tMsg'), 'Escolha uma senha diferente da provisória.'); return; }
-  const novo = {...u, ...(await credencial(n)), trocarSenha:false};
-  delete novo.senhaProvisoria;   // a senha em texto some do Firebase depois da troca
-  try{ await gravar('usuarios', u.u, novo); }catch(err){ return; }
-  pendenteTroca = null; toast('SENHA ALTERADA'); entrar(novo);
+  var n = $('#tNova').value, c = $('#tConf').value, email = $('#tEmail').value.trim().toLowerCase();
+  if(!EMAIL_OK.test(email)){ msgEm($('#tMsg'), 'Informe um e-mail válido.'); return; }
+  if(n.length < 6){ msgEm($('#tMsg'), 'A senha precisa ter pelo menos 6 caracteres.'); return; }
+  if(n !== c){ msgEm($('#tMsg'), 'As duas senhas não são iguais.'); return; }
+  $('#tBtn').disabled = true;
+  try { await auth.currentUser.updatePassword(n); }
+  catch(err){ $('#tBtn').disabled = false; msgEm($('#tMsg'), msgAuth(err)); return; }
+  try { await db.ref('usuarios/' + me.uid + '/tempPassword').set(false); } catch(err){}
+  me.tempPassword = false;
+  if(email !== String(auth.currentUser.email || '').toLowerCase()){
+    /* O Firebase só troca o e-mail de login depois que a pessoa confirma pelo link enviado ao novo endereço */
+    try {
+      await auth.currentUser.verifyBeforeUpdateEmail(email);
+      db.ref('usuarios/' + me.uid + '/emailPendente').set(email).catch(function(){});
+      toast('SENHA DEFINIDA. CONFIRME O NOVO E-MAIL PELO LINK ENVIADO');
+    } catch(err){ toast('SENHA DEFINIDA, MAS O E-MAIL NÃO FOI ALTERADO: ' + msgAuth(err), true); }
+  } else toast('SENHA DEFINIDA');
+  abrirApp();
 };
 
-/* ---------- Início ---------- */
+/* ---------- Ligação com o banco (tempo real, igual ao Reclame Aqui) ---------- */
+function ouvir(caminho, fn){
+  var r = db.ref(caminho);
+  r.on('value', fn, function(err){ toast(msgBanco(err), true); });
+  refs.push(r);
+}
+function desligar(){ refs.forEach(function(r){ r.off(); }); refs = []; state.users = {}; state.sug = {}; }
+
+function abrirApp(){
+  $('#login').classList.remove('on');
+  $$('[data-admin]').forEach(function(b){ b.style.display = isAdmin() ? '' : 'none'; });
+  db.ref('usuarios/' + me.uid + '/ultimoAcesso').set(Date.now()).catch(function(){});
+  ouvir('acessos/' + me.uid, function(snap){
+    var a = snap.val();
+    if(!a || a.active === false){ negar('Seu acesso foi inativado. Fale com o administrador.'); return; }
+    var perfil = a.admin ? 'admin' : 'colab';
+    if(perfil !== me.perfil){ me.perfil = perfil; $$('[data-admin]').forEach(function(b){ b.style.display = isAdmin() ? '' : 'none'; }); if(!isAdmin() && atual === 'adm') go('inicio'); else render(); }
+  });
+  ouvir('sugestoes', function(snap){ state.sug = snap.val() || {}; render(); });
+  if(isAdmin()) ouvir('usuarios', function(snap){ state.users = snap.val() || {}; if(atual === 'adm') renderUsers(); });
+  go('inicio');
+}
+
 if(innerWidth <= 760) $('#side').classList.add('closed');
-if(!FB_ON) $('#modo').classList.add('on');
-(async () => {
-  try{ await carregar(); }catch(e){ toast('NÃO FOI POSSÍVEL CONECTAR AO FIREBASE', true); }
-  let salvo = null; try{ salvo = sessionStorage.getItem(LOCAL_KEY + '_me'); }catch(e){}
-  const u = salvo && db.usuarios[salvo];
-  if(u && u.ativo && !u.trocarSenha) entrar(u); else showLogin();
-  if(FB_ON) setInterval(async () => {
-    try{
-      await carregar();
-      if(me){ const u = db.usuarios[me.u];
-        if(!u || !u.ativo || u.trocarSenha){ me = null; try{ sessionStorage.removeItem(LOCAL_KEY + '_me'); }catch(e){} showLogin(); toast('SUA SESSÃO FOI ENCERRADA', true); return; }
-        me = u; render(); }
-    }catch(e){}
-  }, INTERVALO_ATUALIZACAO);
-})();
+if(!configOk){ $('#modo').classList.add('on'); showLogin(); return; }
+
+auth.onAuthStateChanged(async function(user){
+  desligar();
+  if(!user){ me = null; atual = 'inicio'; showLogin(); return; }
+  msgEm($('#lMsg'), 'Carregando…', true);
+  try {
+    var acesso = (await db.ref('acessos/' + user.uid).once('value')).val();
+    if(!acesso){
+      /* Banco vazio: a primeira conta que entrar vira administradora (igual ao Reclame Aqui) */
+      var username = chaveLogin(usuarioDoEmail(user.email)), mud = {};
+      mud['acessos/' + user.uid] = { active:true, admin:true };
+      mud['logins/' + chaveLogin(username)] = (user.email||'').toLowerCase();
+      mud['usuarios/' + user.uid] = { u:username, email:(user.email||'').toLowerCase(), nome:username.toUpperCase(), perfil:'admin', ativo:true, tempPassword:false, criadoEm:Date.now() };
+      try { await db.ref().update(mud); acesso = { active:true, admin:true }; toast('PRIMEIRO ACESSO: VOCÊ É O ADMINISTRADOR'); }
+      catch(err){ return negar('Sua conta foi autenticada, mas não tem cadastro neste app. Fale com o administrador.'); }
+    }
+    if(acesso.active === false) return negar('Este acesso está inativo. Fale com o administrador.');
+    var cad = (await db.ref('usuarios/' + user.uid).once('value')).val();
+    if(!cad) return negar('Sua conta não tem cadastro neste app. Fale com o administrador.');
+    me = Object.assign({}, cad, { uid:user.uid, perfil: acesso.admin ? 'admin' : 'colab' });
+    /* Se a pessoa confirmou um e-mail novo, atualiza o cadastro e o atalho de login */
+    var emailAuth = user.email || '';
+    if(emailAuth && emailAuth.toLowerCase() !== String(cad.email || '').toLowerCase()){
+      var sinc = {};
+      sinc['usuarios/' + user.uid + '/email'] = emailAuth;
+      sinc['logins/' + cad.u] = emailAuth;
+      sinc['usuarios/' + user.uid + '/emailPendente'] = null;
+      try { await db.ref().update(sinc); me.email = emailAuth; me.emailPendente = null; } catch(e){}
+    }
+    if(me.tempPassword) pedirTroca(); else abrirApp();
+  } catch(err){
+    negar(msgBanco(err));
+  }
+});
 })();
 </script>
 </body>
