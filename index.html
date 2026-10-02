@@ -303,19 +303,6 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
         <button class="btn btn-dark" type="submit" id="lBtn">ENTRAR</button>
       </div>
     </form>
-    <form id="fBoot" autocomplete="off" style="display:none">
-      <p class="txt full"><b>Primeiro acesso ao sistema.</b> Ainda não existe nenhum usuário. Crie o administrador: ele vai cadastrar os demais em Edições ADM.</p>
-      <label class="full">USUÁRIO<input id="bUser" autocapitalize="none" placeholder="ex.: gustavo.vilar" required></label>
-      <label class="full">NOME<input id="bNome" placeholder="ex.: Gustavo Vilar" required></label>
-      <label class="full">E-MAIL<input id="bEmail" type="email" autocapitalize="none" placeholder="ex.: gustavo@detran.sp.gov.br" required></label>
-      <label class="full">SENHA<input id="bSenha" type="password" autocomplete="new-password" placeholder="mínimo de 6 caracteres" required></label>
-      <label class="full">CONFIRMAR SENHA<input id="bConf" type="password" autocomplete="new-password" required></label>
-      <div class="lmsg" id="bMsg"></div>
-      <div class="acts" style="justify-content:space-between;align-items:center">
-        <button type="button" class="reset" id="bJaTenho">JÁ TENHO CONTA</button>
-        <button class="btn btn-dark" type="submit" id="bBtn">CRIAR ADMINISTRADOR</button>
-      </div>
-    </form>
     <form id="fTroca" autocomplete="off" style="display:none">
       <p class="txt full">Primeiro acesso: confirme seu e-mail e escolha sua senha pessoal. O e-mail é usado para entrar e para recuperar a senha.</p>
       <label class="full">E-MAIL<input id="tEmail" type="email" autocomplete="email" autocapitalize="none" required></label>
@@ -356,26 +343,22 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
     ".read": false,
     ".write": false,
     "acessos": {
-      ".read": "auth != null && root.child('acessos').child(auth.uid).child('admin').val() === true",
-      ".write": "auth != null && (root.child('acessos').child(auth.uid).child('admin').val() === true || !root.child('acessos').exists())",
+      ".read": "auth != null && (auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('admin').val() === true)",
+      ".write": "auth != null && (auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('admin').val() === true)",
       "$uid": {
         ".read": "auth != null && auth.uid === $uid"
       }
     },
-    "sistema": {
-      ".read": true,
-      ".write": "auth != null && (root.child('acessos').child(auth.uid).child('admin').val() === true || !root.child('acessos').exists())"
-    },
     "logins": {
       "$username": {
         ".read": true,
-        ".write": "auth != null && (root.child('acessos').child(auth.uid).child('admin').val() === true || !root.child('acessos').exists() || (root.child('usuarios').child(auth.uid).child('u').val() === $username && newData.val() === auth.token.email))",
+        ".write": "auth != null && ((auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('admin').val() === true) || (root.child('usuarios').child(auth.uid).child('u').val() === $username && newData.val() === auth.token.email))",
         ".validate": "newData.isString() && newData.val().length <= 120"
       }
     },
     "usuarios": {
-      ".read": "auth != null && root.child('acessos').child(auth.uid).child('active').val() === true",
-      ".write": "auth != null && (root.child('acessos').child(auth.uid).child('admin').val() === true || !root.child('acessos').exists())",
+      ".read": "auth != null && (auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('active').val() === true)",
+      ".write": "auth != null && (auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('admin').val() === true)",
       "$uid": {
         "tempPassword": {
           ".write": "auth != null && auth.uid === $uid",
@@ -396,13 +379,19 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
       }
     },
     "sugestoes": {
-      ".read": "auth != null && root.child('acessos').child(auth.uid).child('active').val() === true",
+      ".read": "auth != null && (auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('active').val() === true)",
       "$id": {
-        ".write": "auth != null && (root.child('acessos').child(auth.uid).child('admin').val() === true || (root.child('acessos').child(auth.uid).child('active').val() === true && !data.exists() && newData.child('autorUid').val() === auth.uid && newData.child('status').val() === 'pendente'))",
+        ".write": "auth != null && ((auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('admin').val() === true) || ((auth.uid === 'RjgvjkYXxEffR8XGNk8dXtygCr63' || root.child('acessos').child(auth.uid).child('active').val() === true) && !data.exists() && newData.child('autorUid').val() === auth.uid && newData.child('status').val() === 'pendente'))",
         ".validate": "newData.hasChildren(['modelo','texto','status','criadoEm'])",
-        "modelo": { ".validate": "newData.isString() && newData.val().length <= 200" },
-        "texto": { ".validate": "newData.isString() && newData.val().length <= 8000" },
-        "status": { ".validate": "newData.isString() && newData.val().matches(/^(pendente|aceito|recusado)$/)" }
+        "modelo": {
+          ".validate": "newData.isString() && newData.val().length <= 200"
+        },
+        "texto": {
+          ".validate": "newData.isString() && newData.val().length <= 8000"
+        },
+        "status": {
+          ".validate": "newData.isString() && newData.val().matches(/^(pendente|aceito|recusado)$/)"
+        }
       }
     }
   }
@@ -422,6 +411,10 @@ var firebaseConfig = {
   databaseURL: "https://base-de-respostas-default-rtdb.firebaseio.com",
   projectId:   "base-de-respostas"
 };
+
+/* UID do administrador principal (Firebase → Authentication → Usuários → UID do usuário).
+   Esta conta é sempre administradora e não pode ser inativada. */
+var ADMIN_UID = "RjgvjkYXxEffR8XGNk8dXtygCr63";
 
 /* Domínios usados para transformar "usuario" em e-mail de login */
 var DOMINIOS = ["apoiodetran.sp.gov.br", "detran.sp.gov.br"];
@@ -454,7 +447,7 @@ function primeiroNome(n){ return titulo(String(n||'').split(' ')[0]); }
 function toast(t, erro){ var e = $('#toast'); e.textContent = t; e.classList.toggle('err', !!erro); e.classList.add('on'); clearTimeout(e._t); e._t = setTimeout(function(){ e.classList.remove('on'); }, 3000); }
 function tag(s){ return '<div class="tag '+esc(s.area)+'"><b>'+esc(s.area)+'</b><span>'+esc(s.cod || '-')+'</span></div>'; }
 function lista(){ return Object.keys(state.sug).map(function(k){ var s = state.sug[k]; s.id = k; return s; }); }
-function isAdmin(){ return !!(me && me.perfil === 'admin'); }
+function isAdmin(){ return !!(me && (me.uid === ADMIN_UID || me.perfil === 'admin')); }
 var EMAIL_OK = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function chaveLogin(u){ return String(u||'').trim().toLowerCase().replace(/\s+/g,'').replace(/[.#$\[\]\/]/g, '_'); }
 function usuarioDoEmail(e){ return String(e||'').split('@')[0].toLowerCase(); }
@@ -577,16 +570,16 @@ function renderUsers(){
   var l = Object.keys(state.users).map(function(k){ var u = state.users[k]; u.uid = k; return u; })
     .sort(function(a,b){ return String(a.u).localeCompare(String(b.u)); });
   $('#userList').innerHTML = l.length ? l.map(function(u){
-    var eu = me && u.uid === me.uid;
+    var eu = me && u.uid === me.uid, principal = u.uid === ADMIN_UID;
     return '<div class="urow"><span>' + esc(u.u) + '<small>' + esc(u.email || 'SEM E-MAIL') + '</small>' + (u.emailPendente ? '<small>AGUARDANDO CONFIRMAR ' + esc(u.emailPendente) + '</small>' : '') + '</span>' +
-      '<span>' + esc(u.nome) + (u.perfil === 'admin' ? '<small>ADMINISTRADOR</small>' : '') + '</span>' +
-      '<span class="stcell"><button class="pill ' + (u.ativo !== false ? 'a' : 'i') + '" data-tg="' + esc(u.uid) + '"' + (eu ? ' disabled title="Seu próprio acesso"' : ' title="Clique para alternar"') + '>' + (u.ativo !== false ? 'ATIVO' : 'INATIVO') + '</button>' +
+      '<span>' + esc(u.nome) + (principal ? '<small>ADMINISTRADOR PRINCIPAL</small>' : u.perfil === 'admin' ? '<small>ADMINISTRADOR</small>' : '') + '</span>' +
+      '<span class="stcell"><button class="pill ' + (u.ativo !== false ? 'a' : 'i') + '" data-tg="' + esc(u.uid) + '"' + (eu || principal ? ' disabled title="' + (principal ? 'Administrador principal' : 'Seu próprio acesso') + '"' : ' title="Clique para alternar"') + '>' + (u.ativo !== false ? 'ATIVO' : 'INATIVO') + '</button>' +
       '<button class="reset" data-rs="' + esc(u.uid) + '">ENVIAR LINK DE NOVA SENHA</button>' +
       (u.tempPassword ? '<small>AGUARDANDO 1º ACESSO</small>' : '') + '</span></div>';
   }).join('') : '<div class="urow" style="margin-top:-12px;padding-top:36px"><span style="grid-column:1/4;color:var(--muted)">Nenhum usuário cadastrado.</span></div>';
 
   $$('[data-tg]').forEach(function(b){ b.onclick = function(){
-    var u = state.users[b.dataset.tg]; if(!u || (me && u.uid === me.uid)) return;
+    var u = state.users[b.dataset.tg]; if(!u || (me && u.uid === me.uid) || u.uid === ADMIN_UID) return;
     var vira = u.ativo === false;
     var mud = {}; mud['usuarios/' + u.uid + '/ativo'] = vira; mud['acessos/' + u.uid + '/active'] = vira;
     db.ref().update(mud).then(function(){ toast(vira ? 'ACESSO ATIVADO' : 'ACESSO INATIVADO'); }).catch(function(e){ toast(msgBanco(e), true); });
@@ -690,47 +683,16 @@ async function emailsDoLogin(v){
   return emailsCandidatos(v);
 }
 function msgEm(el, t, info){ el.className = 'lmsg' + (info ? ' info' : ''); el.textContent = t || ''; }
-var criandoAdmin = null;   // dados do formulário de primeiro acesso do sistema
-var forcarLogin = false;  // "Já tenho conta"
-async function showLogin(){
-  $('#login').classList.add('on'); $('#fLogin').style.display = ''; $('#fTroca').style.display = 'none'; $('#fBoot').style.display = 'none';
-  if(configOk && !forcarLogin){
-    var configurado = true;
-    try { configurado = (await db.ref('sistema/configurado').once('value')).val() === true; } catch(e){}
-    if(!configurado){ mostrarBoot(); return; }
-  }
+function showLogin(){
+  $('#login').classList.add('on'); $('#fLogin').style.display = ''; $('#fTroca').style.display = 'none';
   $('#lSenha').value = ''; $('#lBtn').disabled = false;
   if(!configOk) msgEm($('#lMsg'), 'Falta configurar o Firebase: cole a apiKey no início do <script> deste arquivo (procure "insira a apiKey do firebase aqui").');
   else msgEm($('#lMsg'), erroLogin);
   erroLogin = '';
   setTimeout(function(){ $('#lUser').focus(); }, 50);
 }
-function mostrarBoot(){
-  $('#login').classList.add('on'); $('#fLogin').style.display = 'none'; $('#fTroca').style.display = 'none'; $('#fBoot').style.display = '';
-  msgEm($('#bMsg'), erroLogin); erroLogin = ''; $('#bBtn').disabled = false;
-  setTimeout(function(){ $('#bUser').focus(); }, 50);
-}
-$('#bJaTenho').onclick = function(){ forcarLogin = true; showLogin(); };
-$('#fBoot').onsubmit = async function(e){
-  e.preventDefault();
-  var u = chaveLogin($('#bUser').value), nome = $('#bNome').value.trim().toUpperCase(), email = $('#bEmail').value.trim().toLowerCase();
-  var s = $('#bSenha').value, c = $('#bConf').value;
-  if(!u || !nome){ msgEm($('#bMsg'), 'Preencha usuário e nome.'); return; }
-  if(!EMAIL_OK.test(email)){ msgEm($('#bMsg'), 'Informe um e-mail válido.'); return; }
-  if(s.length < 6){ msgEm($('#bMsg'), 'A senha precisa ter pelo menos 6 caracteres.'); return; }
-  if(s !== c){ msgEm($('#bMsg'), 'As duas senhas não são iguais.'); return; }
-  $('#bBtn').disabled = true; msgEm($('#bMsg'), 'Criando administrador…', true);
-  criandoAdmin = { u:u, nome:nome, email:email };
-  try { await auth.createUserWithEmailAndPassword(email, s); }   // o resto acontece em onAuthStateChanged
-  catch(err){
-    criandoAdmin = null; $('#bBtn').disabled = false;
-    msgEm($('#bMsg'), err && err.code === 'auth/email-already-in-use'
-      ? 'Esse e-mail já tem conta no Firebase. Clique em "Já tenho conta" e entre com ele.'
-      : msgAuth(err));
-  }
-};
 function pedirTroca(){
-  $('#login').classList.add('on'); $('#fLogin').style.display = 'none'; $('#fBoot').style.display = 'none'; $('#fTroca').style.display = '';
+  $('#login').classList.add('on'); $('#fLogin').style.display = 'none'; $('#fTroca').style.display = '';
   $('#tNova').value = $('#tConf').value = ''; $('#tEmail').value = (me && me.email) || ''; msgEm($('#tMsg'), ''); $('#tBtn').disabled = false;
   setTimeout(function(){ $('#tNova').focus(); }, 50);
 }
@@ -798,6 +760,7 @@ function abrirApp(){
   db.ref('usuarios/' + me.uid + '/ultimoAcesso').set(Date.now()).catch(function(){});
   ouvir('acessos/' + me.uid, function(snap){
     var a = snap.val();
+    if(me.uid === ADMIN_UID) a = { active:true, admin:true };
     if(!a || a.active === false){ negar('Seu acesso foi inativado. Fale com o administrador.'); return; }
     var perfil = a.admin ? 'admin' : 'colab';
     if(perfil !== me.perfil){ me.perfil = perfil; $$('[data-admin]').forEach(function(b){ b.style.display = isAdmin() ? '' : 'none'; }); if(!isAdmin() && atual === 'adm') go('inicio'); else render(); }
@@ -817,17 +780,16 @@ auth.onAuthStateChanged(async function(user){
   try {
     var acesso = (await db.ref('acessos/' + user.uid).once('value')).val();
     if(!acesso){
-      /* Banco vazio: a primeira conta que entrar vira administradora (igual ao Reclame Aqui) */
-      var dados = criandoAdmin || {}, mud = {};
-      var username = dados.u || chaveLogin(usuarioDoEmail(user.email));
+      /* Primeira entrada do administrador principal: cria o cadastro dele */
+      if(user.uid !== ADMIN_UID) return negar('Sua conta foi autenticada, mas não tem cadastro neste app. Fale com o administrador.');
+      var username = chaveLogin(usuarioDoEmail(user.email)), mud = {};
       mud['acessos/' + user.uid] = { active:true, admin:true };
       mud['logins/' + username] = user.email || '';
-      mud['usuarios/' + user.uid] = { u:username, email:user.email || '', nome:dados.nome || username.toUpperCase(), perfil:'admin', ativo:true, tempPassword:false, criadoEm:Date.now() };
-      mud['sistema/configurado'] = true;
-      criandoAdmin = null;
-      try { await db.ref().update(mud); acesso = { active:true, admin:true }; toast('PRIMEIRO ACESSO: VOCÊ É O ADMINISTRADOR'); }
-      catch(err){ return negar('Sua conta foi autenticada, mas não tem cadastro neste app. Fale com o administrador.'); }
+      mud['usuarios/' + user.uid] = { u:username, email:user.email || '', nome:username.toUpperCase(), perfil:'admin', ativo:true, tempPassword:false, criadoEm:Date.now() };
+      try { await db.ref().update(mud); acesso = { active:true, admin:true }; toast('BEM-VINDO, ADMINISTRADOR PRINCIPAL'); }
+      catch(err){ return negar(msgBanco(err)); }
     }
+    if(user.uid === ADMIN_UID){ acesso.active = true; acesso.admin = true; }
     if(acesso.active === false) return negar('Este acesso está inativo. Fale com o administrador.');
     var cad = (await db.ref('usuarios/' + user.uid).once('value')).val();
     if(!cad) return negar('Sua conta não tem cadastro neste app. Fale com o administrador.');
@@ -841,8 +803,6 @@ auth.onAuthStateChanged(async function(user){
       sinc['usuarios/' + user.uid + '/emailPendente'] = null;
       try { await db.ref().update(sinc); me.email = emailAuth; me.emailPendente = null; } catch(e){}
     }
-    if(me.perfil === 'admin') db.ref('sistema/configurado').set(true).catch(function(){});
-    forcarLogin = false;
     if(me.tempPassword) pedirTroca(); else abrirApp();
   } catch(err){
     negar(msgBanco(err));
