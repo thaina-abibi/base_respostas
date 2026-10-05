@@ -83,7 +83,19 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 .rb-item .n small{display:block;color:var(--muted);font-size:12.5px;letter-spacing:1px;margin-top:2px}
 .rb-item .d{font-size:12px;letter-spacing:1px;color:var(--muted);text-align:right;line-height:1.4}
 .rb-item.inativa{opacity:.6}
-.tbl.base .thead,.tbl.base .trow{grid-template-columns:84px minmax(0,1.7fr) minmax(0,1.1fr) minmax(0,.8fr) minmax(0,.8fr) 150px}
+.tbl.base .thead,.tbl.base .trow{grid-template-columns:34px 84px minmax(0,1.7fr) minmax(0,1.1fr) minmax(0,.8fr) minmax(0,.8fr) 150px}
+.tbl.base .thead>div:nth-child(3){border-radius:12px 0 0 0}
+.tbl.base .thead>div:nth-child(2){background:none}
+.sel{display:flex;justify-content:center}
+.sel input,.massa input[type=checkbox]{width:20px;height:20px;accent-color:#2f3d22;cursor:pointer}
+.trow.marcada .cell{background:#d4e6c2}
+.massa{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 16px 0;padding:12px 16px;background:#fff;border:1.5px solid #c8cdbf;border-radius:14px}
+.massa.ativa{border-color:#2f3d22;background:#f3f8ee}
+.massa-tudo{display:flex;align-items:center;gap:8px;font-size:14px;letter-spacing:.5px;cursor:pointer}
+.massa-qtd{font-size:14px;font-weight:600;letter-spacing:1px;color:#2f3d22;margin-right:auto}
+.massa select,.massa input:not([type=checkbox]){height:40px;border:1.5px solid #c8cdbf;border-radius:12px;background:#fff;padding:0 12px;font-size:14px;font-family:inherit;letter-spacing:.5px}
+.massa .btn{padding:10px 16px}
+.massa .btn:disabled{opacity:.45;cursor:not-allowed}
 .tbl.base .trow .cell.n{cursor:pointer}
 .tbl.base .trow .cell.n small{display:block;font-size:12px;color:var(--muted);letter-spacing:1px;margin-top:2px}
 .tbl.base .trow.oculta .cell{opacity:.55}
@@ -271,8 +283,24 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
           <select id="altVis"><option value="">Visíveis e ocultas</option><option value="sim">Só as que aparecem no App SAC</option><option value="nao">Só as ocultas</option></select>
           <span class="alt-info" id="altInfo"></span>
         </div>
+        <div class="massa" id="altMassa">
+          <label class="massa-tudo"><input type="checkbox" id="altTodos"> <span id="altTodosTxt">Selecionar todas desta lista</span></label>
+          <span class="massa-qtd" id="altQtd"></span>
+          <select id="altAcao">
+            <option value="">Escolha a alteração…</option>
+            <option value="mostrar">Aparecer no App SAC</option>
+            <option value="ocultar">Ocultar no App SAC</option>
+            <option value="pilar">Mudar o pilar</option>
+            <option value="subtema">Mudar o subtema</option>
+            <option value="descricao">Mudar a descrição resumida</option>
+          </select>
+          <select id="altValPilar" style="display:none"></select>
+          <input id="altValTexto" list="dlSub" style="display:none" placeholder="Novo valor">
+          <button type="button" class="btn btn-dark" id="altAplicar" disabled>APLICAR</button>
+          <button type="button" class="btn btn-no" id="altLimpar">LIMPAR SELEÇÃO</button>
+        </div>
         <div class="tbl base">
-          <div class="thead"><div></div><div>Nome</div><div>Descrição</div><div>Atualizado em</div><div>Responsável</div><div>App SAC</div></div>
+          <div class="thead"><div></div><div></div><div>Nome</div><div>Descrição</div><div>Atualizado em</div><div>Responsável</div><div>App SAC</div></div>
           <div id="altList"></div>
         </div>
         <button type="button" class="btn btn-ok alt-mais" id="altMais" style="display:none">MOSTRAR MAIS</button>
@@ -1026,7 +1054,9 @@ function renderAlt(){
   const adm = isAdmin();
   $('#altList').innerHTML = l.length ? l.slice(0, altLimite).map(r => {
     const sig = SIGLA_PILAR[r.pilar] || 'GERAL', on = r.ativo !== false;
-    return `<div class="trow${on ? '' : ' oculta'}">
+    const marc = selAlt.has(r.id);
+    return `<div class="trow${on ? '' : ' oculta'}${marc ? ' marcada' : ''}">
+      <div class="sel">${adm ? `<input type="checkbox" data-sel="${esc(r.id)}"${marc ? ' checked' : ''} aria-label="Selecionar ${esc(r.nome)}">` : ''}</div>
       <div class="tag ${sig}"><b>${sig}</b><span>${esc(numeroDe(r.nome) || '-')}</span></div>
       <div class="cell n" ${adm ? `data-ed="${esc(r.id)}" title="Clique para editar"` : ''}><span>${esc(r.nome)}<small>${esc(r.pilar || 'Geral')} / ${esc(r.subtema || 'Outros')}</small></span></div>
       <div class="cell">${esc(r.descricao || '—')}</div>
@@ -1039,7 +1069,81 @@ function renderAlt(){
   $('#altMais').textContent = `MOSTRAR MAIS (${l.length - altLimite} restantes)`;
   $$('[data-ed]').forEach(el => el.onclick = () => abrirResp(el.dataset.ed));
   $$('[data-vis]').forEach(b => b.onclick = () => alternarVisivel(b.dataset.vis, b));
+  altFiltradas = l.map(r => r.id);
+  $$('[data-sel]').forEach(c => c.onchange = () => {
+    c.checked ? selAlt.add(c.dataset.sel) : selAlt.delete(c.dataset.sel);
+    c.closest('.trow').classList.toggle('marcada', c.checked);
+    atualizarMassa();
+  });
+  $('#altMassa').style.display = adm ? '' : 'none';
+  atualizarMassa();
 }
+
+/* ---------- Alteração em massa ---------- */
+const selAlt = new Set();
+let altFiltradas = [];
+function atualizarMassa(){
+  for(const id of [...selAlt]) if(!baseResp || !baseResp[id]) selAlt.delete(id);
+  const n = selAlt.size, f = altFiltradas.length;
+  const todasMarcadas = f > 0 && altFiltradas.every(id => selAlt.has(id));
+  $('#altTodos').checked = todasMarcadas;
+  $('#altTodos').indeterminate = !todasMarcadas && altFiltradas.some(id => selAlt.has(id));
+  $('#altTodosTxt').textContent = `Selecionar todas desta lista (${f})`;
+  $('#altQtd').textContent = n ? `${n} selecionada${n > 1 ? 's' : ''}` : 'Nenhuma selecionada';
+  $('#altMassa').classList.toggle('ativa', n > 0);
+  const acao = $('#altAcao').value;
+  $('#altValPilar').style.display = acao === 'pilar' ? '' : 'none';
+  $('#altValTexto').style.display = (acao === 'subtema' || acao === 'descricao') ? '' : 'none';
+  $('#altValTexto').placeholder = acao === 'subtema' ? 'Novo subtema' : 'Nova descrição (separe com |)';
+  const precisaTexto = (acao === 'subtema' || acao === 'descricao') && !$('#altValTexto').value.trim();
+  $('#altAplicar').disabled = !n || !acao || precisaTexto;
+  $('#altAplicar').textContent = n ? `APLICAR EM ${n}` : 'APLICAR';
+}
+$('#altValPilar').innerHTML = PILARES.map(p => `<option>${p}</option>`).join('');
+$('#altTodos').onchange = e => {
+  altFiltradas.forEach(id => e.target.checked ? selAlt.add(id) : selAlt.delete(id));
+  renderAlt();
+};
+$('#altLimpar').onclick = () => { selAlt.clear(); renderAlt(); };
+$('#altAcao').onchange = () => {
+  const subs = [...new Set(Object.values(baseResp || {}).map(x => x.subtema).filter(Boolean))].sort();
+  $('#dlSub').innerHTML = $('#altAcao').value === 'subtema' ? subs.map(s => `<option value="${esc(s)}">`).join('') : '';
+  atualizarMassa();
+};
+$('#altValTexto').oninput = atualizarMassa;
+$('#altAplicar').onclick = async () => {
+  if(!isAdmin() || !selAlt.size) return;
+  const acao = $('#altAcao').value, ids = [...selAlt];
+  let campo, valor, frase;
+  if(acao === 'mostrar'){ campo = 'ativo'; valor = true; frase = 'fazer APARECER no App SAC'; }
+  else if(acao === 'ocultar'){ campo = 'ativo'; valor = false; frase = 'OCULTAR no App SAC'; }
+  else if(acao === 'pilar'){ campo = 'pilar'; valor = $('#altValPilar').value; frase = `mudar o pilar para "${valor}"`; }
+  else if(acao === 'subtema'){ campo = 'subtema'; valor = $('#altValTexto').value.trim(); frase = `mudar o subtema para "${valor}"`; }
+  else if(acao === 'descricao'){ campo = 'descricao'; valor = $('#altValTexto').value.split('|').map(x => x.trim()).filter(Boolean).join(' | '); frase = `mudar a descrição para "${valor}"`; }
+  else return;
+  if(!confirm(`Confirmar: ${frase} em ${ids.length} resposta${ids.length > 1 ? 's' : ''}?`)) return;
+  const bt = $('#altAplicar'); bt.disabled = true;
+  const agora = fmt(Date.now()), adm = me ? titulo(me.nome) : '';
+  try{
+    const mud = {};
+    ids.forEach(id => {
+      mud['respostas/' + id + '/' + campo] = valor;
+      mud['respostas/' + id + '/atualizadoEm'] = agora;
+      mud['respostas/' + id + '/atualizadoPor'] = adm;
+    });
+    const chaves = Object.keys(mud);
+    for(let i = 0; i < chaves.length; i += 600){
+      const parte = {}; chaves.slice(i, i + 600).forEach(c => parte[c] = mud[c]);
+      await fb('', 'PATCH', parte);
+      bt.textContent = `GRAVANDO… ${Math.min(i + 600, chaves.length)} / ${chaves.length}`;
+    }
+    ids.forEach(id => { if(baseResp[id]) Object.assign(baseResp[id], { [campo]: valor, atualizadoEm: agora, atualizadoPor: adm }); });
+    await marcarVersao();   // o App SAC se atualiza sozinho
+    selAlt.clear(); $('#altAcao').value = ''; $('#altValTexto').value = '';
+    renderAlt(); renderBase();
+    toast(`${ids.length} RESPOSTA${ids.length > 1 ? 'S ALTERADAS' : ' ALTERADA'}`);
+  }catch(e){ toast('NÃO FOI POSSÍVEL ALTERAR: ' + e.message, true); atualizarMassa(); }
+};
 async function alternarVisivel(id, bt){
   if(!isAdmin()) return;
   const r = baseResp[id]; if(!r) return;
