@@ -293,6 +293,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
             <option value="pilar">Mudar o pilar</option>
             <option value="subtema">Mudar o subtema</option>
             <option value="descricao">Mudar a descrição resumida</option>
+            <option value="excluir">Excluir da base (apaga de vez)</option>
           </select>
           <select id="altValPilar" style="display:none"></select>
           <input id="altValTexto" list="dlSub" style="display:none" placeholder="Novo valor">
@@ -393,7 +394,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
       <label class="full" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="rAtivo" checked> RESPOSTA ATIVA (APARECE NA PESQUISA DO APP 02)</label>
       <label class="full" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="rNotif" checked> AVISAR A EQUIPE NAS NOTIFICAÇÕES DO APP 02</label>
       <div class="lmsg full" id="rInfo" style="color:#666"></div>
-      <div class="acts"><button type="button" class="btn btn-no" id="rCancel">CANCELAR</button><button class="btn btn-dark" type="submit" id="rSalvar">SALVAR</button></div>
+      <div class="acts"><button type="button" class="btn btn-no" id="rExcluir" style="margin-right:auto">EXCLUIR</button><button type="button" class="btn btn-no" id="rCancel">CANCELAR</button><button class="btn btn-dark" type="submit" id="rSalvar">SALVAR</button></div>
     </form>
   </div>
 </div>
@@ -1003,6 +1004,7 @@ function abrirResp(id){
   editandoResp = id;
   const r = id ? baseResp[id] : { nome:'', pilar:'CNH', subtema:'', descricao:'', texto:'Prezado(a),\n\n\n\nAtenciosamente,\nServiço de Atendimento ao Cidadão.', ativo:true };
   $('#rTit').textContent = id ? 'EDITAR RESPOSTA ' + id : 'NOVA RESPOSTA NA BASE';
+  $('#rExcluir').style.display = id ? '' : 'none';
   $('#rNome').value = r.nome || ''; $('#rPilar').value = PILARES.includes(r.pilar) ? r.pilar : 'Geral';
   $('#rSub').value = r.subtema || ''; $('#rDesc').value = r.descricao || ''; $('#rTexto').value = r.texto || '';
   $('#rAtivo').checked = r.ativo !== false; $('#rNotif').checked = true;
@@ -1012,6 +1014,7 @@ function abrirResp(id){
   $('#mResp').classList.add('on'); setTimeout(() => $('#rNome').focus(), 50);
 }
 const fecharResp = () => $('#mResp').classList.remove('on');
+$('#rExcluir').onclick = async () => { if(!editandoResp) return fecharResp(); const id = editandoResp; fecharResp(); await excluirRespostas([id]); };
 $('#rCancel').onclick = fecharResp;
 $('#mResp').onclick = e => { if(e.target.id === 'mResp') fecharResp(); };
 $('#fResp').onsubmit = async e => {
@@ -1079,6 +1082,27 @@ function renderAlt(){
   atualizarMassa();
 }
 
+/* ---------- Exclusão (some do App SAC na próxima conferência, em até 1 minuto) ---------- */
+async function excluirRespostas(ids){
+  if(!isAdmin() || !ids.length) return;
+  const n = ids.length;
+  if(!confirm(`EXCLUIR ${n} resposta${n > 1 ? 's' : ''} da base?\n\nIsso apaga de vez e some do App SAC. Se só quiser tirar da pesquisa, use "Ocultar no App SAC".`)) return;
+  if(n > 5 && prompt(`Para confirmar, digite EXCLUIR`) !== 'EXCLUIR') return toast('EXCLUSÃO CANCELADA');
+  const mud = {};
+  ids.forEach(id => { mud['respostas/' + id] = null; mud['respostasHtml/' + id] = null; });
+  try{
+    const chaves = Object.keys(mud);
+    for(let i = 0; i < chaves.length; i += 600){
+      const parte = {}; chaves.slice(i, i + 600).forEach(c => parte[c] = mud[c]);
+      await fb('', 'PATCH', parte);
+    }
+    ids.forEach(id => { delete baseResp[id]; selAlt.delete(id); });
+    await marcarVersao();
+    $('#altAcao').value = ''; renderAlt(); renderBase();
+    toast(`${n} RESPOSTA${n > 1 ? 'S EXCLUÍDAS' : ' EXCLUÍDA'}`);
+  }catch(e){ toast('NÃO FOI POSSÍVEL EXCLUIR: ' + e.message, true); }
+}
+
 /* ---------- Alteração em massa ---------- */
 const selAlt = new Set();
 let altFiltradas = [];
@@ -1120,6 +1144,7 @@ $('#altAplicar').onclick = async () => {
   else if(acao === 'pilar'){ campo = 'pilar'; valor = $('#altValPilar').value; frase = `mudar o pilar para "${valor}"`; }
   else if(acao === 'subtema'){ campo = 'subtema'; valor = $('#altValTexto').value.trim(); frase = `mudar o subtema para "${valor}"`; }
   else if(acao === 'descricao'){ campo = 'descricao'; valor = $('#altValTexto').value.split('|').map(x => x.trim()).filter(Boolean).join(' | '); frase = `mudar a descrição para "${valor}"`; }
+  else if(acao === 'excluir'){ await excluirRespostas(ids); return; }
   else return;
   if(!confirm(`Confirmar: ${frase} em ${ids.length} resposta${ids.length > 1 ? 's' : ''}?`)) return;
   const bt = $('#altAplicar'); bt.disabled = true;
