@@ -67,7 +67,22 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 .sug{display:grid;grid-template-columns:84px 1fr 230px;gap:16px;align-items:start;margin-bottom:24px}
 .tag{margin-top:36px;width:80px;border-radius:7px;overflow:hidden;background:#fff;border:1px solid #d4d4d4;text-align:center;font-family:Arial,sans-serif}
 .tag b{display:block;color:#fff;font-size:12px;padding:2px 0;letter-spacing:-.3px}
-.tag.CNH b{background:var(--cnh)} .tag.VEIC b{background:var(--veic)}
+.tag b{background:#52606d}
+.tag.CNH b{background:var(--cnh)} .tag.VEIC b{background:var(--veic)} .tag.INFRA b{background:#b42318} .tag.PORTAL b{background:#a15c07}
+.tag.ENC b{background:#6941c6} .tag.CRED b{background:#0e7490} .tag.GERAL b{background:#52606d}
+.sug-nota{background:#fff8e6;border:1px solid #f1d48a;border-radius:10px;padding:8px 14px;margin:0 0 10px;font-size:14px;letter-spacing:.5px;line-height:1.5}
+.sug-nota b{letter-spacing:1.5px;font-size:12px}
+.origem{display:inline-block;font-size:11px;letter-spacing:2px;background:#2f3d22;color:#fff;border-radius:6px;padding:2px 8px;margin-left:8px;vertical-align:middle}
+.rb-barra{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.rb-barra input,.rb-barra select{height:42px;border:0;border-radius:12px;background:#f5f6f9;padding:0 14px;font-size:15px;font-family:inherit;letter-spacing:.5px}
+.rb-barra input{flex:1;min-width:220px}
+.rb-item{display:grid;grid-template-columns:84px 1fr auto;gap:14px;align-items:center;background:#f5f6f9;border-radius:12px;padding:10px 14px;margin-bottom:8px;cursor:pointer;border:1.5px solid transparent}
+.rb-item:hover{border-color:#9bb57f}
+.rb-item .tag{margin:0}
+.rb-item .n{font-size:15px;letter-spacing:1px;line-height:1.35}
+.rb-item .n small{display:block;color:var(--muted);font-size:12.5px;letter-spacing:1px;margin-top:2px}
+.rb-item .d{font-size:12px;letter-spacing:1px;color:var(--muted);text-align:right;line-height:1.4}
+.rb-item.inativa{opacity:.6}
 .tag span{display:block;font-size:22px;font-weight:700;color:#1a1a1a;padding:2px 0 3px}
 .card-tit{margin:0 26px;background:var(--head);border-radius:12px 12px 0 0;text-align:center;font-size:16px;letter-spacing:1.6px;padding:7px 12px 5px}
 .card{background:var(--row);border-radius:12px;padding:6px 14px 14px}
@@ -283,6 +298,20 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
             </div>
             <div class="sn-log" id="snLog"></div>
           </div>
+
+          <hr class="adm-hr">
+          <div class="box-h">BASE DE RESPOSTAS</div>
+          <div class="sn-card">
+            <p style="margin:0 0 14px;font-size:14px;letter-spacing:.4px;line-height:1.6">É a base que aparece no app de consulta (app 02). O que você salvar aqui aparece lá automaticamente.</p>
+            <div class="rb-barra">
+              <input id="rbBusca" type="search" placeholder="Buscar por nome, número, subtema ou texto">
+              <select id="rbPilar"><option value="">Todos os pilares</option></select>
+              <button type="button" class="btn btn-dark" id="rbNova">NOVA RESPOSTA</button>
+              <button type="button" class="btn btn-ok" id="rbRecarregar">ATUALIZAR</button>
+            </div>
+            <div class="sn-log" id="rbInfo"></div>
+            <div id="rbLista"></div>
+          </div>
         </div>
       </div>
       <div class="adm-side"></div>
@@ -303,12 +332,30 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
   </main>
 </div>
 
+<!-- Janela: editar resposta da base (app 02) -->
+<div class="modal" id="mResp" role="dialog" aria-modal="true" aria-labelledby="rTit">
+  <div class="dlg">
+    <h2 id="rTit">EDITAR RESPOSTA</h2>
+    <form id="fResp">
+      <label class="full">NOME DO MODELO <span style="letter-spacing:0;color:#777">(igual ao do ServiceNow, com número)</span><input id="rNome" required></label>
+      <label>PILAR<select id="rPilar"></select></label>
+      <label>SUBTEMA<input id="rSub" list="dlSub"><datalist id="dlSub"></datalist></label>
+      <label class="full">DESCRIÇÃO RESUMIDA <span style="letter-spacing:0;color:#777">(separe com |)</span><input id="rDesc"></label>
+      <label class="full">TEXTO DA RESPOSTA<textarea id="rTexto" required></textarea></label>
+      <label class="full" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="rAtivo" checked> RESPOSTA ATIVA (APARECE NA PESQUISA DO APP 02)</label>
+      <label class="full" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="rNotif" checked> AVISAR A EQUIPE NAS NOTIFICAÇÕES DO APP 02</label>
+      <div class="lmsg full" id="rInfo" style="color:#666"></div>
+      <div class="acts"><button type="button" class="btn btn-no" id="rCancel">CANCELAR</button><button class="btn btn-dark" type="submit" id="rSalvar">SALVAR</button></div>
+    </form>
+  </div>
+</div>
+
 <!-- Janela: nova resposta / editar e reenviar -->
 <div class="modal" id="mNova" role="dialog" aria-modal="true" aria-labelledby="mTit">
   <div class="dlg">
     <h2 id="mTit">NOVA RESPOSTA</h2>
     <form id="fNova">
-      <label>ÁREA<select id="fArea"><option>CNH</option><option>VEIC</option></select></label>
+      <label>ÁREA<select id="fArea"><option>CNH</option><option>VEIC</option><option>INFRA</option><option>PORTAL</option><option>ENC</option><option>CRED</option><option>GERAL</option></select></label>
       <label>CÓDIGO<input id="fCod" placeholder="001" maxlength="4"></label>
       <label class="full">NOME DO MODELO<input id="fModelo" required placeholder="ex.: CNH | Expedição CNH FÍSICA - emissão autorizada com taxa"></label>
       <label>TIPO<select id="fTipo"><option>RESPOSTA NOVA</option><option>ALTERAÇÃO</option></select></label>
@@ -755,7 +802,7 @@ let atual = 'inicio';
 function go(v){
   if(v === 'adm' && !isAdmin()){ toast('ACESSO RESTRITO AO ADMINISTRADOR', true); return; }
   atual = v;
-  if(v === 'adm') statusSN();
+  if(v === 'adm'){ statusSN(); carregarBase(); }
   $$('.view').forEach(x => x.classList.toggle('on', x.id === 'v-' + v));
   $$('#nav button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   $('#app').classList.toggle('is-home', v === 'inicio');
@@ -789,9 +836,11 @@ function renderSug(){
     return `<div class="sug">
      ${tag(s)}
      <div>
-       <div class="card-tit">${esc(s.modelo)}</div>
+       <div class="card-tit">${esc(s.modelo)}${s.origem ? `<span class="origem">${s.origem === 'consulta' ? 'APP 02' : esc(String(s.origem).toUpperCase())}</span>` : ''}</div>
        <div class="card">
          <div class="card-head"><span class="k">${esc(s.tipo)}</span><span class="c">${esc(s.categoria)}</span></div>
+         ${s.problema ? `<div class="sug-nota"><b>PROBLEMA APONTADO:</b> ${esc(s.problema)}<br><small>O texto abaixo é a resposta atual. Corrija e clique em ACEITAR para publicar.</small></div>` : ''}
+         ${s.justificativa ? `<div class="sug-nota"><b>POR QUÊ:</b> ${esc(s.justificativa)}</div>` : ''}
          <textarea data-id="${s.id}" ${pode ? '' : 'readonly'}>${esc(s.texto)}</textarea>
          ${pode ? `<div class="card-act"><button class="btn btn-no" data-rec="${s.id}">RECUSAR</button><button class="btn btn-ok" data-ace="${s.id}">ACEITAR</button></div>` : ''}
        </div>
@@ -808,8 +857,132 @@ async function decidir(id, st){
   const ta = document.querySelector(`textarea[data-id="${id}"]`);
   const novo = {...s, texto: ta ? ta.value : s.texto, status: st, atualizadoEm: Date.now(),
                 responsavel: me ? titulo(me.nome) : '', descricao: st === 'aceito' ? 'Resposta Resolutiva' : 'Editar para enviar'};
-  try{ await gravar('sugestoes', id, novo); document.activeElement.blur(); render(); toast(st === 'aceito' ? 'SUGESTÃO ACEITA' : 'SUGESTÃO RECUSADA'); }catch(e){}
+  try{
+    if(st === 'aceito' && FB_ON){
+      novo.respostaId = await aplicarNaBase(novo);   // publica no app 02
+      novo.publicadaComo = novo.respostaId;
+    }
+    await gravar('sugestoes', id, novo); document.activeElement.blur(); render();
+    toast(st === 'aceito' ? 'SUGESTÃO ACEITA E PUBLICADA NO APP 02' : 'SUGESTÃO RECUSADA');
+  }catch(e){ toast('NÃO FOI POSSÍVEL CONCLUIR: ' + e.message, true); }
 }
+
+/* ---------- Base de respostas (a mesma do app 02) ---------- */
+const PILARES = ['CNH','Veículos','Infrações','Portal','Encaminhamentos','Credenciamento','Geral'];
+const SIGLA_PILAR = {'CNH':'CNH','Veículos':'VEIC','Infrações':'INFRA','Portal':'PORTAL','Encaminhamentos':'ENC','Credenciamento':'CRED','Geral':'GERAL'};
+const PILAR_SIGLA = {CNH:'CNH',VEIC:'Veículos',INFRA:'Infrações',PORTAL:'Portal',ENC:'Encaminhamentos',CRED:'Credenciamento',GERAL:'Geral'};
+const numeroDe = n => { const m = String(n || '').match(/^\D*?(\d+)/); return m ? m[1] : ''; };
+let baseResp = null;   // respostasSAC/respostas carregadas sob demanda
+
+async function proximoNum(prefixo, no){
+  let n = Number(await fb('contadores/' + prefixo)) || 0;
+  if(!n){
+    const ks = Object.keys((await fbQuery(no, 'shallow=true')) || {});
+    n = ks.reduce((m, k) => Math.max(m, parseInt(String(k).replace(/\D/g, ''), 10) || 0), 0);
+  }
+  n++; await fb('contadores/' + prefixo, 'PUT', n);
+  return prefixo + String(n).padStart(4, '0');
+}
+/* O app 02 confere este número a cada minuto e recarrega a base quando ele muda */
+const marcarVersao = () => fb('respostasMeta/versao', 'PUT', Date.now()).catch(() => {});
+async function notificarApp02(tipo, respostaId, nomeResp, autor, origem){
+  const id = await proximoNum('N', 'notificacoes');
+  await fb('notificacoes/' + id, 'PUT', { id, data: fmt(Date.now()), tipo, respostaId, titulo: nomeResp,
+    autor: autor || '', adm: me ? titulo(me.nome) : '', origem: origem || '' });
+}
+/* Publica uma sugestão aceita na base: corrige a resposta existente ou cria uma nova */
+async function aplicarNaBase(s){
+  const agora = fmt(Date.now()), adm = me ? titulo(me.nome) : '';
+  let id = s.respostaId || '', atual = id ? await fb('respostas/' + id) : null;
+  if(!atual && s.tipo !== 'RESPOSTA NOVA'){
+    const todas = baseResp || (await fb('respostas')) || {};
+    id = Object.keys(todas).find(k => normN(todas[k].nome) === normN(s.modelo)) || '';
+    atual = id ? todas[id] : null;
+  }
+  const origem = s.tipo === 'SINALIZAÇÃO' ? 'Sinalização' : 'Sugestão';
+  if(atual){
+    const obj = {...atual, id, texto: s.texto, atualizadoEm: agora, atualizadoPor: adm};
+    await fb('respostas/' + id, 'PUT', obj);
+    if(baseResp) baseResp[id] = obj;
+    await notificarApp02('Resposta corrigida', id, obj.nome, s.autor, origem);
+    await marcarVersao();
+    return id;
+  }
+  id = await proximoNum('R', 'respostas');
+  const obj = { id, nome: s.modelo, pilar: s.pilar || PILAR_SIGLA[s.area] || 'Geral', subtema: s.categoria || 'A classificar',
+    descricao: '', texto: s.texto, tabelas: [], campo: 'close_notes', codigo: '', ativo: true,
+    criadoEm: agora, atualizadoEm: agora, atualizadoPor: adm, obs: '' };
+  await fb('respostas/' + id, 'PUT', obj);
+  if(baseResp) baseResp[id] = obj;
+  await notificarApp02('Nova resposta', id, obj.nome, s.autor, origem);
+  await marcarVersao();
+  return id;
+}
+
+$('#rbPilar').innerHTML += PILARES.map(p => `<option>${p}</option>`).join('');
+$('#rPilar').innerHTML = PILARES.map(p => `<option>${p}</option>`).join('');
+async function carregarBase(forcar){
+  if(!FB_ON){ $('#rbInfo').textContent = 'A base de respostas precisa do Firebase configurado.'; return; }
+  if(baseResp && !forcar){ renderBase(); return; }
+  $('#rbInfo').className = 'sn-log'; $('#rbInfo').textContent = 'Carregando a base de respostas…';
+  try{ baseResp = (await fb('respostas')) || {}; renderBase(); }
+  catch(e){ $('#rbInfo').className = 'sn-log err'; $('#rbInfo').textContent = 'Não foi possível carregar: ' + e.message; }
+}
+function renderBase(){
+  const q = normN($('#rbBusca').value), p = $('#rbPilar').value;
+  const todas = Object.keys(baseResp).map(k => ({...baseResp[k], id:k})).filter(r => r.nome);
+  const l = todas.filter(r => (!p || r.pilar === p) &&
+      (!q || normN([r.nome, r.subtema, r.descricao, r.id].join(' ')).includes(q) || normN(r.texto).includes(q)))
+    .sort((a, b) => (PILARES.indexOf(a.pilar) - PILARES.indexOf(b.pilar)) || ((+numeroDe(a.nome) || 9999) - (+numeroDe(b.nome) || 9999)) || String(a.nome).localeCompare(b.nome));
+  const LIM = 80;
+  $('#rbInfo').className = 'sn-log';
+  $('#rbInfo').textContent = `${todas.length} respostas na base · ${l.length} encontradas` + (l.length > LIM ? ` (mostrando ${LIM}, refine a busca)` : '');
+  $('#rbLista').innerHTML = l.slice(0, LIM).map(r => `<div class="rb-item${r.ativo === false ? ' inativa' : ''}" data-rid="${esc(r.id)}">
+      <div class="tag ${SIGLA_PILAR[r.pilar] || 'GERAL'}"><b>${SIGLA_PILAR[r.pilar] || 'GERAL'}</b><span>${esc(numeroDe(r.nome) || '-')}</span></div>
+      <div class="n">${esc(r.nome)}<small>${esc(r.pilar || 'Geral')} / ${esc(r.subtema || 'Outros')}${r.ativo === false ? ' · INATIVA' : ''}</small></div>
+      <div class="d">${esc(r.atualizadoEm || '')}<br>${esc(r.atualizadoPor || '')}</div></div>`).join('');
+  $$('[data-rid]').forEach(el => el.onclick = () => abrirResp(el.dataset.rid));
+}
+let buscaRbT;
+$('#rbBusca').oninput = () => { clearTimeout(buscaRbT); buscaRbT = setTimeout(renderBase, 200); };
+$('#rbPilar').onchange = renderBase;
+$('#rbRecarregar').onclick = () => carregarBase(true);
+$('#rbNova').onclick = () => abrirResp('');
+let editandoResp = '';
+function abrirResp(id){
+  editandoResp = id;
+  const r = id ? baseResp[id] : { nome:'', pilar:'CNH', subtema:'', descricao:'', texto:'Prezado(a),\n\n\n\nAtenciosamente,\nServiço de Atendimento ao Cidadão.', ativo:true };
+  $('#rTit').textContent = id ? 'EDITAR RESPOSTA ' + id : 'NOVA RESPOSTA NA BASE';
+  $('#rNome').value = r.nome || ''; $('#rPilar').value = PILARES.includes(r.pilar) ? r.pilar : 'Geral';
+  $('#rSub').value = r.subtema || ''; $('#rDesc').value = r.descricao || ''; $('#rTexto').value = r.texto || '';
+  $('#rAtivo').checked = r.ativo !== false; $('#rNotif').checked = true;
+  const subs = [...new Set(Object.values(baseResp || {}).map(x => x.subtema).filter(Boolean))].sort();
+  $('#dlSub').innerHTML = subs.map(s => `<option value="${esc(s)}">`).join('');
+  $('#rInfo').textContent = id ? `Última edição: ${r.atualizadoEm || '—'}${r.atualizadoPor ? ' por ' + r.atualizadoPor : ''}` : '';
+  $('#mResp').classList.add('on'); setTimeout(() => $('#rNome').focus(), 50);
+}
+const fecharResp = () => $('#mResp').classList.remove('on');
+$('#rCancel').onclick = fecharResp;
+$('#mResp').onclick = e => { if(e.target.id === 'mResp') fecharResp(); };
+$('#fResp').onsubmit = async e => {
+  e.preventDefault();
+  const bt = $('#rSalvar'); bt.disabled = true;
+  try{
+    const agora = fmt(Date.now()), adm = me ? titulo(me.nome) : '';
+    const dados = { nome: $('#rNome').value.trim(), pilar: $('#rPilar').value, subtema: $('#rSub').value.trim() || 'Outros',
+      descricao: $('#rDesc').value.split('|').map(x => x.trim()).filter(Boolean).join(' | '), texto: $('#rTexto').value.trim(),
+      ativo: $('#rAtivo').checked, atualizadoEm: agora, atualizadoPor: adm };
+    let id = editandoResp, obj;
+    if(id){ obj = {...baseResp[id], ...dados, id}; }
+    else { id = await proximoNum('R', 'respostas'); obj = {id, tabelas:[], campo:'close_notes', codigo:'', obs:'', criadoEm:agora, ...dados}; }
+    await fb('respostas/' + id, 'PUT', obj);
+    baseResp[id] = obj;
+    if($('#rNotif').checked && obj.ativo) await notificarApp02(editandoResp ? 'Resposta corrigida' : 'Nova resposta', id, obj.nome, '', '');
+    await marcarVersao();
+    fecharResp(); renderBase(); toast(editandoResp ? 'RESPOSTA SALVA NO APP 02' : 'RESPOSTA CRIADA NO APP 02');
+  }catch(err){ toast('NÃO FOI POSSÍVEL SALVAR: ' + err.message, true); }
+  bt.disabled = false;
+};
 
 /* ---------- Alterações / Histórico ---------- */
 const bate = (s, q) => !q || [s.modelo, s.descricao, s.responsavel, s.autor, fmt(s.atualizadoEm), s.area, s.cod].join(' ').toLowerCase().includes(q.toLowerCase());
@@ -999,6 +1172,7 @@ $('#snAplicar').onclick = async () => {
       snLog(`Gravando… ${Math.min(i + 200, chaves.length)} de ${chaves.length} alterações`);
     }
     await fb('servicenowMeta/aplicadoEm', 'PUT', Date.now());
+    await marcarVersao();
     const fora = Object.keys(base).filter(id => !nomesSN.has(normN(base[id].nome))).length;
     snLog(`Base atualizada: ${novas} respostas novas, ${atualizadas} atualizadas, ${iguais} sem mudança.` +
       (fora ? ` ${fora} respostas da base não existem no ServiceNow e foram mantidas como estão.` : '') +
