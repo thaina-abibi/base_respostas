@@ -127,6 +127,12 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 #mAviso .btn-tarde{background:var(--red);color:#fff}
 #mAviso .btn-tarde:hover{filter:brightness(1.08)}
 @media (max-width:760px){.log-item{grid-template-columns:1fr}}
+.bolinhas{display:flex;flex-wrap:wrap;gap:12px 28px;margin-top:2px}
+.bolinha-op{flex-direction:row!important;align-items:center;gap:10px!important;cursor:pointer;font-size:13px;letter-spacing:2px}
+#mResp .dlg input.bolinha{appearance:none;-webkit-appearance:none;width:24px;height:24px;margin:0;border-radius:50%;border:2px solid #2f3d22;background:#fff;cursor:pointer;flex:0 0 auto;padding:0;border-radius:50%!important}
+#mResp .dlg input.bolinha:checked{background:#f5d90a;box-shadow:inset 0 0 0 4px #fff}
+#mResp .dlg input.bolinha:focus-visible{outline:2px solid #2f3d22;outline-offset:2px}
+#rCod{text-transform:uppercase;letter-spacing:2px}
 .cod-chip{display:inline-block;margin-top:4px;background:#2f3d22;color:#f5d90a;border-radius:6px;padding:1px 8px;font-size:11.5px;letter-spacing:1.5px;font-family:'Oswald',sans-serif}
 .cod-linha{display:flex;gap:8px}
 .cod-linha input{flex:1;text-transform:uppercase;letter-spacing:2px}
@@ -327,13 +333,12 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
             <option value="mostrar">Aparecer no App SAC</option>
             <option value="ocultar">Ocultar no App SAC</option>
             <option value="pilar">Mudar o pilar</option>
-            <option value="subtema">Mudar o subtema</option>
             <option value="descricao">Mudar a descrição resumida</option>
             <option value="codtexto">Preencher o código pelo texto (só onde está vazio)</option>
             <option value="excluir">Excluir da base (apaga de vez)</option>
           </select>
           <select id="altValPilar" style="display:none"></select>
-          <input id="altValTexto" list="dlSub" style="display:none" placeholder="Novo valor">
+          <select id="altValDesc" style="display:none"></select>
           <button type="button" class="btn btn-dark" id="altAplicar" disabled>APLICAR</button>
           <button type="button" class="btn btn-no" id="altLimpar">LIMPAR SELEÇÃO</button>
         </div>
@@ -434,15 +439,16 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
   <div class="dlg">
     <h2 id="rTit">EDITAR RESPOSTA</h2>
     <form id="fResp">
-      <label class="full">NOME DO MODELO <span style="letter-spacing:0;color:#777">(igual ao do ServiceNow, com número)</span><input id="rNome" required></label>
+      <label class="full">NOME DO MODELO<input id="rNome" required></label>
       <label>PILAR<select id="rPilar"></select></label>
-      <label>SUBTEMA<input id="rSub" list="dlSub"><datalist id="dlSub"></datalist></label>
-      <label class="full">DESCRIÇÃO RESUMIDA <span style="letter-spacing:0;color:#777">(separe com |)</span><input id="rDesc"></label>
-      <label class="full">CÓDIGO VINCULADO <span style="letter-spacing:0;color:#777">(ex.: CNHXZ2025-04-001 · fica só na Gestão, não aparece na Consulta)</span>
-        <span class="cod-linha"><input id="rCod" autocomplete="off" placeholder="CNHXZ2025-04-001"><button type="button" class="btn btn-ok" id="rCodTexto" title="Usa o primeiro código encontrado no texto da resposta">PEGAR DO TEXTO</button></span></label>
+      <label>DESCRIÇÃO RESUMIDA<select id="rDesc"></select></label>
+      <label class="full">CÓDIGO INVISÍVEL
+        <span class="cod-linha"><input id="rCod" autocomplete="off" spellcheck="false" placeholder="CNHXZ2025-04-001"><button type="button" class="btn btn-ok" id="rCodTexto" title="Usa o código que já está escondido no texto desta resposta">DETECTAR NO TEXTO</button></span></label>
       <label class="full">TEXTO DA RESPOSTA<textarea id="rTexto" required></textarea></label>
-      <label class="full" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="rAtivo" checked> RESPOSTA ATIVA (APARECE NA PESQUISA DO APP 02)</label>
-      <label class="full" style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="rNotif" checked> AVISAR A EQUIPE NAS NOTIFICAÇÕES DO APP 02</label>
+      <div class="bolinhas full">
+        <label class="bolinha-op"><input type="checkbox" class="bolinha" id="rAtivo" checked><span>APARECE NO APP 02</span></label>
+        <label class="bolinha-op"><input type="checkbox" class="bolinha" id="rNotif" checked><span>NOTIFICAR NO APP 02</span></label>
+      </div>
       <div class="lmsg full" id="rInfo" style="color:#666"></div>
       <div class="acts"><button type="button" class="btn btn-no" id="rExcluir" style="margin-right:auto">EXCLUIR</button><button type="button" class="btn btn-no" id="rCancel">CANCELAR</button><button class="btn btn-dark" type="submit" id="rSalvar">SALVAR</button></div>
     </form>
@@ -1099,6 +1105,23 @@ let buscaLogT;
 $('#qLog').oninput = () => { clearTimeout(buscaLogT); buscaLogT = setTimeout(renderLog, 200); };
 $('#logAtualizar').onclick = () => { logCache = null; carregarLog(); };
 
+/* Descrições resumidas permitidas (mesma lista do ServiceNow), em ordem alfabética */
+const DESCRICOES = [
+  ['Editar para enviar','🔴'], ['Encaminhamento Interno','⏏️'], ['Envio ao CFC','🟡'], ['Envio ao Despachante','🟢'],
+  ['Envio ao Perito Médico/Psicólogo','🟣'], ['Envio ao Poupatempo','🔵'], ['Resposta Informativa',''],
+  ['Resposta Resolutiva',''], ['Solicitação de dados','']
+];
+const semEmoji = t => String(t || '').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2300}-\u{23FF}\u{FE0F}\u{200D}]/gu, '').trim();
+/* acha a descrição da lista a partir do que veio do ServiceNow (com ou sem emoji) */
+function descricaoPadrao(t){ const n = normN(semEmoji(t)); const d = DESCRICOES.find(x => normN(x[0]) === n); return d ? d[0] : ''; }
+const descComIcone = t => { const d = DESCRICOES.find(x => x[0] === descricaoPadrao(t)); return d ? (d[1] ? d[1] + ' ' : '') + d[0] : semEmoji(t); };
+const PILARES_EDITOR = ['CNH','Veículos','Infrações','Portal','Credenciamento','Geral'];   // sem "Encaminhamentos"
+/* texto sem o código invisível (é assim que aparece para editar) */
+function semCodigos(t){
+  return String(t || '').replace(/\b[A-Z]{2,15}\d{4}[-_.]\d{1,3}[-_.]\d{1,5}\b/g, '')
+    .replace(/\(\s*\)|\[\s*\]/g, '').replace(/[ \t]{2,}/g, ' ').replace(/ +([.,;:!?])/g, '$1')
+    .replace(/[ \t]+\n/g, '\n').replace(/^[ \t]+/gm, '').replace(/\n{3,}/g, '\n\n').trim();
+}
 const RE_CODIGO_EXATO = /^[A-Z]{2,15}\d{4}[-_.]\d{1,3}[-_.]\d{1,5}$/;
 const primeiroCodigo = t => { const m = String(t || '').match(/\b[A-Z]{2,15}\d{4}[-_.]\d{1,3}[-_.]\d{1,5}\b/); return m ? m[0] : ''; };
 const RE_CODIGO = /\b[A-Z]{2,15}\d{4}[-_.]\d{1,3}[-_.]\d{1,5}\b/g;
@@ -1164,7 +1187,7 @@ function renderBase(){
   $('#rbInfo').textContent = `${todas.length} respostas na base · ${l.length} encontradas` + (l.length > LIM ? ` (mostrando ${LIM}, refine a busca)` : '');
   $('#rbLista').innerHTML = l.slice(0, LIM).map(r => `<div class="rb-item${r.ativo === false ? ' inativa' : ''}" data-rid="${esc(r.id)}">
       <div class="tag ${SIGLA_PILAR[r.pilar] || 'GERAL'}"><b>${SIGLA_PILAR[r.pilar] || 'GERAL'}</b><span>${esc(numeroDe(r.nome) || '-')}</span></div>
-      <div class="n">${esc(r.nome)}<small>${esc(r.pilar || 'Geral')} / ${esc(r.subtema || 'Outros')}${r.ativo === false ? ' · INATIVA' : ''}</small>${r.codigo ? `<span class="cod-chip">${esc(r.codigo)}</span>` : ''}</div>
+      <div class="n">${esc(r.nome)}<small>${esc(r.pilar || 'Geral')}${r.ativo === false ? ' · INATIVA' : ''}</small>${r.codigo ? `<span class="cod-chip">${esc(r.codigo)}</span>` : ''}</div>
       <div class="d">${esc(r.atualizadoEm || '')}<br>${esc(r.atualizadoPor || '')}</div></div>`).join('');
   $$('[data-rid]').forEach(el => el.onclick = () => abrirResp(el.dataset.rid));
 }
@@ -1174,25 +1197,34 @@ $('#rbPilar').onchange = renderBase;
 $('#rbRecarregar').onclick = () => carregarBase(true);
 $('#rbNova').onclick = () => abrirResp('');
 let editandoResp = '';
+let textoOriginal = '';
 function abrirResp(id){
   editandoResp = id;
-  const r = id ? baseResp[id] : { nome:'', pilar:'CNH', subtema:'', descricao:'', texto:'Prezado(a),\n\n\n\nAtenciosamente,\nServiço de Atendimento ao Cidadão.', ativo:true };
+  const r = id ? baseResp[id] : { nome:'', pilar:'CNH', subtema:'A classificar', descricao:'Resposta Resolutiva', texto:'Prezado(a),\n\n\n\nAtenciosamente,\nServiço de Atendimento ao Cidadão.', ativo:true };
+  textoOriginal = r.texto || '';
+  // pilar: sem "Encaminhamentos" (só aparece se a resposta já estiver nele)
+  const pils = PILARES_EDITOR.concat(PILARES_EDITOR.includes(r.pilar) || !r.pilar || !PILARES.includes(r.pilar) ? [] : [r.pilar]);
+  $('#rPilar').innerHTML = pils.map(p => `<option>${p}</option>`).join('');
+  // descrição: só as da lista
+  const dAtual = descricaoPadrao(r.descricao);
+  $('#rDesc').innerHTML = (dAtual ? '' : `<option value="">${r.descricao ? '(atual: ' + esc(semEmoji(r.descricao)) + ') escolha uma' : 'Escolha a descrição'}</option>`)
+    + DESCRICOES.map(([n, ic]) => `<option value="${esc(n)}"${n === dAtual ? ' selected' : ''}>${ic ? ic + ' ' : ''}${esc(n)}</option>`).join('');
   $('#rTit').textContent = id ? 'EDITAR RESPOSTA ' + id : 'NOVA RESPOSTA NA BASE';
   $('#rExcluir').style.display = id ? '' : 'none';
-  $('#rNome').value = r.nome || ''; $('#rPilar').value = PILARES.includes(r.pilar) ? r.pilar : 'Geral';
-  $('#rSub').value = r.subtema || ''; $('#rDesc').value = r.descricao || ''; $('#rTexto').value = r.texto || '';
-  $('#rCod').value = r.codigo || '';
+  $('#rNome').value = r.nome || ''; $('#rPilar').value = pils.includes(r.pilar) ? r.pilar : 'Geral';
+  $('#rTexto').value = semCodigos(r.texto);       // o código invisível não aparece no texto
+  $('#rCod').value = r.codigo || primeiroCodigo(r.texto) || '';
   $('#rAtivo').checked = r.ativo !== false; $('#rNotif').checked = true;
-  const subs = [...new Set(Object.values(baseResp || {}).map(x => x.subtema).filter(Boolean))].sort();
-  $('#dlSub').innerHTML = subs.map(s => `<option value="${esc(s)}">`).join('');
   $('#rInfo').textContent = id ? `Última edição: ${r.atualizadoEm || '—'}${r.atualizadoPor ? ' por ' + r.atualizadoPor : ''}` : '';
   $('#mResp').classList.add('on'); setTimeout(() => $('#rNome').focus(), 50);
 }
 const fecharResp = () => $('#mResp').classList.remove('on');
+['copy','cut','dragstart','contextmenu'].forEach(ev => $('#rCod').addEventListener(ev, e => e.preventDefault()));
+$('#rCod').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/\s+/g, ''); });
 $('#rCodTexto').onclick = () => {
-  const c = primeiroCodigo($('#rTexto').value);
+  const c = primeiroCodigo(textoOriginal);
   if(c){ $('#rCod').value = c; toast('CÓDIGO ENCONTRADO NO TEXTO: ' + c); }
-  else toast('NENHUM CÓDIGO NO FORMATO PADRÃO FOI ENCONTRADO NO TEXTO', true);
+  else toast('ESTA RESPOSTA NÃO TEM CÓDIGO ESCONDIDO NO TEXTO', true);
 };
 $('#rExcluir').onclick = async () => { if(!editandoResp) return fecharResp(); const id = editandoResp; fecharResp(); await excluirRespostas([id]); };
 $('#rCancel').onclick = fecharResp;
@@ -1206,17 +1238,24 @@ $('#fResp').onsubmit = async e => {
     if(codigo && !RE_CODIGO_EXATO.test(codigo) && !confirm(`O código "${codigo}" está num formato diferente do padrão (ex.: CNHXZ2025-04-001). Salvar mesmo assim?`)){ bt.disabled = false; return; }
     const repetido = codigo ? Object.keys(baseResp || {}).filter(k => k !== editandoResp && String(baseResp[k].codigo || '').toUpperCase() === codigo) : [];
     if(repetido.length && !confirm(`O código ${codigo} já está vinculado a:\n${repetido.slice(0, 5).map(k => '• ' + k + ' ' + baseResp[k].nome).join('\n')}\n\nVincular também a esta resposta?`)){ bt.disabled = false; return; }
-    const dados = { codigo, nome: $('#rNome').value.trim(), pilar: $('#rPilar').value, subtema: $('#rSub').value.trim() || 'Outros',
-      descricao: $('#rDesc').value.split('|').map(x => x.trim()).filter(Boolean).join(' | '), texto: $('#rTexto').value.trim(),
-      ativo: $('#rAtivo').checked, atualizadoEm: agora, atualizadoPor: adm };
+    if(!$('#rDesc').value){ toast('ESCOLHA A DESCRIÇÃO RESUMIDA', true); bt.disabled = false; return; }
+    /* o texto foi editado sem o código: ele volta para o mesmo lugar (início/fim);
+       se o código invisível foi trocado, o novo entra no lugar do antigo */
+    const codAntigo = primeiroCodigo(textoOriginal);
+    let base = textoOriginal;
+    if(codAntigo && codigo && codAntigo !== codigo) base = base.split(codAntigo).join(codigo);
+    let texto = manterCodigos(base, $('#rTexto').value.trim());
+    if(codigo && !texto.includes(codigo)) texto = codigo + '\n' + texto;   // resposta sem código: ele fica escondido no início
+    const dados = { codigo, nome: $('#rNome').value.trim(), pilar: $('#rPilar').value,
+      descricao: $('#rDesc').value, texto, ativo: $('#rAtivo').checked, atualizadoEm: agora, atualizadoPor: adm };
     let id = editandoResp, obj; const antes = id ? {...baseResp[id]} : null;
     if(id){ obj = {...baseResp[id], ...dados, id}; }
-    else { id = await proximoNum('R', 'respostas'); obj = {id, tabelas:[], campo:'close_notes', codigo:'', obs:'', criadoEm:agora, ...dados}; }
+    else { id = await proximoNum('R', 'respostas'); obj = {id, tabelas:[], campo:'close_notes', subtema:'A classificar', obs:'', criadoEm:agora, ...dados}; }
     await fb('respostas/' + id, 'PUT', obj);
     baseResp[id] = obj;
     if($('#rNotif').checked && obj.ativo) await notificarApp02(editandoResp ? 'Resposta corrigida' : 'Nova resposta', id, obj.nome, '', '');
     await marcarVersao();
-    registrar(antes ? 'Editou resposta' : 'Criou resposta', `${id} ${obj.nome}`, antes ? (camposMudados(antes, obj) || 'sem mudanças nos campos') : `${obj.pilar} / ${obj.subtema}`);
+    registrar(antes ? 'Editou resposta' : 'Criou resposta', `${id} ${obj.nome}`, antes ? (camposMudados(antes, obj) || 'sem mudanças nos campos') : `${obj.pilar} · ${obj.descricao}`);
     fecharResp(); renderBase(); if(atual === 'alteracoes') renderAlt(); toast(editandoResp ? 'RESPOSTA SALVA NA BASE DOS DOIS APPS' : 'NOVA RESPOSTA CRIADA NA BASE DOS DOIS APPS');
   }catch(err){ toast('NÃO FOI POSSÍVEL SALVAR: ' + err.message, true); }
   bt.disabled = false;
@@ -1246,8 +1285,8 @@ function renderAlt(){
     return `<div class="trow${on ? '' : ' oculta'}${marc ? ' marcada' : ''}">
       <div class="sel">${adm ? `<input type="checkbox" data-sel="${esc(r.id)}"${marc ? ' checked' : ''} aria-label="Selecionar ${esc(r.nome)}">` : ''}</div>
       <div class="tag ${sig}"><b>${sig}</b><span>${esc(numeroDe(r.nome) || '-')}</span></div>
-      <div class="cell n" ${adm ? `data-ed="${esc(r.id)}" title="Clique para editar"` : ''}><span>${esc(r.nome)}<small>${esc(r.pilar || 'Geral')} / ${esc(r.subtema || 'Outros')}</small>${r.codigo ? `<span class="cod-chip">${esc(r.codigo)}</span>` : ''}</span></div>
-      <div class="cell">${esc(r.descricao || '—')}</div>
+      <div class="cell n" ${adm ? `data-ed="${esc(r.id)}" title="Clique para editar"` : ''}><span>${esc(r.nome)}<small>${esc(r.pilar || 'Geral')}</small>${r.codigo ? `<span class="cod-chip">${esc(r.codigo)}</span>` : ''}</span></div>
+      <div class="cell">${esc(descComIcone(r.descricao) || '—')}</div>
       <div class="cell">${r.atualizadoEm ? esc(r.atualizadoEm).replace(' ', '<br>') : '—'}</div>
       <div class="cell">${esc(r.atualizadoPor || '—')}</div>
       <div class="cell"><button type="button" class="vis ${on ? 'on' : 'off'}" data-vis="${esc(r.id)}" ${adm ? '' : 'disabled title="Só administradores podem mudar"'}><i></i>${on ? 'APARECE' : 'OCULTA'}</button></div>
@@ -1324,24 +1363,18 @@ function atualizarMassa(){
   $('#altMassa').classList.toggle('ativa', n > 0);
   const acao = $('#altAcao').value;
   $('#altValPilar').style.display = acao === 'pilar' ? '' : 'none';
-  $('#altValTexto').style.display = (acao === 'subtema' || acao === 'descricao') ? '' : 'none';
-  $('#altValTexto').placeholder = acao === 'subtema' ? 'Novo subtema' : 'Nova descrição (separe com |)';
-  const precisaTexto = (acao === 'subtema' || acao === 'descricao') && !$('#altValTexto').value.trim();
-  $('#altAplicar').disabled = !n || !acao || precisaTexto;
+  $('#altValDesc').style.display = acao === 'descricao' ? '' : 'none';
+  $('#altAplicar').disabled = !n || !acao;
   $('#altAplicar').textContent = n ? `APLICAR EM ${n}` : 'APLICAR';
 }
-$('#altValPilar').innerHTML = PILARES.map(p => `<option>${p}</option>`).join('');
+$('#altValPilar').innerHTML = PILARES_EDITOR.map(p => `<option>${p}</option>`).join('');
+$('#altValDesc').innerHTML = DESCRICOES.map(([n, ic]) => `<option value="${esc(n)}">${ic ? ic + ' ' : ''}${esc(n)}</option>`).join('');
 $('#altTodos').onchange = e => {
   altFiltradas.forEach(id => e.target.checked ? selAlt.add(id) : selAlt.delete(id));
   renderAlt();
 };
 $('#altLimpar').onclick = () => { selAlt.clear(); renderAlt(); };
-$('#altAcao').onchange = () => {
-  const subs = [...new Set(Object.values(baseResp || {}).map(x => x.subtema).filter(Boolean))].sort();
-  $('#dlSub').innerHTML = $('#altAcao').value === 'subtema' ? subs.map(s => `<option value="${esc(s)}">`).join('') : '';
-  atualizarMassa();
-};
-$('#altValTexto').oninput = atualizarMassa;
+$('#altAcao').onchange = atualizarMassa;
 $('#altAplicar').onclick = async () => {
   if(!podeEditar() || !selAlt.size) return;
   const acao = $('#altAcao').value, ids = [...selAlt];
@@ -1349,8 +1382,7 @@ $('#altAplicar').onclick = async () => {
   if(acao === 'mostrar'){ campo = 'ativo'; valor = true; frase = 'fazer APARECER no App SAC'; }
   else if(acao === 'ocultar'){ campo = 'ativo'; valor = false; frase = 'OCULTAR no App SAC'; }
   else if(acao === 'pilar'){ campo = 'pilar'; valor = $('#altValPilar').value; frase = `mudar o pilar para "${valor}"`; }
-  else if(acao === 'subtema'){ campo = 'subtema'; valor = $('#altValTexto').value.trim(); frase = `mudar o subtema para "${valor}"`; }
-  else if(acao === 'descricao'){ campo = 'descricao'; valor = $('#altValTexto').value.split('|').map(x => x.trim()).filter(Boolean).join(' | '); frase = `mudar a descrição para "${valor}"`; }
+  else if(acao === 'descricao'){ campo = 'descricao'; valor = $('#altValDesc').value; frase = `mudar a descrição para "${valor}"`; }
   else if(acao === 'excluir'){ await excluirRespostas(ids); return; }
   else if(acao === 'codtexto'){ await preencherCodigos(ids); return; }
   else return;
@@ -1372,7 +1404,7 @@ $('#altAplicar').onclick = async () => {
     }
     ids.forEach(id => { if(baseResp[id]) Object.assign(baseResp[id], { [campo]: valor, atualizadoEm: agora, atualizadoPor: adm }); });
     await marcarVersao();   // o App SAC se atualiza sozinho
-    selAlt.clear(); $('#altAcao').value = ''; $('#altValTexto').value = '';
+    selAlt.clear(); $('#altAcao').value = '';
     renderAlt(); renderBase();
     toast(`${ids.length} RESPOSTA${ids.length > 1 ? 'S ALTERADAS' : ' ALTERADA'}`);
     registrar('Alteração em massa: ' + frase, `${ids.length} resposta${ids.length > 1 ? 's' : ''}`, ids.slice(0, 60).join(', ') + (ids.length > 60 ? '…' : ''));
