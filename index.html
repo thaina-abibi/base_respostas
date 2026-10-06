@@ -100,6 +100,27 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 .tbl.base .trow .cell.n small{display:block;font-size:12px;color:var(--muted);letter-spacing:1px;margin-top:2px}
 .tbl.base .trow.oculta .cell{opacity:.55}
 .tbl.base .trow.oculta .cell:last-child{opacity:1}
+.atrib{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px;font-size:12.5px;letter-spacing:2px;font-weight:600;color:#3d4a30}
+.atrib select{height:36px;border:1.5px solid #c8cdbf;border-radius:10px;background:#fff;padding:0 10px;font-size:14px;font-family:inherit;letter-spacing:.5px;min-width:220px}
+.meta .atr{background:#2f3d22;color:#f5d90a;border-radius:10px;padding:6px;margin:0 0 12px;font-size:14px;letter-spacing:1px}
+.sug-topo{display:flex;justify-content:flex-end;margin:-12px 0 16px}
+.sug-topo button{background:#fff;border:1.5px solid #c8cdbf;border-radius:999px;padding:7px 16px;font-size:13px;letter-spacing:1.5px}
+.sug-topo button.on{background:#2f3d22;border-color:#2f3d22;color:#fff}
+.log-sec{margin-top:36px}
+.log-cab{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 16px 12px}
+.log-cab h3{margin:0;font-family:'Ubuntu',sans-serif;font-weight:500;font-size:18px;letter-spacing:.4em;color:#2f3d22}
+.log-cab input{height:40px;border:1.5px solid #c8cdbf;border-radius:12px;background:#fff;padding:0 14px;font-size:14px;font-family:inherit;min-width:280px}
+.log-item{display:grid;grid-template-columns:150px 170px 1fr;gap:14px;background:var(--row);border-radius:12px;padding:10px 16px;margin:0 16px 8px;font-size:14px;letter-spacing:.5px;line-height:1.45}
+.log-item .q{font-weight:600;letter-spacing:1px}
+.log-item .q small{display:block;font-weight:400;color:var(--muted);font-size:11.5px;letter-spacing:1.5px}
+.log-item .o b{letter-spacing:1px}
+.log-item .o small{display:block;color:#555;margin-top:2px;overflow-wrap:anywhere}
+.log-item .d{color:var(--muted);font-size:13px}
+#mAviso .dlg h2{background:#d97706}
+.aviso-lista{display:grid;gap:8px;margin:4px 0 6px}
+.aviso-lista div{background:#fff8e6;border:1px solid #f1d48a;border-radius:10px;padding:9px 12px;font-size:14px;letter-spacing:.4px;line-height:1.45}
+.aviso-lista small{display:block;color:#7a5a12;font-size:12px;letter-spacing:1px}
+@media (max-width:760px){.log-item{grid-template-columns:1fr}}
 .perfil-bt{border:0;border-radius:9px;font-size:11.5px;letter-spacing:2px;font-weight:600;padding:6px 12px}
 .perfil-bt.adm{background:#2f3d22;color:#f5d90a}
 .perfil-bt.col{background:#e6eadf;color:#3d4a30}
@@ -272,6 +293,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
           <button data-t="recusado">RECUSADAS</button>
           <button data-t="todos">COMPLETO</button>
         </div>
+        <div class="sug-topo" id="sugTopo"></div>
         <div id="sugList"></div>
       </div>
     </section>
@@ -380,6 +402,17 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
           <div class="thead"><div></div><div>NOME</div><div>SUGESTÃO</div><div>Atualizado em</div><div>STATUS</div></div>
           <div id="histList"></div>
         </div>
+
+        <div class="log-sec">
+          <div class="log-cab">
+            <h3>REGISTRO DE ALTERAÇÕES</h3>
+            <span style="display:flex;gap:10px;flex-wrap:wrap">
+              <input id="qLog" type="search" placeholder="Buscar por pessoa, ação ou resposta">
+              <button type="button" class="btn btn-ok" id="logAtualizar">ATUALIZAR</button>
+            </span>
+          </div>
+          <div id="logList"><div class="empty">Carregando…</div></div>
+        </div>
       </div>
     </section>
   </main>
@@ -449,6 +482,17 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
       <div class="senha-box" id="sVal"></div>
       <p class="txt" style="font-size:12px;color:#6b6b6b">Ela não será exibida de novo. No primeiro acesso, a pessoa escolhe a própria senha.</p>
       <div class="acts" style="grid-column:1"><button type="button" class="btn btn-ok" id="sCopiar">COPIAR</button><button class="btn btn-dark" type="submit">OK</button></div>
+    </form>
+  </div>
+</div>
+<!-- Aviso de sugestões atribuídas -->
+<div class="modal" id="mAviso" role="dialog" aria-modal="true" aria-labelledby="avTit" style="z-index:36">
+  <div class="dlg" style="width:min(520px,100%)">
+    <h2 id="avTit">VOCÊ TEM SUGESTÕES ATRIBUÍDAS</h2>
+    <form id="fAviso" style="grid-template-columns:1fr">
+      <p class="txt" id="avTxt"></p>
+      <div class="aviso-lista" id="avLista"></div>
+      <div class="acts" style="grid-column:1"><button type="button" class="btn btn-no" id="avFechar">DEPOIS</button><button class="btn btn-dark" type="submit">VER MINHAS SUGESTÕES</button></div>
     </form>
   </div>
 </div>
@@ -861,6 +905,7 @@ function go(v){
   atual = v;
   if(v === 'adm'){ statusSN(); carregarBase(); }
   if(v === 'alteracoes') carregarBase(true);
+  if(v === 'historico') carregarLog();
   $$('.view').forEach(x => x.classList.toggle('on', x.id === 'v-' + v));
   $$('#nav button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   $('#app').classList.toggle('is-home', v === 'inicio');
@@ -881,10 +926,17 @@ $$('[data-sair]').forEach(b => b.onclick = () => { me = null; try{ sessionStorag
 /* ---------- Sugestões ---------- */
 let aba = 'pendente';
 $$('#tabs button').forEach(b => b.onclick = () => { aba = b.dataset.t; $$('#tabs button').forEach(x => x.classList.toggle('on', x === b)); renderSug(); });
+let soMinhas = false;
+function usuariosAtivos(){ return Object.values(db.usuarios).filter(u => u.ativo !== false).sort((a, b) => String(a.nome).localeCompare(b.nome)); }
 function renderSug(){
-  // não redesenha enquanto alguém está editando um texto
-  if(document.activeElement && document.activeElement.matches('#sugList textarea')) return;
-  const l = lista().filter(s => aba === 'todos' || s.status === aba).sort((a,b) => b.criadoEm - a.criadoEm);
+  // não redesenha enquanto alguém está editando um texto ou escolhendo um usuário
+  if(document.activeElement && document.activeElement.matches('#sugList textarea, #sugList select')) return;
+  const minhas = lista().filter(s => s.status === 'pendente' && me && s.atribuidoA === me.u).length;
+  $('#sugTopo').innerHTML = minhas || soMinhas ? `<button type="button" id="btMinhas" class="${soMinhas ? 'on' : ''}">${soMinhas ? '✓ ' : ''}SÓ AS ATRIBUÍDAS A MIM (${minhas})</button>` : '';
+  const bm = $('#btMinhas'); if(bm) bm.onclick = () => { soMinhas = !soMinhas; renderSug(); };
+  const l = lista().filter(s => aba === 'todos' || s.status === aba)
+    .filter(s => !soMinhas || (me && s.atribuidoA === me.u))
+    .sort((a,b) => b.criadoEm - a.criadoEm);
   if(!l.length){
     $('#sugList').innerHTML = `<div class="empty">${aba === 'pendente' ? 'Nenhuma sugestão pendente.<br>Use o botão NOVA na tela inicial para enviar a primeira.' : 'Nada por aqui ainda.'}</div>`;
     return;
@@ -901,15 +953,56 @@ function renderSug(){
          ${s.justificativa ? `<div class="sug-nota"><b>POR QUÊ:</b> ${esc(s.justificativa)}</div>` : ''}
          <textarea data-id="${s.id}" ${pode ? '' : 'readonly'}>${esc(s.texto)}</textarea>
          ${pode ? `<div class="card-act"><button class="btn btn-no" data-rec="${s.id}">RECUSAR</button><button class="btn btn-ok" data-ace="${s.id}">ACEITAR</button></div>` : ''}
+         ${s.status === 'pendente' && isAdmin() ? `<div class="atrib">ATRIBUIR A:
+           <select data-atr="${s.id}"><option value="">— ninguém —</option>${usuariosAtivos().map(u => `<option value="${esc(u.u)}"${s.atribuidoA === u.u ? ' selected' : ''}>${esc(titulo(u.nome))}</option>`).join('')}</select></div>` : ''}
        </div>
      </div>
-     <div class="meta"><p>SUGESTÃO DE:</p><p class="v">${esc(primeiroNome(s.autor))}</p><p>EM:</p><p class="v">${fmt(s.criadoEm)}</p>
+     <div class="meta">${s.atribuidoA && s.status === 'pendente' ? `<p>ATRIBUÍDA A:</p><p class="atr">${esc(s.atribuidoNome || s.atribuidoA)}</p>` : ''}<p>SUGESTÃO DE:</p><p class="v">${esc(primeiroNome(s.autor))}</p><p>EM:</p><p class="v">${fmt(s.criadoEm)}</p>
        ${s.status !== 'pendente' ? `<p class="st ${s.status === 'aceito' ? 's-ace' : 's-rec'}">${s.status === 'aceito' ? 'ACEITO' : 'RECUSADO'}</p>` : ''}</div>
     </div>`;
   }).join('');
   $$('[data-ace]').forEach(b => b.onclick = () => decidir(b.dataset.ace, 'aceito'));
   $$('[data-rec]').forEach(b => b.onclick = () => decidir(b.dataset.rec, 'recusado'));
+  $$('[data-atr]').forEach(sel => sel.onchange = () => atribuir(sel.dataset.atr, sel.value));
 }
+async function atribuir(id, usuario){
+  if(!isAdmin()) return;
+  const s = db.sugestoes[id]; if(!s) return;
+  const u = usuario ? db.usuarios[usuario] : null;
+  const novo = {...s};
+  if(u){ Object.assign(novo, { atribuidoA: u.u, atribuidoNome: titulo(u.nome), atribuidoPor: titulo(me.nome), atribuidoEm: Date.now() }); }
+  else { ['atribuidoA','atribuidoNome','atribuidoPor','atribuidoEm'].forEach(k => delete novo[k]); }
+  try{
+    await gravar('sugestoes', id, novo);
+    document.activeElement.blur(); renderSug();
+    toast(u ? 'ATRIBUÍDA A ' + titulo(u.nome).toUpperCase() : 'ATRIBUIÇÃO REMOVIDA');
+    registrar(u ? 'Atribuiu sugestão' : 'Removeu atribuição', s.modelo, u ? 'para ' + titulo(u.nome) : (s.atribuidoNome ? 'era de ' + s.atribuidoNome : ''));
+  }catch(e){}
+}
+
+/* ---------- Aviso em pop-up: sugestões atribuídas a quem entrou ---------- */
+const CHAVE_AVISO = 'respostasSAC_avisoAtrib';
+function avisadas(){ try{ return new Set(JSON.parse(sessionStorage.getItem(CHAVE_AVISO) || '[]')); }catch(e){ return new Set(); } }
+function checarAtribuicoes(entrada){
+  if(!me) return;
+  const pend = lista().filter(s => s.status === 'pendente' && s.atribuidoA === me.u);
+  const ja = entrada ? new Set() : avisadas();
+  const novas = pend.filter(s => !ja.has(s.id));
+  if(!novas.length || $('#mAviso').classList.contains('on') || $('#login').classList.contains('on')) return;
+  try{ sessionStorage.setItem(CHAVE_AVISO, JSON.stringify(pend.map(s => s.id))); }catch(e){}
+  $('#avTit').textContent = novas.length > 1 ? `VOCÊ TEM ${novas.length} SUGESTÕES ATRIBUÍDAS` : 'VOCÊ TEM UMA SUGESTÃO ATRIBUÍDA';
+  $('#avTxt').textContent = entrada ? 'Estas sugestões pendentes foram atribuídas a você:' : 'Uma nova sugestão acabou de ser atribuída a você:';
+  $('#avLista').innerHTML = novas.slice(0, 8).map(s => `<div><b>${esc(s.modelo)}</b><small>${esc(s.tipo || '')}${s.atribuidoPor ? ' · atribuída por ' + esc(s.atribuidoPor) : ''}${s.atribuidoEm ? ' em ' + fmt(s.atribuidoEm) : ''}</small></div>`).join('')
+    + (novas.length > 8 ? `<div><small>e mais ${novas.length - 8}…</small></div>` : '');
+  $('#mAviso').classList.add('on');
+}
+$('#avFechar').onclick = () => $('#mAviso').classList.remove('on');
+$('#fAviso').onsubmit = e => {
+  e.preventDefault(); $('#mAviso').classList.remove('on');
+  soMinhas = true; aba = 'pendente';
+  $$('#tabs button').forEach(x => x.classList.toggle('on', x.dataset.t === 'pendente'));
+  go('sugestoes');
+};
 async function decidir(id, st){
   const s = db.sugestoes[id]; if(!s) return;
   const ta = document.querySelector(`textarea[data-id="${id}"]`);
@@ -921,6 +1014,8 @@ async function decidir(id, st){
       novo.publicadaComo = novo.respostaId;
     }
     await gravar('sugestoes', id, novo); document.activeElement.blur(); render();
+    registrar(st === 'aceito' ? 'Aceitou sugestão' : 'Recusou sugestão', s.modelo,
+      `${s.tipo || ''} · enviada por ${s.autor || '—'}${novo.respostaId ? ' · publicada como ' + novo.respostaId : ''}${s.atribuidoNome ? ' · estava atribuída a ' + s.atribuidoNome : ''}`);
     toast(st === 'aceito' ? 'SUGESTÃO ACEITA E PUBLICADA NO APP 02' : 'SUGESTÃO RECUSADA');
   }catch(e){ toast('NÃO FOI POSSÍVEL CONCLUIR: ' + e.message, true); }
 }
@@ -950,6 +1045,46 @@ async function notificarApp02(tipo, respostaId, nomeResp, autor, origem){
 }
 /* Códigos internos (ex.: CNHXZ2025-01-033): o App SAC esconde, mas eles precisam continuar no texto da base.
    Quando uma sugestão vem do App SAC sem o código, ele é devolvido ao texto na mesma posição (início ou fim). */
+/* ---------- Registro de alterações: quem fez e o que fez (respostasSAC/auditoria) ---------- */
+let logCache = null;
+async function registrar(acao, alvo, detalhe){
+  if(!FB_ON || !me) return;
+  try{
+    await fb('auditoria', 'POST', { em: Date.now(), usuario: me.u, nome: titulo(me.nome),
+      perfil: me.perfil === 'admin' ? 'Administrador' : 'Colaborativo',
+      acao, alvo: String(alvo || ''), detalhe: String(detalhe || '').slice(0, 600) });
+  }catch(e){}
+  logCache = null;
+  if(atual === 'historico') carregarLog();
+}
+function camposMudados(antes, depois){
+  const nomes = { nome:'nome', pilar:'pilar', subtema:'subtema', descricao:'descrição', texto:'texto', ativo:'aparece no App SAC' };
+  return Object.keys(nomes).filter(k => String(antes[k] ?? '') !== String(depois[k] ?? '')).map(k =>
+    k === 'texto' ? 'texto' : `${nomes[k]}: "${antes[k] ?? ''}" → "${depois[k] ?? ''}"`).join(' · ');
+}
+async function carregarLog(){
+  if(!FB_ON){ $('#logList').innerHTML = '<div class="empty">O registro precisa do Firebase configurado.</div>'; return; }
+  try{
+    if(!logCache){
+      const d = await fbQuery('auditoria', 'orderBy=%22%24key%22&limitToLast=600');
+      logCache = Object.keys(d || {}).map(k => d[k]).sort((a, b) => (b.em || 0) - (a.em || 0));
+    }
+    renderLog();
+  }catch(e){ $('#logList').innerHTML = `<div class="empty">Não foi possível carregar o registro: ${esc(e.message)}</div>`; }
+}
+function renderLog(){
+  const q = normN($('#qLog').value);
+  const l = (logCache || []).filter(x => !q || normN([x.nome, x.usuario, x.acao, x.alvo, x.detalhe].join(' ')).includes(q));
+  $('#logList').innerHTML = l.length ? l.slice(0, 300).map(x => `<div class="log-item">
+      <div class="d">${fmt(x.em)}</div>
+      <div class="q">${esc(x.nome || x.usuario)}<small>${esc(String(x.perfil || '').toUpperCase())}</small></div>
+      <div class="o"><b>${esc(x.acao)}</b>${x.alvo ? ' — ' + esc(x.alvo) : ''}${x.detalhe ? `<small>${esc(x.detalhe)}</small>` : ''}</div>
+    </div>`).join('') : '<div class="empty">Nenhuma alteração registrada ainda.</div>';
+}
+let buscaLogT;
+$('#qLog').oninput = () => { clearTimeout(buscaLogT); buscaLogT = setTimeout(renderLog, 200); };
+$('#logAtualizar').onclick = () => { logCache = null; carregarLog(); };
+
 const RE_CODIGO = /\b[A-Z]{2,15}\d{4}[-_.]\d{1,3}[-_.]\d{1,5}\b/g;
 function manterCodigos(textoAntigo, textoNovo){
   const antigo = String(textoAntigo || ''), novo = String(textoNovo || '');
@@ -1048,13 +1183,14 @@ $('#fResp').onsubmit = async e => {
     const dados = { nome: $('#rNome').value.trim(), pilar: $('#rPilar').value, subtema: $('#rSub').value.trim() || 'Outros',
       descricao: $('#rDesc').value.split('|').map(x => x.trim()).filter(Boolean).join(' | '), texto: $('#rTexto').value.trim(),
       ativo: $('#rAtivo').checked, atualizadoEm: agora, atualizadoPor: adm };
-    let id = editandoResp, obj;
+    let id = editandoResp, obj; const antes = id ? {...baseResp[id]} : null;
     if(id){ obj = {...baseResp[id], ...dados, id}; }
     else { id = await proximoNum('R', 'respostas'); obj = {id, tabelas:[], campo:'close_notes', codigo:'', obs:'', criadoEm:agora, ...dados}; }
     await fb('respostas/' + id, 'PUT', obj);
     baseResp[id] = obj;
     if($('#rNotif').checked && obj.ativo) await notificarApp02(editandoResp ? 'Resposta corrigida' : 'Nova resposta', id, obj.nome, '', '');
     await marcarVersao();
+    registrar(antes ? 'Editou resposta' : 'Criou resposta', `${id} ${obj.nome}`, antes ? (camposMudados(antes, obj) || 'sem mudanças nos campos') : `${obj.pilar} / ${obj.subtema}`);
     fecharResp(); renderBase(); if(atual === 'alteracoes') renderAlt(); toast(editandoResp ? 'RESPOSTA SALVA NA BASE DOS DOIS APPS' : 'NOVA RESPOSTA CRIADA NA BASE DOS DOIS APPS');
   }catch(err){ toast('NÃO FOI POSSÍVEL SALVAR: ' + err.message, true); }
   bt.disabled = false;
@@ -1112,6 +1248,7 @@ async function excluirRespostas(ids){
   if(!confirm(`EXCLUIR ${n} resposta${n > 1 ? 's' : ''} da base?\n\nIsso apaga de vez e some do App SAC. Se só quiser tirar da pesquisa, use "Ocultar no App SAC".`)) return;
   if(n > 5 && prompt(`Para confirmar, digite EXCLUIR`) !== 'EXCLUIR') return toast('EXCLUSÃO CANCELADA');
   const mud = {};
+  const nomesExcl = ids.map(id => id + ' ' + ((baseResp[id] || {}).nome || '')).join('; ');
   ids.forEach(id => { mud['respostas/' + id] = null; mud['respostasHtml/' + id] = null; });
   try{
     const chaves = Object.keys(mud);
@@ -1123,6 +1260,7 @@ async function excluirRespostas(ids){
     await marcarVersao();
     $('#altAcao').value = ''; renderAlt(); renderBase();
     toast(`${n} RESPOSTA${n > 1 ? 'S EXCLUÍDAS' : ' EXCLUÍDA'}`);
+    registrar('Excluiu da base', `${n} resposta${n > 1 ? 's' : ''}`, nomesExcl);
   }catch(e){ toast('NÃO FOI POSSÍVEL EXCLUIR: ' + e.message, true); }
 }
 
@@ -1190,6 +1328,7 @@ $('#altAplicar').onclick = async () => {
     selAlt.clear(); $('#altAcao').value = ''; $('#altValTexto').value = '';
     renderAlt(); renderBase();
     toast(`${ids.length} RESPOSTA${ids.length > 1 ? 'S ALTERADAS' : ' ALTERADA'}`);
+    registrar('Alteração em massa: ' + frase, `${ids.length} resposta${ids.length > 1 ? 's' : ''}`, ids.slice(0, 60).join(', ') + (ids.length > 60 ? '…' : ''));
   }catch(e){ toast('NÃO FOI POSSÍVEL ALTERAR: ' + e.message, true); atualizarMassa(); }
 };
 async function alternarVisivel(id, bt){
@@ -1204,6 +1343,7 @@ async function alternarVisivel(id, bt){
     await marcarVersao();   // o App SAC se atualiza sozinho
     renderAlt(); if(baseResp) renderBase();
     toast(novo ? 'AGORA APARECE NO APP SAC' : 'OCULTA NO APP SAC');
+    registrar(novo ? 'Mostrou no App SAC' : 'Ocultou no App SAC', `${id} ${r.nome}`);
   }catch(e){ bt.disabled = false; toast('NÃO FOI POSSÍVEL ALTERAR: ' + e.message, true); }
 }
 function renderHist(){
@@ -1236,14 +1376,15 @@ function renderUsers(){
   $$('[data-tg]').forEach(b => b.onclick = async () => {
     const u = db.usuarios[b.dataset.tg];
     if(me && u.u === me.u){ toast('VOCÊ NÃO PODE INATIVAR O PRÓPRIO USUÁRIO', true); return; }
-    try{ await gravar('usuarios', u.u, {...u, ativo: !u.ativo}); renderUsers(); }catch(e){}
+    try{ await gravar('usuarios', u.u, {...u, ativo: !u.ativo}); renderUsers(); registrar(u.ativo ? 'Inativou usuário' : 'Ativou usuário', `${u.u} (${titulo(u.nome)})`); }catch(e){}
   });
   $$('[data-pf]').forEach(b => b.onclick = async () => {
     const u = db.usuarios[b.dataset.pf]; if(!u) return;
     if(me && u.u === me.u){ toast('VOCÊ NÃO PODE MUDAR O PRÓPRIO PERFIL', true); return; }
     const novo = u.perfil === 'admin' ? 'colab' : 'admin';
     if(!confirm(`Mudar ${u.nome} para ${novo === 'admin' ? 'ADMINISTRADOR' : 'COLABORATIVO'}?`)) return;
-    try{ await gravar('usuarios', u.u, {...u, perfil: novo}); renderUsers(); toast(novo === 'admin' ? 'AGORA É ADMINISTRADOR' : 'AGORA É COLABORATIVO'); }catch(e){}
+    try{ await gravar('usuarios', u.u, {...u, perfil: novo}); renderUsers(); toast(novo === 'admin' ? 'AGORA É ADMINISTRADOR' : 'AGORA É COLABORATIVO');
+      registrar('Mudou perfil de usuário', `${u.u} (${titulo(u.nome)})`, novo === 'admin' ? 'Colaborativo → Administrador' : 'Administrador → Colaborativo'); }catch(e){}
   });
   $$('[data-rs]').forEach(b => b.onclick = async () => {
     const u = db.usuarios[b.dataset.rs];
@@ -1253,7 +1394,8 @@ function renderUsers(){
       const nu = {...u, ...(await credencial(senha)), trocarSenha:true}; delete nu.senhaProvisoria; delete nu.hashTipo;
       if(nu.uid) nu.authVinculo = 'senha-diferente';   // o Authentication só é atualizado quando a própria pessoa troca a senha
       await gravar('usuarios', u.u, nu);
-      renderUsers(); await mostrarSenha(`Nova senha provisória de ${u.nome} (usuário: ${u.u}):`, senha);
+      renderUsers(); registrar('Gerou nova senha provisória', `${u.u} (${titulo(u.nome)})`);
+      await mostrarSenha(`Nova senha provisória de ${u.nome} (usuário: ${u.u}):`, senha);
     }catch(e){}
   });
 }
@@ -1275,7 +1417,8 @@ $('#addUser').onsubmit = async e => {
   try{
     await gravar('usuarios', u, {u, nome:n, email, ...(uid ? {uid, authVinculo:'ok'} : {}), perfil:$('#uPerfil').value, ativo:true, criadoEm:Date.now(), ...(await credencial(senha)), trocarSenha:true});
     $('#addMsg').textContent = ''; $('#uUser').value = $('#uNome').value = $('#uEmail').value = ''; $('#uPerfil').value = 'colab';
-    renderUsers(); await mostrarSenha(`Usuário ${u} (${email}) criado${uid ? ' no app e no Authentication' : ''}. Envie esta senha provisória para ${titulo(n)}:${avisoAuth}`, senha);
+    renderUsers(); registrar('Criou usuário', `${u} (${titulo(n)})`, `${email} · perfil ${$('#uPerfil').value === 'admin' ? 'Administrador' : 'Colaborativo'}`);
+    await mostrarSenha(`Usuário ${u} (${email}) criado${uid ? ' no app e no Authentication' : ''}. Envie esta senha provisória para ${titulo(n)}:${avisoAuth}`, senha);
   }catch(e){}
 };
 
@@ -1325,6 +1468,7 @@ $('#snArquivo').onchange = async e => {
     }
     await fb('servicenowMeta', 'PUT', d.meta);
     snLog('Arquivo importado. Agora clique em Atualizar base de respostas.'); statusSN();
+    registrar('Importou arquivo da coleta do ServiceNow', `${ks.length} modelos`);
   }catch(err){ snLog('Não foi possível importar: ' + err.message, true); }
 };
 const normN = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
@@ -1396,6 +1540,7 @@ $('#snAplicar').onclick = async () => {
     await fb('servicenowMeta/aplicadoEm', 'PUT', Date.now());
     await marcarVersao();
     const fora = Object.keys(base).filter(id => !nomesSN.has(normN(base[id].nome))).length;
+    registrar('Atualizou a base pelo Coletor ServiceNow', '', `${novas} novas · ${atualizadas} atualizadas · ${iguais} sem mudança`);
     snLog(`Base atualizada: ${novas} respostas novas, ${atualizadas} atualizadas, ${iguais} sem mudança.` +
       (fora ? ` ${fora} respostas da base não existem no ServiceNow e foram mantidas como estão.` : '') +
       (novas ? ` As novas entram com o subtema "A classificar" no app de consulta.` : ''));
@@ -1434,6 +1579,7 @@ $('#fNova').onsubmit = async e => {
       tipo:$('#fTipo').value, categoria:$('#fCat').value.trim(), texto:$('#fTexto').value,
       autor: me ? me.nome : '', autorUsuario: me ? me.u : '', criadoEm: Date.now(), status:'pendente'});
     fechar(); render(); toast('SUGESTÃO ENVIADA');
+    registrar('Enviou sugestão', $('#fModelo').value.trim(), $('#fTipo').value);
   }catch(e){} finally{ btn.disabled = false; }
 };
 
@@ -1463,6 +1609,7 @@ function entrar(u){
   $('#login').classList.remove('on');
   $$('[data-admin]').forEach(b => b.style.display = isAdmin() ? '' : 'none');
   go('inicio');
+  setTimeout(() => checarAtribuicoes(true), 400);   // pop-up com as sugestões atribuídas a quem entrou
 }
 $('#fLogin').onsubmit = async e => {
   e.preventDefault();
@@ -1537,7 +1684,7 @@ if(!FB_ON) $('#modo').classList.add('on');
         /* perfil mudou em Edições ADM: ajusta o menu na hora */
         $$('[data-admin]').forEach(b => b.style.display = isAdmin() ? '' : 'none');
         if(atual === 'adm' && !isAdmin()){ go('inicio'); toast('SEU PERFIL AGORA É COLABORATIVO', true); }
-        render(); }
+        render(); checarAtribuicoes(false); }
     }catch(e){}
   }, INTERVALO_ATUALIZACAO);
 })();
