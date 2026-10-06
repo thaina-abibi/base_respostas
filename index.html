@@ -116,10 +116,16 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 .log-item .o b{letter-spacing:1px}
 .log-item .o small{display:block;color:#555;margin-top:2px;overflow-wrap:anywhere}
 .log-item .d{color:var(--muted);font-size:13px}
-#mAviso .dlg h2{background:#d97706}
+#mAviso .dlg h2{background:var(--side);display:flex;align-items:center;justify-content:center;gap:14px;padding-left:16px;padding-right:16px}
+#mAviso .sino{flex:0 0 auto;width:40px;height:40px;border-radius:50%;background:#f5d90a;color:var(--side);display:grid;place-items:center;animation:balanca 1.2s ease-in-out 2}
+#mAviso .sino svg{width:22px;height:22px}
+@keyframes balanca{0%,100%{transform:rotate(0)}20%{transform:rotate(14deg)}40%{transform:rotate(-12deg)}60%{transform:rotate(8deg)}80%{transform:rotate(-4deg)}}
+@media (prefers-reduced-motion:reduce){#mAviso .sino{animation:none}}
 .aviso-lista{display:grid;gap:8px;margin:4px 0 6px}
-.aviso-lista div{background:#fff8e6;border:1px solid #f1d48a;border-radius:10px;padding:9px 12px;font-size:14px;letter-spacing:.4px;line-height:1.45}
-.aviso-lista small{display:block;color:#7a5a12;font-size:12px;letter-spacing:1px}
+.aviso-lista div{background:#e3ebdc;border:1px solid #b9cfa3;border-left:4px solid var(--side);border-radius:10px;padding:9px 12px;font-size:14px;letter-spacing:.4px;line-height:1.45}
+.aviso-lista small{display:block;color:#3d5a26;font-size:12px;letter-spacing:1px}
+#mAviso .btn-tarde{background:var(--red);color:#fff}
+#mAviso .btn-tarde:hover{filter:brightness(1.08)}
 @media (max-width:760px){.log-item{grid-template-columns:1fr}}
 .perfil-bt{border:0;border-radius:9px;font-size:11.5px;letter-spacing:2px;font-weight:600;padding:6px 12px}
 .perfil-bt.adm{background:#2f3d22;color:#f5d90a}
@@ -488,11 +494,11 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 <!-- Aviso de sugestões atribuídas -->
 <div class="modal" id="mAviso" role="dialog" aria-modal="true" aria-labelledby="avTit" style="z-index:36">
   <div class="dlg" style="width:min(520px,100%)">
-    <h2 id="avTit">VOCÊ TEM SUGESTÕES ATRIBUÍDAS</h2>
+    <h2><span class="sino" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><span id="avTit">VOCÊ TEM SUGESTÕES ATRIBUÍDAS</span></h2>
     <form id="fAviso" style="grid-template-columns:1fr">
       <p class="txt" id="avTxt"></p>
       <div class="aviso-lista" id="avLista"></div>
-      <div class="acts" style="grid-column:1"><button type="button" class="btn btn-no" id="avFechar">DEPOIS</button><button class="btn btn-dark" type="submit">VER MINHAS SUGESTÕES</button></div>
+      <div class="acts" style="grid-column:1"><button type="button" class="btn btn-tarde" id="avFechar">DEPOIS</button><button class="btn btn-dark" type="submit">VER MINHAS SUGESTÕES</button></div>
     </form>
   </div>
 </div>
@@ -991,7 +997,8 @@ function checarAtribuicoes(entrada){
   if(!novas.length || $('#mAviso').classList.contains('on') || $('#login').classList.contains('on')) return;
   try{ sessionStorage.setItem(CHAVE_AVISO, JSON.stringify(pend.map(s => s.id))); }catch(e){}
   $('#avTit').textContent = novas.length > 1 ? `VOCÊ TEM ${novas.length} SUGESTÕES ATRIBUÍDAS` : 'VOCÊ TEM UMA SUGESTÃO ATRIBUÍDA';
-  $('#avTxt').textContent = entrada ? 'Estas sugestões pendentes foram atribuídas a você:' : 'Uma nova sugestão acabou de ser atribuída a você:';
+  $('#avTxt').textContent = !entrada ? (novas.length > 1 ? 'Novas sugestões acabaram de ser atribuídas a você:' : 'Uma nova sugestão acabou de ser atribuída a você:')
+    : (novas.length > 1 ? 'Estas sugestões pendentes foram atribuídas a você:' : 'Esta sugestão pendente foi atribuída a você:');
   $('#avLista').innerHTML = novas.slice(0, 8).map(s => `<div><b>${esc(s.modelo)}</b><small>${esc(s.tipo || '')}${s.atribuidoPor ? ' · atribuída por ' + esc(s.atribuidoPor) : ''}${s.atribuidoEm ? ' em ' + fmt(s.atribuidoEm) : ''}</small></div>`).join('')
     + (novas.length > 8 ? `<div><small>e mais ${novas.length - 8}…</small></div>` : '');
   $('#mAviso').classList.add('on');
