@@ -31,6 +31,12 @@ button{font:inherit;cursor:pointer}
 .side.closed .burger{right:14px}
 .logo{margin-top:22px;width:160px;height:auto;border-radius:12px}
 nav{margin-top:58px;width:100%;display:flex;flex-direction:column;align-items:center}
+nav button.nav-api{width:104px;padding:14px 0 12px;margin-top:20px;border:2px solid #c9dbb2;border-top:0;border-radius:0 0 16px 16px;color:#e6e8df}
+nav button.nav-api::after{display:none}
+nav button.nav-api svg{width:46px;height:46px}
+nav button.nav-api:hover{color:#f5d90a;border-color:#f5d90a}
+.btn-sn{background:#f5d90a;color:#1f2a17}
+.btn-sn:hover{filter:brightness(1.05)}
 nav button{background:none;border:0;color:#eef0e8;font-size:24px;letter-spacing:3.5px;padding:22px 0 18px;width:250px;position:relative;display:flex;justify-content:center;align-items:center;gap:10px;transition:color .2s}
 nav button:hover{color:#fff7b0}
 nav button::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:2px;background:var(--side-line);width:100%;opacity:.85}
@@ -287,6 +293,9 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
       <button data-v="alteracoes">Base Completa</button>
       <button data-v="adm" data-admin>Edições ADM</button>
       <button data-v="historico">Histórico</button>
+      <button type="button" class="nav-api" id="btApiSN" title="Copiar a API do ServiceNow (cole no Console F12 da lista de Modelos)" aria-label="Copiar a API do ServiceNow">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 2h7.6L20 6.4V18a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V7h3.5z"/><path d="M4 6h1v13a2 2 0 0 0 2 2h10v1H6a3 3 0 0 1-3-3V7a1 1 0 0 1 1-1z" opacity=".8"/></svg>
+      </button>
     </nav>
     <button class="sair-bottom" data-sair>Sair <svg viewBox="0 0 24 24"><path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/></svg></button>
   </aside>
@@ -450,7 +459,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
         <label class="bolinha-op"><input type="checkbox" class="bolinha" id="rNotif" checked><span>NOTIFICAR NO APP 02</span></label>
       </div>
       <div class="lmsg full" id="rInfo" style="color:#666"></div>
-      <div class="acts"><button type="button" class="btn btn-no" id="rExcluir" style="margin-right:auto">EXCLUIR</button><button type="button" class="btn btn-no" id="rCancel">CANCELAR</button><button class="btn btn-dark" type="submit" id="rSalvar">SALVAR</button></div>
+      <div class="acts"><button type="button" class="btn btn-no" id="rExcluir" style="margin-right:auto">EXCLUIR</button><button type="button" class="btn btn-sn" id="rCopiarSN" title="Copia nome, descrição e texto para colar na API do ServiceNow">📋 COPIAR P/ SERVICENOW</button><button type="button" class="btn btn-no" id="rCancel">CANCELAR</button><button class="btn btn-dark" type="submit" id="rSalvar">SALVAR</button></div>
     </form>
   </div>
 </div>
@@ -517,6 +526,295 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 </div>
 <div class="toast" id="toast"></div>
 <div class="modo" id="modo">Modo local: Firebase não configurado</div>
+
+<script type="text/plain" id="codigo-api-sn">
+/* ============================================================
+   MODELOS SAC – Inserir / Alterar (sys_template) via console F12
+   Cole no console da página do ServiceNow e pressione Enter.
+   Integração com o App 01 (Gestão): copie no app → aqui clique em
+   "COLAR DO APP 01" (ou Ctrl+V) → aperte Enter.
+   ============================================================ */
+(async () => {
+  // ---------- CONFIGURAÇÃO ----------
+  const TABELAS = [
+    ['x_mdpdd_detran_csm_adm_case',            'SAC - Serviços Administrativos (Exclusivo para Servidores)'],
+    ['x_mdpdd_detran_csm_education_case',      'SAC - Todos casos (education_case)'],
+    ['x_mdpdd_detran_csm_driver_licence_case', 'SAC - Casos de habilitação'],
+    ['x_mdpdd_detran_csm_vehicle_case',        'SAC - Casos de veículos'],
+    ['x_mdpdd_detran_csm_inspection_case',     'SAC - Casos de fiscalização'],
+    ['x_mdpdd_detran_csm_general_case',        'SAC - Agentes Regulados'],
+  ];
+  const CAMPO_HTML   = 'close_notes';               // "Anotações de resolução"
+  const REF_DOMINIO  = '0 - Solicitação Atendida';  // modelo de onde copiar domínio/global
+  const REF_TABELA   = 'x_mdpdd_detran_csm_adm_case';
+  const MARCA_APP    = 'RESPOSTAS_SAC::';           // prefixo do que o App 01 copia
+
+  // ---------- TOKEN DA SESSÃO ----------
+  const getToken = () => {
+    const tentativas = [
+      () => window.g_ck,
+      () => document.querySelector('iframe#gsft_main')?.contentWindow?.g_ck,
+      () => window.NOW?.g_ck,
+      () => document.querySelector('macroponent-f51912f4c700201072b211d4d8c26010')
+              ?.shadowRoot?.querySelector('iframe#gsft_main')?.contentWindow?.g_ck,
+      () => { for (let i = 0; i < window.frames.length; i++) { try { if (window.frames[i].g_ck) return window.frames[i].g_ck; } catch (e) {} } },
+    ];
+    for (const t of tentativas) { try { const v = t(); if (v) return v; } catch (e) {} }
+    return null;
+  };
+  let ck = getToken();
+  if (!ck) ck = prompt('Não achei o token (g_ck). Rode "g_ck" no console dentro do frame do formulário e cole aqui:');
+  if (!ck) { alert('Sem token, não dá pra continuar.'); return; }
+
+  // ---------- API ----------
+  const api = async (method, path, body) => {
+    const r = await fetch('/api/now/table/' + path, {
+      method,
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-UserToken': ck },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(`${r.status} - ${j?.error?.message || r.statusText} ${j?.error?.detail || ''}`);
+    return j.result;
+  };
+  const q = s => encodeURIComponent(s);
+  const buscarPorNome = (nome, extra = '') =>
+    api('GET', `sys_template?sysparm_query=${q('name=' + nome + extra)}` +
+               `&sysparm_fields=sys_id,name,table,short_description,template,sys_domain,global&sysparm_limit=100`);
+
+  // ---------- TEMPLATE (string codificada "campo=valor^campo=valor^EQ") ----------
+  const parseTpl = (s = '') => {
+    const segs = []; let cur = '';
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (c === '^') { if (s[i + 1] === '^') { cur += '^'; i++; } else { segs.push(cur); cur = ''; } }
+      else cur += c;
+    }
+    if (cur) segs.push(cur);
+    return segs.filter(x => x && x !== 'EQ').map(x => {
+      const k = x.indexOf('=');
+      return k < 0 ? [x, null] : [x.slice(0, k), x.slice(k + 1)];
+    });
+  };
+  const buildTpl = pares =>
+    pares.map(([k, v]) => v === null ? k : `${k}=${String(v).replace(/\^/g, '^^')}`).join('^') + '^EQ';
+  const setCampo = (pares, campo, valor) => {
+    const i = pares.findIndex(([k]) => k === campo);
+    if (i >= 0) pares[i][1] = valor; else pares.push([campo, valor]);
+    return pares;
+  };
+  const envolverHtml = corpo =>
+`<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+${corpo}
+
+</body>
+</html>`;
+
+  // ---------- PAINEL ----------
+  document.getElementById('__painel_modelos')?.remove();
+  const p = document.createElement('div');
+  p.id = '__painel_modelos';
+  p.tabIndex = -1;
+  p.style.cssText = `position:fixed;top:60px;right:20px;width:560px;max-height:85vh;overflow:auto;z-index:999999;
+    background:#f6fbf7;border:2px solid #2f3d22;border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.3);
+    font:13px/1.4 Arial,sans-serif;color:#1f2d24;padding:0;outline:none`;
+  p.innerHTML = `
+    <div id="pm_topo" style="display:flex;justify-content:space-between;align-items:center;
+         background:#2f3d22;color:#fff;padding:8px 12px;border-radius:5px 5px 0 0">
+      <b style="font-size:15px">Modelos SAC</b>
+      <span>
+        <button id="pm_min" title="Minimizar" style="border:0;background:none;color:#fff;font-size:18px;cursor:pointer;padding:0 6px">—</button>
+        <button id="pm_fechar" title="Fechar" style="border:0;background:none;color:#fff;font-size:18px;cursor:pointer;padding:0 6px">✕</button>
+      </span>
+    </div>
+    <div id="pm_corpo" style="padding:14px">
+    <button id="pm_colar" style="width:100%;padding:10px;cursor:pointer;background:#f5d90a;color:#1f2a17;border:0;border-radius:6px;font-weight:bold;letter-spacing:1px;margin-bottom:6px">📋 COLAR DO APP 01</button>
+    <div id="pm_origem" style="font-size:12px;color:#555;margin-bottom:10px">Copie a resposta no App 01 e clique aqui (ou aperte Ctrl+V com este painel aberto). Depois é só apertar <b>Enter</b>.</div>
+    <label><input type="radio" name="pm_modo" value="alterar" checked> Alterar existente</label>
+    &nbsp;&nbsp;
+    <label><input type="radio" name="pm_modo" value="inserir"> Inserir nova resposta (6 tabelas)</label>
+    <div id="pm_box_atual" style="margin-top:10px">
+      <div><b>Nome atual em sistema</b> (exato)</div>
+      <input id="pm_atual" style="width:100%;padding:5px;border:1px solid #9fcfac;border-radius:4px;box-sizing:border-box" placeholder="ex: 0 - Solicitação Atendida">
+    </div>
+    <div style="margin-top:10px"><b>(A) Nome</b> <span id="pm_hint_a" style="color:#888">— vazio = manter</span></div>
+    <input id="pm_nome" style="width:100%;padding:5px;border:1px solid #9fcfac;border-radius:4px;box-sizing:border-box">
+    <div style="margin-top:10px"><b>(B) Descrição resumida</b> <span class="pm_hint" style="color:#888">— vazio = manter</span></div>
+    <input id="pm_desc" style="width:100%;padding:5px;border:1px solid #9fcfac;border-radius:4px;box-sizing:border-box" placeholder="ex: Resposta Resolutiva">
+    <div style="margin-top:10px"><b>(C) Modelo (HTML)</b> <span class="pm_hint" style="color:#888">— vazio = manter</span></div>
+    <textarea id="pm_html" style="width:100%;height:160px;padding:5px;border:1px solid #9fcfac;border-radius:4px;box-sizing:border-box;font-family:monospace;font-size:12px"
+      placeholder="Prezado(a),&#10;&#10;Informamos que sua solicitação foi atendida.&#10;&#10;Agradecemos pelo contato."></textarea>
+    <label><input type="checkbox" id="pm_wrap" checked> Gerar HTML completo (texto vira &lt;p&gt;, linha em branco = novo parágrafo, **negrito**)</label>
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button id="pm_prev" style="padding:6px 12px;cursor:pointer;background:#fff;color:#2f3d22;border:1px solid #2f3d22;border-radius:4px">Pré-visualizar</button>
+      <button id="pm_exec" style="padding:6px 12px;cursor:pointer;background:#2f3d22;color:#fff;border:0;border-radius:4px">Executar (Enter)</button>
+    </div>
+    <pre id="pm_log" style="margin-top:12px;background:#e3ebdc;border:1px solid #b9cfa3;border-radius:4px;padding:8px;white-space:pre-wrap;max-height:260px;overflow:auto;font-size:12px"></pre>
+    </div>`;
+  document.body.appendChild(p);
+
+  const $ = id => p.querySelector('#' + id);
+  const modo = () => p.querySelector('input[name=pm_modo]:checked').value;
+  const log = (t, limpar) => { if (limpar) $('pm_log').textContent = ''; $('pm_log').textContent += t + '\n'; };
+  const atualizarUI = () => {
+    const ins = modo() === 'inserir';
+    $('pm_box_atual').style.display = ins ? 'none' : 'block';
+    p.querySelectorAll('.pm_hint').forEach(e => e.style.display = ins ? 'none' : 'inline');
+    $('pm_hint_a').textContent = ins ? '— obrigatório' : '— vazio = manter';
+  };
+  p.querySelectorAll('input[name=pm_modo]').forEach(r => r.onchange = () => { doApp = false; atualizarUI(); });
+  ['pm_atual','pm_nome','pm_desc','pm_html'].forEach(id => $(id).addEventListener('input', () => { doApp = false; }));
+  let minimizado = false;
+  $('pm_min').onclick = () => {
+    minimizado = !minimizado;
+    $('pm_corpo').style.display = minimizado ? 'none' : 'block';
+    p.style.width = minimizado ? '220px' : '560px';
+    p.style.overflow = minimizado ? 'hidden' : 'auto';
+    $('pm_min').textContent = minimizado ? '▢' : '—';
+    $('pm_min').title = minimizado ? 'Restaurar' : 'Minimizar';
+  };
+
+  // Texto simples -> HTML
+  const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const pareceHtml = t => /<\/?(p|br|div|span|b|strong|i|em|u|a|ul|ol|li|table|tr|td|html|body|h[1-6])\b[^>]*>/i.test(t);
+  const textoParaHtml = t => t.replace(/\r/g, '')
+    .split(/\n\s*\n/).map(b => b.trim()).filter(Boolean)
+    .map(b => '<p>' + esc(b).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>') + '</p>')
+    .join('\n\n');
+  const lerHtml = () => {
+    const h = $('pm_html').value.trim();
+    if (!h) return '';
+    const corpo = pareceHtml(h) ? h : textoParaHtml(h);
+    return ($('pm_wrap').checked && !/^<html/i.test(corpo)) ? envolverHtml(corpo) : corpo;
+  };
+
+  // ---------- COLAR DO APP 01 ----------
+  let doApp = false;   // true = dados vieram do App 01 (Enter executa sem perguntar de novo)
+  const aplicarDoApp = texto => {
+    texto = String(texto || '').trim();
+    if (!texto.startsWith(MARCA_APP)) { log('A área de transferência não tem uma resposta copiada do App 01.\nNo App 01, clique em "COPIAR P/ SERVICENOW" e tente de novo.', true); return false; }
+    let d; try { d = JSON.parse(texto.slice(MARCA_APP.length)); } catch (e) { log('Conteúdo copiado do App 01 está incompleto. Copie de novo.', true); return false; }
+    p.querySelector(`input[name=pm_modo][value=${d.modo === 'inserir' ? 'inserir' : 'alterar'}]`).checked = true;
+    atualizarUI();
+    $('pm_atual').value = d.nomeAtual || '';
+    $('pm_nome').value  = d.modo === 'alterar' && d.nome === d.nomeAtual ? '' : (d.nome || '');
+    $('pm_desc').value  = d.descricao || '';
+    $('pm_html').value  = d.html || '';
+    $('pm_wrap').checked = true;
+    doApp = true;
+    $('pm_origem').innerHTML = `<b style="color:#2f3d22">✔ Colado do App 01:</b> ${esc(d.nome || d.nomeAtual || '')} — ${d.modo === 'inserir' ? 'INSERIR nas 6 tabelas' : 'ALTERAR o existente'}. Confira abaixo e aperte <b>Enter</b>.`;
+    rodar(false)();          // mostra a pré-visualização
+    p.focus();
+    return true;
+  };
+  $('pm_colar').onclick = async () => {
+    try { aplicarDoApp(await navigator.clipboard.readText()); }
+    catch (e) { log('O navegador não deixou ler a área de transferência. Clique no painel e aperte Ctrl+V.', true); p.focus(); }
+  };
+  const aoColar = e => {
+    if (!document.body.contains(p)) return document.removeEventListener('paste', aoColar, true);
+    const t = (e.clipboardData || window.clipboardData).getData('text');
+    if (t && t.trim().startsWith(MARCA_APP)) { e.preventDefault(); e.stopPropagation(); aplicarDoApp(t); }
+  };
+  document.addEventListener('paste', aoColar, true);
+  // Enter executa (fora da caixa de HTML; dentro dela use Ctrl+Enter)
+  p.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const naCaixa = e.target && e.target.id === 'pm_html';
+    if (naCaixa && !e.ctrlKey) return;
+    e.preventDefault(); $('pm_exec').click();
+  });
+  $('pm_fechar').onclick = () => { document.removeEventListener('paste', aoColar, true); p.remove(); };
+
+  // ---------- ALTERAR ----------
+  const planoAlterar = async () => {
+    const atual = $('pm_atual').value.trim();
+    if (!atual) throw new Error('Informe o nome atual em sistema.');
+    const regs = await buscarPorNome(atual);
+    if (!regs.length) throw new Error(`Nenhum modelo com o nome "${atual}".`);
+    return regs;
+  };
+  const alterar = async (exec) => {
+    const regs = await planoAlterar();
+    const nome = $('pm_nome').value.trim(), desc = $('pm_desc').value.trim(), html = lerHtml();
+    if (!nome && !desc && !html) throw new Error('Nada para alterar: preencha A, B ou C.');
+    log(`${regs.length} registro(s) com esse nome:`, true);
+    regs.forEach(r => log(`  • ${r.table}  |  ${r.short_description}`));
+    log(`\nVai alterar: ${[nome && 'Nome', desc && 'Descrição', html && 'Modelo'].filter(Boolean).join(', ')}`);
+    if (html) log(`\n--- HTML que será gravado ---\n${html}\n-----------------------------`);
+    if (!exec) { if (doApp) log('\n▶ Aperte Enter para gravar.'); return; }
+    if (!doApp && !confirm(`Alterar ${regs.length} registro(s)?`)) return log('Cancelado.');
+    for (const r of regs) {
+      const body = {};
+      if (nome) body.name = nome;
+      if (desc) body.short_description = desc;
+      if (html) body.template = buildTpl(setCampo(parseTpl(r.template), CAMPO_HTML, html));
+      try { await api('PATCH', `sys_template/${r.sys_id}`, body); log(`✔ ${r.table}`); }
+      catch (e) { log(`✘ ${r.table}: ${e.message}`); }
+    }
+    doApp = false;
+    log('\nConcluído. Atualize a lista para conferir.');
+  };
+
+  // ---------- INSERIR ----------
+  const inserir = async (exec) => {
+    const nome = $('pm_nome').value.trim(), desc = $('pm_desc').value.trim(), html = lerHtml();
+    if (!nome || !desc || !html) throw new Error('Para inserir, A, B e C são obrigatórios.');
+    const existentes = await buscarPorNome(nome);
+    const jaTem = new Set(existentes.map(r => r.table));
+    log(`Nome: ${nome}\nDescrição: ${desc}\n`, true);
+    TABELAS.forEach(([t, l]) => log(`  ${jaTem.has(t) ? '⏭ já existe' : '➕ criar   '}  ${l}  [${t}]`));
+    const ref = (await buscarPorNome(REF_DOMINIO, `^table=${REF_TABELA}`))[0];
+    const dominio = ref?.sys_domain?.value || ref?.sys_domain || '';
+    log(`\nDomínio: ${dominio ? 'copiado de "' + REF_DOMINIO + '"' : 'padrão do usuário'} | Global: sim`);
+    log(`\n--- HTML que será gravado ---\n${html}\n-----------------------------`);
+    if (!exec) { if (doApp) log('\n▶ Aperte Enter para gravar.'); return; }
+    const criar = TABELAS.filter(([t]) => !jaTem.has(t));
+    if (!criar.length) return log('\nNada a criar.');
+    if (!doApp && !confirm(`Criar ${criar.length} modelo(s)?`)) return log('Cancelado.');
+    const template = buildTpl([[CAMPO_HTML, html]]);
+    for (const [t, l] of criar) {
+      const body = { name: nome, table: t, short_description: desc, template, active: true, global: true };
+      if (dominio) body.sys_domain = dominio;
+      try {
+        const r = await api('POST', 'sys_template', body);
+        // garante Ativo/Global (alguns ambientes ignoram no insert)
+        if (String(r.active) !== 'true' || String(r.global) !== 'true') {
+          const r2 = await api('PATCH', `sys_template/${r.sys_id}`, { active: true, global: true }).catch(e => ({ erro: e.message }));
+          if (r2.erro || String(r2.active) !== 'true' || String(r2.global) !== 'true')
+            log(`⚠ ${l}: criado, mas Ativo/Global não ficaram marcados ${r2.erro ? '(' + r2.erro + ')' : '(sem permissão?)'}`);
+        }
+        log(`✔ ${l} (sys_id ${r.sys_id})`);
+      }
+      catch (e) { log(`✘ ${l}: ${e.message}`); }
+    }
+    doApp = false;
+    log('\nConcluído. Atualize a lista para conferir.');
+  };
+
+  let rodando = false;
+  const rodar = exec => async () => {
+    if (rodando) return;
+    rodando = true;
+    try { await (modo() === 'inserir' ? inserir(exec) : alterar(exec)); }
+    catch (e) { log('ERRO: ' + e.message, !exec); }
+    finally { rodando = false; }
+  };
+  $('pm_prev').onclick = rodar(false);
+  $('pm_exec').onclick = rodar(true);
+  atualizarUI();
+  p.focus();
+  console.log('%cPainel de Modelos SAC aberto. Ctrl+V cola o que foi copiado no App 01.', 'color:#2f3d22;font-weight:bold');
+})();
+
+</script>
 
 <script type="text/plain" id="codigo-coletor">
 (function(){
@@ -971,6 +1269,7 @@ function renderSug(){
          ${s.problema ? `<div class="sug-nota"><b>PROBLEMA APONTADO:</b> ${esc(s.problema)}<br><small>O texto abaixo é a resposta atual. Corrija e clique em ACEITAR para publicar.</small></div>` : ''}
          ${s.justificativa ? `<div class="sug-nota"><b>POR QUÊ:</b> ${esc(s.justificativa)}</div>` : ''}
          <textarea data-id="${s.id}" ${pode ? '' : 'readonly'}>${esc(s.texto)}</textarea>
+         ${s.status !== 'recusado' ? `<div class="card-act" style="justify-content:flex-start;margin-bottom:-4px"><button class="btn btn-sn" data-sn="${s.id}" title="Copia para colar na API do ServiceNow">📋 COPIAR P/ SERVICENOW</button></div>` : ''}
          ${pode ? `<div class="card-act"><button class="btn btn-no" data-rec="${s.id}">RECUSAR</button><button class="btn btn-ok" data-ace="${s.id}">ACEITAR</button></div>` : ''}
          ${s.status === 'pendente' && isAdmin() ? `<div class="atrib">ATRIBUIR A:
            <select data-atr="${s.id}"><option value="">— ninguém —</option>${usuariosAtivos().map(u => `<option value="${esc(u.u)}"${s.atribuidoA === u.u ? ' selected' : ''}>${esc(titulo(u.nome))}</option>`).join('')}</select></div>` : ''}
@@ -983,6 +1282,7 @@ function renderSug(){
   $$('[data-ace]').forEach(b => b.onclick = () => decidir(b.dataset.ace, 'aceito'));
   $$('[data-rec]').forEach(b => b.onclick = () => decidir(b.dataset.rec, 'recusado'));
   $$('[data-atr]').forEach(sel => sel.onchange = () => atribuir(sel.dataset.atr, sel.value));
+  $$('[data-sn]').forEach(b => b.onclick = () => copiarSugestaoSN(b.dataset.sn));
 }
 async function atribuir(id, usuario){
   if(!isAdmin()) return;
@@ -1065,6 +1365,55 @@ async function notificarApp02(tipo, respostaId, nomeResp, autor, origem){
 }
 /* Códigos internos (ex.: CNHXZ2025-01-033): o App SAC esconde, mas eles precisam continuar no texto da base.
    Quando uma sugestão vem do App SAC sem o código, ele é devolvido ao texto na mesma posição (início ou fim). */
+/* ---------- Integração com a API do ServiceNow (painel "Modelos SAC") ----------
+   Fluxo: aqui "COPIAR P/ SERVICENOW" → lá "COLAR DO APP 01" (ou Ctrl+V) → Enter. */
+const MARCA_SN = 'RESPOSTAS_SAC::';
+/* como o código invisível vai no HTML do ServiceNow (texto branco e minúsculo no início) */
+const HTML_CODIGO_INVISIVEL = c => `<p style="color:#ffffff;font-size:1px;line-height:1px;margin:0">${c}</p>`;
+function montarHtmlSN(texto, codigo){
+  const escH = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const corpo = semCodigos(texto).replace(/\r/g, '').split(/\n\s*\n/).map(b => b.trim()).filter(Boolean)
+    .map(b => '<p>' + escH(b).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>') + '</p>').join('\n\n');
+  return (codigo ? HTML_CODIGO_INVISIVEL(escH(codigo)) + '\n\n' : '') + corpo;
+}
+function copiarParaSN(d){
+  if(!d.nome && !d.nomeAtual) return toast('PREENCHA O NOME DO MODELO', true);
+  if(d.modo === 'inserir' && !d.descricao) return toast('ESCOLHA A DESCRIÇÃO RESUMIDA', true);
+  copiarTexto(MARCA_SN + JSON.stringify(d), d.modo === 'inserir'
+    ? 'COPIADO! NO SERVICENOW: COLAR DO APP 01 → ENTER (INSERE NAS 6 TABELAS)'
+    : 'COPIADO! NO SERVICENOW: COLAR DO APP 01 → ENTER (ALTERA O MODELO)');
+  registrar('Copiou para o ServiceNow', d.nome || d.nomeAtual, d.modo === 'inserir' ? 'inserir nova' : 'alterar existente: ' + d.nomeAtual);
+}
+$('#btApiSN').onclick = () => {
+  copiarTexto($('#codigo-api-sn').textContent.trim(), 'API DO SERVICENOW COPIADA — COLE NO CONSOLE (F12) DA LISTA DE MODELOS');
+};
+$('#rCopiarSN').onclick = () => {
+  const r = editandoResp ? baseResp[editandoResp] : null;
+  copiarParaSN({
+    modo: r ? 'alterar' : 'inserir',
+    nomeAtual: r ? r.nome : '',
+    nome: $('#rNome').value.trim(),
+    descricao: $('#rDesc').value,
+    html: montarHtmlSN($('#rTexto').value, $('#rCod').value.trim().toUpperCase())
+  });
+};
+async function copiarSugestaoSN(id){
+  const s = db.sugestoes[id]; if(!s) return;
+  if(!baseResp && FB_ON) await carregarBase();
+  const base = s.respostaId && baseResp ? baseResp[s.respostaId]
+    : (baseResp ? Object.values(baseResp).find(r => normN(r.nome) === normN(s.modelo)) : null);
+  const ta = document.querySelector(`textarea[data-id="${id}"]`);
+  const texto = ta ? ta.value : s.texto;
+  const nova = s.tipo === 'RESPOSTA NOVA' && !base;
+  copiarParaSN({
+    modo: nova ? 'inserir' : 'alterar',
+    nomeAtual: nova ? '' : (base ? base.nome : s.modelo),
+    nome: nova ? s.modelo : (base ? base.nome : s.modelo),
+    descricao: nova ? (descricaoPadrao(s.descricao) || 'Resposta Resolutiva') : '',
+    html: montarHtmlSN(texto, (base && base.codigo) || primeiroCodigo(texto) || primeiroCodigo(base && base.texto))
+  });
+}
+
 /* ---------- Registro de alterações: quem fez e o que fez (respostasSAC/auditoria) ---------- */
 let logCache = null;
 async function registrar(acao, alvo, detalhe){
