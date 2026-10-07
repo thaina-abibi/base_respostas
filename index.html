@@ -36,6 +36,13 @@ nav button.nav-api::after{display:none}
 nav button.nav-api svg{width:46px;height:46px}
 nav button.nav-api:hover{color:#f5d90a;border-color:#f5d90a}
 .btn-sn{background:#f5d90a;color:#1f2a17}
+.dlg h2.cab-min{display:flex;align-items:center;justify-content:center;gap:12px;position:relative;padding-left:56px;padding-right:56px}
+.bt-min{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:0;border-radius:9px;background:rgba(255,255,255,.14);color:#fff;font-size:15px;letter-spacing:0;line-height:1}
+.bt-min:hover{background:#f5d90a;color:#2f3d22}
+.modal.min{background:transparent;pointer-events:none;align-items:flex-end;justify-content:flex-end;padding:0 22px 22px 0}
+.modal.min .dlg{pointer-events:auto;width:340px!important;box-shadow:0 10px 30px rgba(0,0,0,.35);cursor:pointer}
+.modal.min .dlg > :not(h2){display:none}
+.modal.min .dlg h2{border-radius:16px;font-size:13px;letter-spacing:.25em;padding-top:12px;padding-bottom:12px}
 .btn-copiar{background:#d6e5c6;color:#1f3d10}
 .btn-copiar:hover{background:#c6dbb0}
 .rt-wrap{display:flex;flex-direction:column;gap:6px}
@@ -152,7 +159,9 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 #mResp .dlg input.bolinha{appearance:none;-webkit-appearance:none;width:24px;height:24px;margin:0;border-radius:50%;border:2px solid #2f3d22;background:#fff;cursor:pointer;flex:0 0 auto;padding:0;border-radius:50%!important}
 #mResp .dlg input.bolinha:checked{background:#f5d90a;box-shadow:inset 0 0 0 4px #fff}
 #mResp .dlg input.bolinha:focus-visible{outline:2px solid #2f3d22;outline-offset:2px}
-#rCod{text-transform:uppercase;letter-spacing:2px}
+#rCod{text-transform:uppercase;letter-spacing:2px;background:#eef2ea;color:#2f3d22;font-weight:600;cursor:default}
+.cod-info{display:block;font-size:11.5px;letter-spacing:.5px;color:#777;margin-top:2px;text-transform:none}
+.cod-info.aviso{color:#b42318}
 .cod-chip{display:inline-block;margin-top:4px;background:#2f3d22;color:#f5d90a;border-radius:6px;padding:1px 8px;font-size:11.5px;letter-spacing:1.5px;font-family:'Oswald',sans-serif}
 .cod-linha{display:flex;gap:8px}
 .cod-linha input{flex:1;text-transform:uppercase;letter-spacing:2px}
@@ -357,7 +366,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
             <option value="ocultar">Ocultar no App SAC</option>
             <option value="pilar">Mudar o pilar</option>
             <option value="descricao">Mudar a descrição resumida</option>
-            <option value="codtexto">Preencher o código pelo texto (só onde está vazio)</option>
+            <option value="codgerar">Gerar o código invisível pela regra</option>
             <option value="excluir">Excluir da base (apaga de vez)</option>
           </select>
           <select id="altValPilar" style="display:none"></select>
@@ -460,13 +469,14 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 <!-- Janela: editar resposta da base (app 02) -->
 <div class="modal" id="mResp" role="dialog" aria-modal="true" aria-labelledby="rTit">
   <div class="dlg">
-    <h2 id="rTit">EDITAR RESPOSTA</h2>
+    <h2 class="cab-min"><span id="rTit">EDITAR RESPOSTA</span><button type="button" class="bt-min" data-min="mResp" title="Minimizar">—</button></h2>
     <form id="fResp">
       <label class="full">NOME DO MODELO<input id="rNome" required></label>
       <label>PILAR<select id="rPilar"></select></label>
       <label>DESCRIÇÃO RESUMIDA<select id="rDesc"></select></label>
       <label class="full">CÓDIGO INVISÍVEL
-        <input id="rCod" autocomplete="off" spellcheck="false" placeholder="CNHXZ2025-04-001"></label>
+        <input id="rCod" readonly tabindex="-1" autocomplete="off" spellcheck="false" placeholder="gerado pelo pilar, descrição e número do nome">
+        <small id="rCodInfo" class="cod-info"></small></label>
       <div class="full rt-wrap">
         <span class="rt-rot">TEXTO DA RESPOSTA</span>
         <div class="rt-barra" role="toolbar" aria-label="Formatação">
@@ -498,7 +508,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 <!-- Janela: nova resposta / editar e reenviar -->
 <div class="modal" id="mNova" role="dialog" aria-modal="true" aria-labelledby="mTit">
   <div class="dlg">
-    <h2 id="mTit">NOVA RESPOSTA</h2>
+    <h2 class="cab-min"><span id="mTit">NOVA RESPOSTA</span><button type="button" class="bt-min" data-min="mNova" title="Minimizar">—</button></h2>
     <form id="fNova">
       <label>ÁREA<select id="fArea"><option>CNH</option><option>VEIC</option><option>INFRA</option><option>PORTAL</option><option>ENC</option><option>CRED</option><option>GERAL</option></select></label>
       <label>CÓDIGO<input id="fCod" placeholder="001" maxlength="4"></label>
@@ -576,8 +586,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
     ['x_mdpdd_detran_csm_general_case',        'SAC - Agentes Regulados'],
   ];
   const CAMPO_HTML   = 'close_notes';               // "Anotações de resolução"
-  const REF_DOMINIO  = '0 - Solicitação Atendida';  // modelo de onde copiar domínio/global
-  const REF_TABELA   = 'x_mdpdd_detran_csm_adm_case';
+  const DOMINIO      = 'global';                    // (A) novas respostas sempre no domínio global
   const MARCA_APP    = 'RESPOSTAS_SAC::';           // prefixo do que o App 01 copia
 
   // ---------- TOKEN DA SESSÃO ----------
@@ -848,9 +857,7 @@ ${corpo}
     const jaTem = new Set(existentes.map(r => r.table));
     log(`Nome: ${nome}\nDescrição: ${desc}\n`, true);
     TABELAS.forEach(([t, l]) => log(`  ${jaTem.has(t) ? '⏭ já existe' : '➕ criar   '}  ${l}  [${t}]`));
-    const ref = (await buscarPorNome(REF_DOMINIO, `^table=${REF_TABELA}`))[0];
-    const dominio = ref?.sys_domain?.value || ref?.sys_domain || '';
-    log(`\nDomínio: ${dominio ? 'copiado de "' + REF_DOMINIO + '"' : 'padrão do usuário'} | Global: sim`);
+    log(`\nDomínio: global | Global: marcado | Ativo: marcado`);
     log(`\n--- HTML que será gravado ---\n${html}\n-----------------------------`);
     if (!exec) { if (doApp) log('\n▶ Aperte Enter para gravar.'); return; }
     const criar = TABELAS.filter(([t]) => !jaTem.has(t));
@@ -858,15 +865,17 @@ ${corpo}
     if (!doApp && !confirm(`Criar ${criar.length} modelo(s)?`)) return log('Cancelado.');
     const template = buildTpl([[CAMPO_HTML, html]]);
     for (const [t, l] of criar) {
-      const body = { name: nome, table: t, short_description: desc, template, active: true, global: true };
-      if (dominio) body.sys_domain = dominio;
+      // (A) Domínio = global  (B) Global = marcado  · Ativo = marcado
+      const body = { name: nome, table: t, short_description: desc, template, active: true, global: true, sys_domain: DOMINIO };
       try {
         const r = await api('POST', 'sys_template', body);
-        // garante Ativo/Global (alguns ambientes ignoram no insert)
-        if (String(r.active) !== 'true' || String(r.global) !== 'true') {
-          const r2 = await api('PATCH', `sys_template/${r.sys_id}`, { active: true, global: true }).catch(e => ({ erro: e.message }));
-          if (r2.erro || String(r2.active) !== 'true' || String(r2.global) !== 'true')
-            log(`⚠ ${l}: criado, mas Ativo/Global não ficaram marcados ${r2.erro ? '(' + r2.erro + ')' : '(sem permissão?)'}`);
+        const dom = r.sys_domain?.value || r.sys_domain || '';
+        // confere e corrige (alguns ambientes ignoram esses campos no insert)
+        if (String(r.active) !== 'true' || String(r.global) !== 'true' || dom !== DOMINIO) {
+          const r2 = await api('PATCH', `sys_template/${r.sys_id}`, { active: true, global: true, sys_domain: DOMINIO }).catch(e => ({ erro: e.message }));
+          const dom2 = r2.sys_domain?.value || r2.sys_domain || '';
+          if (r2.erro || String(r2.active) !== 'true' || String(r2.global) !== 'true' || dom2 !== DOMINIO)
+            log(`⚠ ${l}: criado, mas confira Domínio/Global/Ativo ${r2.erro ? '(' + r2.erro + ')' : '(sem permissão?)'}`);
         }
         log(`✔ ${l} (sys_id ${r.sys_id})`);
       }
@@ -1571,7 +1580,7 @@ $('#rCopiarSN').onclick = () => {
     nomeAtual: r ? r.nome : '',
     nome: $('#rNome').value.trim(),
     descricao: $('#rDesc').value,
-    html: (() => { const c = $('#rCod').value.trim().toUpperCase(); const corpo = editorHtml();
+    html: (() => { const c = gerarCodigo($('#rPilar').value, $('#rDesc').value, $('#rNome').value); const corpo = editorHtml();
       return corpo + (c ? '\n\n' + HTML_CODIGO_INVISIVEL(c) : ''); })()
   });
 };
@@ -1588,7 +1597,9 @@ async function copiarSugestaoSN(id){
     nomeAtual: nova ? '' : (base ? base.nome : s.modelo),
     nome: nova ? s.modelo : (base ? base.nome : s.modelo),
     descricao: nova ? (descricaoPadrao(s.descricao) || 'Resposta Resolutiva') : '',
-    html: montarHtmlSN(texto, (base && base.codigo) || primeiroCodigo(texto) || primeiroCodigo(base && base.texto))
+    html: montarHtmlSN(texto, gerarCodigo(base ? base.pilar : (PILAR_SIGLA[s.area] || 'Geral'),
+            base ? base.descricao : (descricaoPadrao(s.descricao) || 'Resposta Resolutiva'), base ? base.nome : s.modelo)
+          || (base && base.codigo) || primeiroCodigo(texto))
   });
 }
 
@@ -1648,6 +1659,20 @@ function semCodigos(t){
   return String(t || '').replace(/\b[A-Z]{2,15}\d{4}[-_.]\d{1,3}[-_.]\d{1,5}\b/g, '')
     .replace(/\(\s*\)|\[\s*\]/g, '').replace(/[ \t]{2,}/g, ' ').replace(/ +([.,;:!?])/g, '$1')
     .replace(/[ \t]+\n/g, '\n').replace(/^[ \t]+/gm, '').replace(/\n{3,}/g, '\n\n').trim();
+}
+/* ---------- Código invisível automático: LLLXZ2025-NN-NNN ----------
+   LLL = pilar · NN = descrição resumida · NNN = números do início do nome */
+const PREFIXO_PILAR = { 'CNH':'CNH', 'Veículos':'VEIC', 'Infrações':'INFRA' };          // Portal, Geral, Credenciamento → GERAL
+const NUM_DESCRICAO = {
+  'Resposta Informativa':'01', 'Resposta Resolutiva':'02', 'Solicitação de dados':'03', 'Editar para enviar':'04',
+  'Envio ao Poupatempo':'05', 'Envio ao Despachante':'06', 'Envio ao CFC':'07', 'Envio ao Perito Médico/Psicólogo':'08',
+  'Encaminhamento Interno':'09'   // ⚠ não estava na regra: ajuste aqui se for outro número
+};
+function gerarCodigo(pilar, descricao, nome){
+  const nn = NUM_DESCRICAO[descricaoPadrao(descricao)];
+  const num = (String(nome || '').match(/^\D*?(\d+)/) || [])[1];
+  if(!nn || !num) return '';
+  return (PREFIXO_PILAR[pilar] || 'GERAL') + 'XZ2025-' + nn + '-' + num;
 }
 const RE_CODIGO_EXATO = /^[A-Z]{2,15}\d{4}[-_.]\d{1,3}[-_.]\d{1,5}$/;
 const primeiroCodigo = t => { const m = String(t || '').match(/\b[A-Z]{2,15}\d{4}[-_.]\d{1,3}[-_.]\d{1,5}\b/); return m ? m[0] : ''; };
@@ -1724,7 +1749,20 @@ $('#rbPilar').onchange = renderBase;
 $('#rbRecarregar').onclick = () => carregarBase(true);
 $('#rbNova').onclick = () => abrirResp('');
 let editandoResp = '';
-let textoOriginal = '', editorMexido = false;
+let textoOriginal = '', editorMexido = false, codigoAnterior = '';
+function atualizarCodigo(){
+  const c = gerarCodigo($('#rPilar').value, $('#rDesc').value, $('#rNome').value);
+  $('#rCod').value = c;
+  const info = $('#rCodInfo');
+  if(!c){
+    info.className = 'cod-info aviso';
+    info.textContent = !$('#rDesc').value ? 'Escolha a descrição resumida para gerar o código.' : 'O nome precisa começar com o número do modelo (ex.: 001 - …) para gerar o código.';
+  } else {
+    info.className = 'cod-info';
+    info.textContent = codigoAnterior && codigoAnterior !== c ? `Gerado automaticamente. Código anterior: ${codigoAnterior}` : 'Gerado automaticamente pelo pilar, descrição e número do nome.';
+  }
+}
+['input','change'].forEach(ev => ['#rNome','#rPilar','#rDesc'].forEach(s => $(s).addEventListener(ev, atualizarCodigo)));
 function abrirResp(id){
   editandoResp = id;
   const r = id ? baseResp[id] : { nome:'', pilar:'CNH', subtema:'A classificar', descricao:'Resposta Resolutiva', texto:'Prezado(a),\n\n\n\nAtenciosamente,\nServiço de Atendimento ao Cidadão.', ativo:true };
@@ -1747,14 +1785,26 @@ function abrirResp(id){
     }
   }).catch(() => {});
   editorMexido = false;
-  $('#rCod').value = r.codigo || primeiroCodigo(r.texto) || '';
+  codigoAnterior = r.codigo || primeiroCodigo(r.texto) || '';
+  atualizarCodigo();
   $('#rAtivo').checked = r.ativo !== false; $('#rNotif').checked = true;
   $('#rInfo').textContent = id ? `Última edição: ${r.atualizadoEm || '—'}${r.atualizadoPor ? ' por ' + r.atualizadoPor : ''}` : '';
+  $('#mResp').classList.remove('min'); $('#mResp .bt-min').textContent = '—';
   $('#mResp').classList.add('on'); setTimeout(() => $('#rNome').focus(), 50);
 }
-const fecharResp = () => $('#mResp').classList.remove('on');
+const fecharResp = () => $('#mResp').classList.remove('on', 'min');
+/* minimizar: o pop-up vira uma barrinha no canto inferior direito e o app fica livre; clicar na barra restaura */
+$$('[data-min]').forEach(b => b.onclick = e => {
+  e.stopPropagation();
+  const m = $('#' + b.dataset.min), min = m.classList.toggle('min');
+  b.textContent = min ? '▢' : '—'; b.title = min ? 'Restaurar' : 'Minimizar';
+});
+['mResp','mNova'].forEach(id => $('#' + id + ' .dlg').addEventListener('click', () => {
+  const m = $('#' + id); if(!m.classList.contains('min')) return;
+  m.classList.remove('min'); const b = m.querySelector('.bt-min'); b.textContent = '—'; b.title = 'Minimizar';
+}));
 ['copy','cut','dragstart','contextmenu'].forEach(ev => $('#rCod').addEventListener(ev, e => e.preventDefault()));
-$('#rCod').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/\s+/g, ''); });
+
 
 $('#rExcluir').onclick = async () => { if(!editandoResp) return fecharResp(); const id = editandoResp; fecharResp(); await excluirRespostas([id]); };
 $('#rCancel').onclick = fecharResp;
@@ -1764,8 +1814,8 @@ $('#fResp').onsubmit = async e => {
   const bt = $('#rSalvar'); bt.disabled = true;
   try{
     const agora = fmt(Date.now()), adm = me ? titulo(me.nome) : '';
-    const codigo = $('#rCod').value.trim().toUpperCase().replace(/\s+/g, '');
-    if(codigo && !RE_CODIGO_EXATO.test(codigo) && !confirm(`O código "${codigo}" está num formato diferente do padrão (ex.: CNHXZ2025-04-001). Salvar mesmo assim?`)){ bt.disabled = false; return; }
+    const codigo = gerarCodigo($('#rPilar').value, $('#rDesc').value, $('#rNome').value);
+    if(!codigo && !confirm('Não deu para gerar o código invisível (o nome precisa começar com o número do modelo). Salvar sem código?')){ bt.disabled = false; return; }
     const repetido = codigo ? Object.keys(baseResp || {}).filter(k => k !== editandoResp && String(baseResp[k].codigo || '').toUpperCase() === codigo) : [];
     if(repetido.length && !confirm(`O código ${codigo} já está vinculado a:\n${repetido.slice(0, 5).map(k => '• ' + k + ' ' + baseResp[k].nome).join('\n')}\n\nVincular também a esta resposta?`)){ bt.disabled = false; return; }
     if(!$('#rDesc').value){ toast('ESCOLHA A DESCRIÇÃO RESUMIDA', true); bt.disabled = false; return; }
@@ -1917,25 +1967,41 @@ $('#altAplicar').onclick = async () => {
   else if(acao === 'pilar'){ campo = 'pilar'; valor = $('#altValPilar').value; frase = `mudar o pilar para "${valor}"`; }
   else if(acao === 'descricao'){ campo = 'descricao'; valor = $('#altValDesc').value; frase = `mudar a descrição para "${valor}"`; }
   else if(acao === 'excluir'){ await excluirRespostas(ids); return; }
-  else if(acao === 'codtexto'){ await preencherCodigos(ids); return; }
+  else if(acao === 'codgerar'){ campo = '__codigo'; valor = null; frase = 'gerar o código invisível pela regra'; }
   else return;
   if(!confirm(`Confirmar: ${frase} em ${ids.length} resposta${ids.length > 1 ? 's' : ''}?`)) return;
   const bt = $('#altAplicar'); bt.disabled = true;
   const agora = fmt(Date.now()), adm = me ? titulo(me.nome) : '';
   try{
     const mud = {};
+    const novosCod = {};
     ids.forEach(id => {
-      mud['respostas/' + id + '/' + campo] = valor;
+      const r = baseResp[id] || {};
+      if(campo !== '__codigo') mud['respostas/' + id + '/' + campo] = valor;
+      /* pilar ou descrição mudaram (ou pediu para gerar): refaz o código e o coloca no final do texto */
+      if(campo === 'pilar' || campo === 'descricao' || campo === '__codigo'){
+        const novo = {...r, ...(campo !== '__codigo' ? {[campo]: valor} : {})};
+        const cod = gerarCodigo(novo.pilar, novo.descricao, novo.nome);
+        if(cod){
+          novosCod[id] = cod;
+          mud['respostas/' + id + '/codigo'] = cod;
+          mud['respostas/' + id + '/texto'] = semCodigos(r.texto) + '\n' + cod;
+        }
+      }
       mud['respostas/' + id + '/atualizadoEm'] = agora;
       mud['respostas/' + id + '/atualizadoPor'] = adm;
     });
+    if(campo === '__codigo' && !Object.keys(novosCod).length){ bt.disabled = false; atualizarMassa(); return toast('NENHUMA SELECIONADA TEM NÚMERO NO NOME E DESCRIÇÃO VÁLIDA', true); }
     const chaves = Object.keys(mud);
     for(let i = 0; i < chaves.length; i += 600){
       const parte = {}; chaves.slice(i, i + 600).forEach(c => parte[c] = mud[c]);
       await fb('', 'PATCH', parte);
       bt.textContent = `GRAVANDO… ${Math.min(i + 600, chaves.length)} / ${chaves.length}`;
     }
-    ids.forEach(id => { if(baseResp[id]) Object.assign(baseResp[id], { [campo]: valor, atualizadoEm: agora, atualizadoPor: adm }); });
+    ids.forEach(id => { if(!baseResp[id]) return;
+      if(campo !== '__codigo') baseResp[id][campo] = valor;
+      if(novosCod[id]){ baseResp[id].codigo = novosCod[id]; baseResp[id].texto = semCodigos(baseResp[id].texto) + '\n' + novosCod[id]; }
+      Object.assign(baseResp[id], { atualizadoEm: agora, atualizadoPor: adm }); });
     await marcarVersao();   // o App SAC se atualiza sozinho
     selAlt.clear(); $('#altAcao').value = '';
     renderAlt(); renderBase();
@@ -2176,7 +2242,7 @@ function abrirForm(base){
   } else { $('#mTit').textContent = 'NOVA RESPOSTA'; $('#fTexto').value = TEXTO_PADRAO; }
   $('#mNova').classList.add('on'); setTimeout(() => $('#fModelo').focus(), 50);
 }
-const fechar = () => $('#mNova').classList.remove('on');
+const fechar = () => $('#mNova').classList.remove('on', 'min');
 $('#btnNova').onclick = async () => {
   if(podeEditar() && FB_ON){
     if(!baseResp) await carregarBase();
