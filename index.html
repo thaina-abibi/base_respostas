@@ -623,6 +623,49 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
     api('GET', `sys_template?sysparm_query=${q('name=' + nome + extra)}` +
                `&sysparm_fields=sys_id,name,table,short_description,template,sys_domain,global&sysparm_limit=100`);
 
+  // ---------- CAMPOS "GLOBAL" E "ATIVO" ----------
+  // Descobre no dicionário do ServiceNow o nome técnico dos campos (pode não ser "global"/"active"
+  // nesta instância) e se eles estão como somente leitura.
+  const semAcento = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+  let CAMPOS = null;
+  const descobrirCampos = async () => {
+    if (CAMPOS) return CAMPOS;
+    CAMPOS = { global: 'global', ativo: 'active', globalSoLeitura: false, origem: 'padrão' };
+    try {
+      const d = await api('GET', `sys_dictionary?sysparm_query=${q('name=sys_template^elementISNOTEMPTY')}` +
+        `&sysparm_fields=element,column_label,internal_type,read_only&sysparm_limit=300`);
+      const achar = rotulos => d.find(x => rotulos.includes(semAcento(x.column_label)) && /boolean/i.test(x.internal_type?.value || x.internal_type || ''));
+      const g = achar(['global']), a = achar(['ativo', 'active']);
+      if (g) { CAMPOS.global = g.element; CAMPOS.globalSoLeitura = String(g.read_only) === 'true'; CAMPOS.origem = 'dicionário'; }
+      if (a) CAMPOS.ativo = a.element;
+    } catch (e) { CAMPOS.origem = 'padrão (sem acesso ao dicionário)'; }
+    return CAMPOS;
+  };
+  // Papel que o ServiceNow exige para marcar "Global" em modelos
+  const PAPEIS_GLOBAL = ['admin', 'template_editor_global'];
+  const papelGlobal = () => {
+    const us = [() => window.g_user, () => document.querySelector('iframe#gsft_main')?.contentWindow?.g_user];
+    for (let i = 0; i < window.frames.length; i++) us.push(() => window.frames[i].g_user);
+    for (const f of us) { try { const u = f(); if (u && u.hasRole) return PAPEIS_GLOBAL.some(r => u.hasRole(r)) ? 'sim' : 'não'; } catch (e) {} }
+    return 'não foi possível verificar';
+  };
+  const ehVerdade = v => String(v?.value ?? v) === 'true';
+  const dominioDe = v => v?.value || v || '';
+  /* grava Global/Ativo/Domínio e confere lendo o registro de novo no ServiceNow */
+  const garantirFlags = async (sysId, rotulo) => {
+    const c = await descobrirCampos();
+    const ler = () => api('GET', `sys_template/${sysId}?sysparm_fields=${c.ativo},${c.global},sys_domain`);
+    let r = await ler();
+    if (ehVerdade(r[c.ativo]) && ehVerdade(r[c.global]) && dominioDe(r.sys_domain) === DOMINIO) return true;
+    await api('PATCH', `sys_template/${sysId}`, { [c.ativo]: 'true', [c.global]: 'true', sys_domain: DOMINIO }).catch(() => {});
+    r = await ler();
+    const ok = { ativo: ehVerdade(r[c.ativo]), global: ehVerdade(r[c.global]), dom: dominioDe(r.sys_domain) === DOMINIO };
+    if (ok.ativo && ok.global && ok.dom) return true;
+    const falta = [!ok.global && 'Global', !ok.ativo && 'Ativo', !ok.dom && 'Domínio global'].filter(Boolean).join(', ');
+    log(`⚠ ${rotulo}: o ServiceNow não aceitou ${falta}.`);
+    return false;
+  };
+
   // ---------- TEMPLATE (string codificada "campo=valor^campo=valor^EQ") ----------
   const parseTpl = (s = '') => {
     const segs = []; let cur = '';
@@ -830,7 +873,7 @@ ${corpo}
   const alterar = async (exec) => {
     const regs = await planoAlterar();
     const nome = $('pm_nome').value.trim(), desc = $('pm_desc').value.trim(), html = lerHtml();
-    if (!nome && !desc && !html) throw new Error('Nada para alterar: preencha A, B ou C.');
+    if (!nome && !desc && !html) log('Nada no nome, descrição ou modelo: só vai conferir Global/Ativo.', true);
     log(`${regs.length} registro(s) com esse nome:`, true);
     regs.forEach(r => log(`  • ${r.table}  |  ${r.short_description}`));
     log(`\nVai alterar: ${[nome && 'Nome', desc && 'Descrição', html && 'Modelo'].filter(Boolean).join(', ')}`);
@@ -842,7 +885,12 @@ ${corpo}
       if (nome) body.name = nome;
       if (desc) body.short_description = desc;
       if (html) body.template = buildTpl(setCampo(parseTpl(r.template), CAMPO_HTML, html));
-      try { await api('PATCH', `sys_template/${r.sys_id}`, body); log(`✔ ${r.table}`); }
+      try {
+        const c = await descobrirCampos();
+        body[c.ativo] = 'true'; body[c.global] = 'true';
+        await api('PATCH', `sys_template/${r.sys_id}`, body);
+        log(`✔ ${r.table}${(await garantirFlags(r.sys_id, r.table)) ? ' (Global e Ativo marcados)' : ''}`);
+      }
       catch (e) { log(`✘ ${r.table}: ${e.message}`); }
     }
     doApp = false;
@@ -857,31 +905,31 @@ ${corpo}
     const jaTem = new Set(existentes.map(r => r.table));
     log(`Nome: ${nome}\nDescrição: ${desc}\n`, true);
     TABELAS.forEach(([t, l]) => log(`  ${jaTem.has(t) ? '⏭ já existe' : '➕ criar   '}  ${l}  [${t}]`));
+    const c = await descobrirCampos();
     log(`\nDomínio: global | Global: marcado | Ativo: marcado`);
+    log(`Campo Global: "${c.global}" (${c.origem})${c.globalSoLeitura ? ' — está como SOMENTE LEITURA no dicionário' : ''}`);
+    log(`Seu usuário pode marcar Global (papel admin ou template_editor_global): ${papelGlobal()}`);
     log(`\n--- HTML que será gravado ---\n${html}\n-----------------------------`);
     if (!exec) { if (doApp) log('\n▶ Aperte Enter para gravar.'); return; }
     const criar = TABELAS.filter(([t]) => !jaTem.has(t));
     if (!criar.length) return log('\nNada a criar.');
     if (!doApp && !confirm(`Criar ${criar.length} modelo(s)?`)) return log('Cancelado.');
     const template = buildTpl([[CAMPO_HTML, html]]);
+    let semGlobal = 0;
     for (const [t, l] of criar) {
       // (A) Domínio = global  (B) Global = marcado  · Ativo = marcado
-      const body = { name: nome, table: t, short_description: desc, template, active: true, global: true, sys_domain: DOMINIO };
+      const body = { name: nome, table: t, short_description: desc, template, [c.ativo]: 'true', [c.global]: 'true', sys_domain: DOMINIO };
       try {
         const r = await api('POST', 'sys_template', body);
-        const dom = r.sys_domain?.value || r.sys_domain || '';
-        // confere e corrige (alguns ambientes ignoram esses campos no insert)
-        if (String(r.active) !== 'true' || String(r.global) !== 'true' || dom !== DOMINIO) {
-          const r2 = await api('PATCH', `sys_template/${r.sys_id}`, { active: true, global: true, sys_domain: DOMINIO }).catch(e => ({ erro: e.message }));
-          const dom2 = r2.sys_domain?.value || r2.sys_domain || '';
-          if (r2.erro || String(r2.active) !== 'true' || String(r2.global) !== 'true' || dom2 !== DOMINIO)
-            log(`⚠ ${l}: criado, mas confira Domínio/Global/Ativo ${r2.erro ? '(' + r2.erro + ')' : '(sem permissão?)'}`);
-        }
-        log(`✔ ${l} (sys_id ${r.sys_id})`);
+        if (await garantirFlags(r.sys_id, l)) log(`✔ ${l} (Global e Ativo marcados)`);
+        else { log(`  criado mesmo assim (sys_id ${r.sys_id})`); semGlobal++; }
       }
       catch (e) { log(`✘ ${l}: ${e.message}`); }
     }
     doApp = false;
+    if (semGlobal) log(`\n⚠ ${semGlobal} modelo(s) ficaram sem Global. O ServiceNow só deixa marcar Global para quem tem o papel\n` +
+      `"template_editor_global" (ou admin). Peça esse papel ao administrador do ServiceNow e depois use\n` +
+      `"Alterar existente" com o mesmo nome: a API marca Global/Ativo nos modelos que ficaram sem.`);
     log('\nConcluído. Atualize a lista para conferir.');
   };
 
