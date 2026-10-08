@@ -85,6 +85,17 @@ nav button.nav-api:hover{color:#f5d90a;border-color:#f5d90a}
 .cx-tirar{border:0;background:#f6b1b1;color:#5a1515;width:32px;height:32px;border-radius:9px;font-size:16px;line-height:1}
 .cx-tirar:hover{filter:brightness(1.05)}
 @media (max-width:1000px){.cx-grade{grid-template-columns:1fr}}
+.tn-corpo{padding:20px 24px 22px}
+.tn-corpo p{margin:0 0 14px;font-size:15px;letter-spacing:.5px}
+.tn-ops{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tn-op{border:2px solid #c8cdbf;background:#fff;border-radius:14px;padding:18px 14px;text-align:center}
+.tn-op b{display:block;font-family:'Ubuntu',sans-serif;font-weight:500;font-size:20px;letter-spacing:.3em;color:#2f3d22;margin-bottom:6px}
+.tn-op small{display:block;font-size:12px;color:#666;letter-spacing:.3px;line-height:1.45}
+.tn-op:hover{border-color:#2f3d22;background:#f3f8ee}
+.tn-op:focus-visible{outline:3px solid #f5d90a}
+#rDescLivre{border:1px solid #cfd4c6;border-radius:10px;background:#fff;padding:9px 12px;font-size:15px}
+.modo-servico .bolinhas{opacity:.55}
+.dlg [hidden]{display:none!important}
 .btn-copiar{background:#d6e5c6;color:#1f3d10}
 .btn-copiar:hover{background:#c6dbb0}
 .rt-wrap{display:flex;flex-direction:column;gap:6px}
@@ -529,15 +540,30 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
   </main>
 </div>
 
+<!-- Janela: escolher o tipo da nova resposta -->
+<div class="modal" id="mTipoNova" role="dialog" aria-modal="true" aria-labelledby="tnTit" style="z-index:26">
+  <div class="dlg" style="width:min(480px,100%)">
+    <h2 id="tnTit">NOVA RESPOSTA</h2>
+    <div class="tn-corpo">
+      <p>Para onde é esta resposta?</p>
+      <div class="tn-ops">
+        <button type="button" class="tn-op" data-tipo="sac"><b>SAC</b><small>6 tabelas do SAC · pilar, descrição da lista e código invisível</small></button>
+        <button type="button" class="tn-op" data-tipo="servico"><b>SERVIÇO</b><small>tabela Caso · descrição livre, sem código e fora do App 02</small></button>
+      </div>
+      <div class="acts" style="margin-top:14px"><button type="button" class="btn btn-no" id="tnCancelar">CANCELAR</button></div>
+    </div>
+  </div>
+</div>
+
 <!-- Janela: editar resposta da base (app 02) -->
 <div class="modal" id="mResp" role="dialog" aria-modal="true" aria-labelledby="rTit">
   <div class="dlg">
     <h2 class="cab-min"><span id="rTit">EDITAR RESPOSTA</span><button type="button" class="bt-min" data-min="mResp" title="Minimizar">—</button></h2>
     <form id="fResp">
       <label class="full">NOME DO MODELO<input id="rNome" required></label>
-      <label>PILAR<select id="rPilar"></select></label>
-      <label>DESCRIÇÃO RESUMIDA<select id="rDesc"></select></label>
-      <label class="full">CÓDIGO INVISÍVEL
+      <label id="rPilarWrap">PILAR<select id="rPilar"></select></label>
+      <label id="rDescWrap">DESCRIÇÃO RESUMIDA<select id="rDesc"></select><input id="rDescLivre" hidden placeholder="Escreva a descrição resumida"></label>
+      <label class="full" id="rCodWrap">CÓDIGO INVISÍVEL
         <input id="rCod" readonly tabindex="-1" autocomplete="off" spellcheck="false" placeholder="gerado pelo pilar, descrição e número do nome">
         <small id="rCodInfo" class="cod-info"></small></label>
       <div class="full rt-wrap">
@@ -558,7 +584,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
         <div id="rEditor" class="rt-editor" contenteditable="true" spellcheck="true" aria-label="Texto da resposta"></div>
         <textarea id="rTexto" hidden></textarea>
       </div>
-      <div class="bolinhas full">
+      <div class="bolinhas full" id="rBolinhas">
         <label class="bolinha-op"><input type="checkbox" class="bolinha" id="rAtivo" checked><span>APARECE NO APP 02</span></label>
         <label class="bolinha-op"><input type="checkbox" class="bolinha" id="rNotif" checked><span>NOTIFICAR NO APP 02</span></label>
       </div>
@@ -1861,11 +1887,11 @@ $('#rCopiarSN').onclick = () => {
   const r = editandoResp ? baseResp[editandoResp] : null;
   copiarParaSN({
     modo: r ? 'alterar' : 'inserir',
-    destino: destinoDe(r),
+    destino: modoServico ? 'servicos' : destinoDe(r),
     nomeAtual: r ? r.nome : '',
     nome: $('#rNome').value.trim(),
-    descricao: $('#rDesc').value,
-    html: (() => { const c = gerarCodigo($('#rPilar').value, $('#rDesc').value, $('#rNome').value); const corpo = editorHtml();
+    descricao: modoServico ? $('#rDescLivre').value.trim() : $('#rDesc').value,
+    html: (() => { const c = modoServico ? '' : gerarCodigo($('#rPilar').value, $('#rDesc').value, $('#rNome').value); const corpo = editorHtml();
       return corpo + (c ? '\n\n' + HTML_CODIGO_INVISIVEL(c) : ''); })()
   });
 };
@@ -2049,9 +2075,13 @@ function atualizarCodigo(){
   }
 }
 ['input','change'].forEach(ev => ['#rNome','#rPilar','#rDesc'].forEach(s => $(s).addEventListener(ev, atualizarCodigo)));
-function abrirResp(id){
+let modoServico = false;   // true = resposta de Serviço (tabela Caso): pilar Geral, descrição livre, sem código, fora do App 02
+function abrirResp(id, tipo){
   editandoResp = id;
-  const r = id ? baseResp[id] : { nome:'', pilar:'CNH', subtema:'A classificar', descricao:'Resposta Resolutiva', texto:'Prezado(a),\n\nInformamos que\n\nAgradecemos pelo contato e permanecemos à disposição.\n\nAtenciosamente,\nServiço de Atendimento ao Cidadão.', ativo:true };
+  modoServico = id ? destinoDe(baseResp[id]) === 'servicos' : tipo === 'servico';
+  const r = id ? baseResp[id] : modoServico
+    ? { nome:'', pilar:'Geral', subtema:'', descricao:'', texto:'Prezados(as),\n\nAtenciosamente,', ativo:false, tabelas:[TABELA_SERVICOS] }
+    : { nome:'', pilar:'CNH', subtema:'A classificar', descricao:'Resposta Resolutiva', texto:'Prezado(a),\n\nInformamos que\n\nAgradecemos pelo contato e permanecemos à disposição.\n\nAtenciosamente,\nServiço de Atendimento ao Cidadão.', ativo:true };
   textoOriginal = r.texto || '';
   // pilar: sem "Encaminhamentos" (só aparece se a resposta já estiver nele)
   const pils = PILARES_EDITOR.concat(PILARES_EDITOR.includes(r.pilar) || !r.pilar || !PILARES.includes(r.pilar) ? [] : [r.pilar]);
@@ -2060,7 +2090,13 @@ function abrirResp(id){
   const dAtual = descricaoPadrao(r.descricao);
   $('#rDesc').innerHTML = (dAtual ? '' : `<option value="">${r.descricao ? '(atual: ' + esc(semEmoji(r.descricao)) + ') escolha uma' : 'Escolha a descrição'}</option>`)
     + DESCRICOES.map(([n, ic]) => `<option value="${esc(n)}"${n === dAtual ? ' selected' : ''}>${ic ? ic + ' ' : ''}${esc(n)}</option>`).join('');
-  $('#rTit').textContent = id ? 'EDITAR RESPOSTA ' + id : 'NOVA RESPOSTA NA BASE';
+  $('#rTit').textContent = (id ? 'EDITAR RESPOSTA ' + id : 'NOVA RESPOSTA NA BASE') + (modoServico ? ' · SERVIÇO' : ' · SAC');
+  // modo Serviço: sem pilar, descrição livre, sem código invisível, bolinhas sempre desmarcadas
+  $('#mResp').classList.toggle('modo-servico', modoServico);
+  $('#rPilarWrap').hidden = modoServico; $('#rCodWrap').hidden = modoServico;
+  $('#rDesc').hidden = modoServico; $('#rDescLivre').hidden = !modoServico;
+  $('#rDescLivre').value = modoServico ? (r.descricao || '') : '';
+  $('#rDescWrap').classList.toggle('full', modoServico);
   $('#rExcluir').style.display = id ? '' : 'none';
   $('#rNome').value = r.nome || ''; $('#rPilar').value = pils.includes(r.pilar) ? r.pilar : 'Geral';
   $('#rTexto').value = semCodigos(r.texto);       // o código invisível não aparece no texto
@@ -2073,7 +2109,8 @@ function abrirResp(id){
   editorMexido = false;
   codigoAnterior = r.codigo || primeiroCodigo(r.texto) || '';
   atualizarCodigo();
-  $('#rAtivo').checked = r.ativo !== false; $('#rNotif').checked = true;
+  $('#rAtivo').checked = modoServico ? false : r.ativo !== false; $('#rNotif').checked = !modoServico;
+  $('#rAtivo').disabled = $('#rNotif').disabled = modoServico;
   $('#rInfo').textContent = id ? `Última edição: ${r.atualizadoEm || '—'}${r.atualizadoPor ? ' por ' + r.atualizadoPor : ''}` : '';
   $('#mResp').classList.remove('min'); $('#mResp .bt-min').textContent = '—';
   $('#mResp').classList.add('on'); setTimeout(() => $('#rNome').focus(), 50);
@@ -2100,11 +2137,12 @@ $('#fResp').onsubmit = async e => {
   const bt = $('#rSalvar'); bt.disabled = true;
   try{
     const agora = fmt(Date.now()), adm = me ? titulo(me.nome) : '';
-    const codigo = gerarCodigo($('#rPilar').value, $('#rDesc').value, $('#rNome').value);
-    if(!codigo && !confirm('Não deu para gerar o código invisível (o nome precisa começar com o número do modelo). Salvar sem código?')){ bt.disabled = false; return; }
+    const codigo = modoServico ? '' : gerarCodigo($('#rPilar').value, $('#rDesc').value, $('#rNome').value);
+    if(modoServico && !$('#rDescLivre').value.trim()){ toast('ESCREVA A DESCRIÇÃO RESUMIDA', true); bt.disabled = false; return; }
+    if(!modoServico && !codigo && !confirm('Não deu para gerar o código invisível (o nome precisa começar com o número do modelo). Salvar sem código?')){ bt.disabled = false; return; }
     const repetido = codigo ? Object.keys(baseResp || {}).filter(k => k !== editandoResp && String(baseResp[k].codigo || '').toUpperCase() === codigo) : [];
     if(repetido.length && !confirm(`O código ${codigo} já está vinculado a:\n${repetido.slice(0, 5).map(k => '• ' + k + ' ' + baseResp[k].nome).join('\n')}\n\nVincular também a esta resposta?`)){ bt.disabled = false; return; }
-    if(!$('#rDesc').value){ toast('ESCOLHA A DESCRIÇÃO RESUMIDA', true); bt.disabled = false; return; }
+    if(!modoServico && !$('#rDesc').value){ toast('ESCOLHA A DESCRIÇÃO RESUMIDA', true); bt.disabled = false; return; }
     /* o texto foi editado sem o código: ele volta para o mesmo lugar (início/fim);
        se o código invisível foi trocado, o novo entra no lugar do antigo */
     sincronizarEditor();
@@ -2114,18 +2152,19 @@ $('#fResp').onsubmit = async e => {
     /* o código invisível fica sempre no FINAL (no texto e no HTML) */
     const texto = textoLimpo + (codigo ? '\n' + codigo : '');
     const htmlFinal = corpoHtml + (codigo ? '\n\n' + HTML_CODIGO_INVISIVEL(codigo) : '');
-    const dados = { codigo, nome: $('#rNome').value.trim(), pilar: $('#rPilar').value,
-      descricao: $('#rDesc').value, texto, ativo: $('#rAtivo').checked, atualizadoEm: agora, atualizadoPor: adm };
+    const dados = { codigo, nome: $('#rNome').value.trim(), pilar: modoServico ? 'Geral' : $('#rPilar').value,
+      descricao: modoServico ? $('#rDescLivre').value.trim() : $('#rDesc').value, texto,
+      ativo: modoServico ? false : $('#rAtivo').checked, atualizadoEm: agora, atualizadoPor: adm };
     let id = editandoResp, obj; const antes = id ? {...baseResp[id]} : null;
     if(id){ obj = {...baseResp[id], ...dados, id}; }
-    else { id = await proximoNum('R', 'respostas'); obj = {id, tabelas:[], campo:'close_notes', subtema:'A classificar', obs:'', criadoEm:agora, ...dados}; }
+    else { id = await proximoNum('R', 'respostas'); obj = {id, tabelas: modoServico ? [TABELA_SERVICOS] : [], campo:'close_notes', subtema: modoServico ? '' : 'A classificar', obs:'', criadoEm:agora, ...(modoServico ? { tipo:'servico' } : {}), ...dados}; }
     await fb('respostas/' + id, 'PUT', obj);
     await fb('respostasHtml/' + id, 'PUT', htmlFinal);        // guarda a formatação (links, negrito…)
     baseResp[id] = obj;
-    if($('#rNotif').checked && obj.ativo) await notificarApp02(editandoResp ? 'Resposta corrigida' : 'Nova resposta', id, obj.nome, '', '');
+    if(!modoServico && $('#rNotif').checked && obj.ativo) await notificarApp02(editandoResp ? 'Resposta corrigida' : 'Nova resposta', id, obj.nome, '', '');
     await marcarVersao();
     registrar(antes ? 'Editou resposta' : 'Criou resposta', `${id} ${obj.nome}`, antes ? (camposMudados(antes, obj) || 'sem mudanças nos campos') : `${obj.pilar} · ${obj.descricao}`);
-    fecharResp(); renderBase(); if(atual === 'alteracoes') renderAlt(); if(atual === 'painel') renderItensCaixinha(); toast(editandoResp ? 'RESPOSTA SALVA NA BASE DOS DOIS APPS' : 'NOVA RESPOSTA CRIADA NA BASE DOS DOIS APPS');
+    fecharResp(); renderBase(); if(atual === 'alteracoes') renderAlt(); if(atual === 'painel') renderItensCaixinha(); toast(modoServico ? (editandoResp ? 'RESPOSTA DE SERVIÇO SALVA' : 'NOVA RESPOSTA DE SERVIÇO CRIADA') : (editandoResp ? 'RESPOSTA SALVA NA BASE DOS DOIS APPS' : 'NOVA RESPOSTA CRIADA NA BASE DOS DOIS APPS'));
   }catch(err){ toast('NÃO FOI POSSÍVEL SALVAR: ' + err.message, true); }
   bt.disabled = false;
 };
@@ -2539,13 +2578,17 @@ function abrirForm(base){
   $('#mNova').classList.add('on'); setTimeout(() => $('#fModelo').focus(), 50);
 }
 const fechar = () => $('#mNova').classList.remove('on', 'min');
-$('#btnNova').onclick = async () => {
-  if(podeEditar() && FB_ON){
-    if(!baseResp) await carregarBase();
-    if(baseResp) return abrirResp('');      // grava direto em respostasSAC/respostas: aparece nos dois apps
-  }
-  abrirForm();                              // sem Firebase (modo local): fica como sugestão
+$('#btnNova').onclick = () => {
+  if(!(podeEditar() && FB_ON)) return abrirForm();        // sem Firebase (modo local): fica como sugestão
+  $('#mTipoNova').classList.add('on'); setTimeout(() => $('#mTipoNova .tn-op').focus(), 50);
 };
+$('#tnCancelar').onclick = () => $('#mTipoNova').classList.remove('on');
+$('#mTipoNova').onclick = e => { if(e.target.id === 'mTipoNova') $('#mTipoNova').classList.remove('on'); };
+$$('#mTipoNova [data-tipo]').forEach(b => b.onclick = async () => {
+  $('#mTipoNova').classList.remove('on');
+  if(!baseResp) await carregarBase();
+  if(baseResp) abrirResp('', b.dataset.tipo);             // grava direto em respostasSAC/respostas
+});
 $('#fCancel').onclick = fechar;
 $('#mNova').onclick = e => { if(e.target.id === 'mNova') fechar(); };
 document.addEventListener('keydown', e => { if(e.key === 'Escape') fechar(); });
