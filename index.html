@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Respostas SAC</title>
+<!-- Ícone na aba e na barra de tarefas (Chrome e Edge): arquivo BaseResposta.png na mesma pasta do index.html -->
+<link rel="icon" type="image/png" href="BaseResposta.png?v=1">
+<link rel="shortcut icon" type="image/png" href="BaseResposta.png?v=1">
+<link rel="apple-touch-icon" href="BaseResposta.png?v=1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2f3d22">
+<meta name="application-name" content="Respostas SAC">
+<meta name="msapplication-TileImage" content="BaseResposta.png">
+<meta name="msapplication-TileColor" content="#2f3d22">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400&family=Didact+Gothic&family=Oswald:wght@400;500&family=Roboto+Slab:wght@500&family=Ubuntu:wght@400;500&family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -61,6 +70,16 @@ nav button.nav-api:hover{color:#f5d90a;border-color:#f5d90a}
 .cx-faixa i{display:block;height:100%}
 .cx-barra{height:6px;background:rgba(0,0,0,.12);border-radius:4px;overflow:hidden;margin-top:6px}
 .cx-barra i{display:block;height:100%;background:#f5d90a}
+.cx-item{position:relative}
+.cx-item[draggable="true"]{cursor:grab}
+.cx-item.arrastando{opacity:.4}
+.cx-item.antes{box-shadow:0 -4px 0 #f5d90a}
+.cx-item.depois{box-shadow:0 4px 0 #f5d90a}
+.cx-ord{position:absolute;left:-30px;top:50%;transform:translateY(-50%);display:none;flex-direction:column;gap:2px}
+.cx-item:hover .cx-ord,.cx-item:focus-within .cx-ord{display:flex}
+.cx-ord i{font-style:normal;font-size:10px;line-height:1;background:#2f3d22;color:#fff;border-radius:5px;padding:3px 5px;cursor:pointer}
+.cx-ord i:hover{background:#f5d90a;color:#2f3d22}
+.cx-lado{padding-left:30px;margin-left:-30px}
 .cx-pct{float:right;font-size:12px;letter-spacing:1px;background:rgba(255,255,255,.85);color:#2f3d22;border-radius:999px;padding:1px 8px;font-weight:700}
 .cx-item.on .cx-pct{background:#f5d90a}
 .cx-grande{display:flex;align-items:baseline;gap:10px;margin:6px 0 4px}
@@ -1777,7 +1796,9 @@ const revisadasDe = c => itensDe(c).filter(ehRevisada).length;
 const pct = (r, n) => n ? Math.round(r / n * 100) : 0;
 const idsBase = () => baseResp ? Object.keys(baseResp).filter(k => baseResp[k] && baseResp[k].nome) : [];
 const corDe = c => (c && c.cor) || CORES_CX[0];
-const listaCaixas = () => Object.values(caixas || {}).sort((a, b) => (a.criadoEm || 0) - (b.criadoEm || 0));
+/* ordem escolhida pelo usuário (campo "ordem"); as antigas, sem ordem, seguem a data de criação */
+const ordemDe = c => typeof c.ordem === 'number' ? c.ordem : 1e6 + (c.criadoEm || 0) / 1e13;
+const listaCaixas = () => Object.values(caixas || {}).sort((a, b) => ordemDe(a) - ordemDe(b));
 /* em qual caixinha a resposta está (cada resposta só pode estar em uma) */
 function caixinhaDe(rid){ return listaCaixas().find(c => c.itens && c.itens[rid]) || null; }
 const nomeCurto = n => String(n || '').replace(/^\s*\d+\s*[-–|]?\s*/, '').replace(/^(CNH|VEIC|VE[IÍ]C|CRV|INFRA|CRED|PORTAL|ENC|GERAL)\s*[|\-–]\s*/i, '').trim() || n;
@@ -1800,7 +1821,8 @@ function renderPainel(){
       <div class="cx-barra"><i style="width:${pct(totRev, total)}%"></i></div></button>`
     + lista.map(c => {
       const n = itensDe(c).length, r = revisadasDe(c);
-      return `<button type="button" class="cx-item${c.id === caixaSel ? ' on' : ''}" data-cx="${esc(c.id)}" style="--cor:${corDe(c)}" title="Clique para abrir · solte aqui um quadradinho para mover">
+      return `<button type="button" class="cx-item${c.id === caixaSel ? ' on' : ''}" data-cx="${esc(c.id)}" draggable="true" style="--cor:${corDe(c)}" title="Clique para abrir · arraste para mudar a ordem · solte aqui um quadradinho para mover">
+        <span class="cx-ord"><i data-ord="-1" title="Subir">▲</i><i data-ord="1" title="Descer">▼</i></span>
         <b>${esc(c.nome)} <span class="cx-pct">${pct(r, n)}%</span></b><small>${n} resposta${n === 1 ? '' : 's'} · ${r} revisada${r === 1 ? '' : 's'}</small>
         <div class="cx-barra"><i style="width:${pct(r, n)}%"></i></div></button>`;
     }).join('')
@@ -1808,9 +1830,24 @@ function renderPainel(){
   $$('[data-cx]').forEach(b => {
     b.onclick = () => { caixaSel = b.dataset.cx; cxFiltro = 'todas'; renderPainel(); };
     if(b.dataset.cx === '__todas') return;
-    b.ondragover = e => { e.preventDefault(); b.classList.add('alvo'); };
-    b.ondragleave = () => b.classList.remove('alvo');
-    b.ondrop = e => { e.preventDefault(); b.classList.remove('alvo'); const rid = e.dataTransfer.getData('text/rid'); if(rid) moverPara([rid], b.dataset.cx); };
+    b.ondragstart = e => { e.dataTransfer.setData('text/cx', b.dataset.cx); e.dataTransfer.effectAllowed = 'move'; b.classList.add('arrastando'); arrastandoCx = b.dataset.cx; };
+    b.ondragend = () => { b.classList.remove('arrastando'); arrastandoCx = ''; $$('.cx-item').forEach(x => x.classList.remove('alvo', 'antes', 'depois')); };
+    b.ondragover = e => {
+      e.preventDefault();
+      if(arrastandoCx){                                   // reordenando: mostra a linha onde vai cair
+        if(arrastandoCx === b.dataset.cx) return;
+        const r = b.getBoundingClientRect(), antes = e.clientY < r.top + r.height / 2;
+        b.classList.toggle('antes', antes); b.classList.toggle('depois', !antes);
+      } else b.classList.add('alvo');                     // soltando um quadradinho
+    };
+    b.ondragleave = () => b.classList.remove('alvo', 'antes', 'depois');
+    b.ondrop = e => {
+      e.preventDefault();
+      const cx = e.dataTransfer.getData('text/cx');
+      if(cx){ const antes = b.classList.contains('antes'); b.classList.remove('antes', 'depois'); if(cx !== b.dataset.cx) reordenar(cx, b.dataset.cx, antes); return; }
+      b.classList.remove('alvo'); const rid = e.dataTransfer.getData('text/rid'); if(rid) moverPara([rid], b.dataset.cx);
+    };
+    b.querySelectorAll('[data-ord]').forEach(s => s.onclick = e => { e.stopPropagation(); subirDescer(b.dataset.cx, +s.dataset.ord); });
   });
   const lixo = $('#cxLixo');
   lixo.ondragover = e => { e.preventDefault(); lixo.classList.add('alvo'); };
@@ -1959,12 +1996,37 @@ $('#cxNovaForm').onsubmit = async e => {
   const nome = $('#cxNovoNome').value.trim(); if(!nome) return toast('DÊ UM NOME PARA A CAIXINHA', true);
   if(listaCaixas().some(c => normN(c.nome) === normN(nome))) return toast('JÁ EXISTE UMA CAIXINHA COM ESSE NOME', true);
   const id = 'C' + Date.now().toString(36);
-  const c = { id, nome, cor: corNova, criadoPor: titulo(me.nome), criadoEm: Date.now() };
+  const c = { id, nome, cor: corNova, criadoPor: titulo(me.nome), criadoEm: Date.now(), ordem: listaCaixas().length + 1 };
   try{ await fb('caixinhas/' + id, 'PUT', c); caixas[id] = c; caixaSel = id; $('#cxNovoNome').value = '';
     corNova = CORES_CX[(CORES_CX.indexOf(corNova) + 1) % CORES_CX.length];
     renderPainel(); toast('CAIXINHA CRIADA'); registrar('Criou caixinha de revisão', nome); }
   catch(err){ toast('NÃO FOI POSSÍVEL CRIAR: ' + err.message, true); }
 };
+/* ---------- ordem das caixinhas ---------- */
+let arrastandoCx = '';
+async function salvarOrdem(lista, quem){
+  const mud = {}; lista.forEach((c, i) => { mud['caixinhas/' + c.id + '/ordem'] = i + 1; });
+  try{
+    await fb('', 'PATCH', mud);
+    lista.forEach((c, i) => c.ordem = i + 1);
+    renderPainel();
+    registrar('Mudou a ordem das caixinhas', quem, lista.map(c => c.nome).join(' › '));
+  }catch(e){ toast('NÃO FOI POSSÍVEL SALVAR A ORDEM', true); }
+}
+function reordenar(cid, alvoId, antes){
+  const l = listaCaixas(), mov = l.find(c => c.id === cid); if(!mov) return;
+  const resto = l.filter(c => c.id !== cid);
+  let i = resto.findIndex(c => c.id === alvoId); if(i < 0) return;
+  if(!antes) i++;
+  resto.splice(i, 0, mov);
+  salvarOrdem(resto, mov.nome);
+}
+function subirDescer(cid, passo){
+  const l = listaCaixas(), i = l.findIndex(c => c.id === cid), j = i + passo;
+  if(i < 0 || j < 0 || j >= l.length) return;
+  [l[i], l[j]] = [l[j], l[i]];
+  salvarOrdem(l, l[j].nome);
+}
 async function mudarCor(cor){
   const c = caixas[caixaSel]; if(!c || c.cor === cor) return;
   try{ await fb('caixinhas/' + c.id + '/cor', 'PUT', cor); c.cor = cor; renderPainel(); registrar('Mudou a cor da caixinha', c.nome, cor); }catch(e){ toast('NÃO FOI POSSÍVEL MUDAR A COR', true); }
