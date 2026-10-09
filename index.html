@@ -596,7 +596,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
     <div class="tn-corpo">
       <p>Para onde é esta resposta?</p>
       <div class="tn-ops">
-        <button type="button" class="tn-op" data-tipo="sac"><b>SAC</b><small>6 tabelas do SAC · pilar, descrição da lista e código invisível</small></button>
+        <button type="button" class="tn-op" data-tipo="sac"><b>SAC</b><small>7 tabelas do SAC · pilar, descrição da lista e código invisível</small></button>
         <button type="button" class="tn-op" data-tipo="servico"><b>SERVIÇO</b><small>tabela Caso · descrição livre, sem código e fora do App 02</small></button>
       </div>
       <div class="acts" style="margin-top:14px"><button type="button" class="btn btn-no" id="tnCancelar">CANCELAR</button></div>
@@ -715,13 +715,15 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
    ============================================================ */
 (async () => {
   // ---------- CONFIGURAÇÃO ----------
+  // SAC → Inserir cria o modelo nestas 7 tabelas
   const TABELAS = [
-    ['x_mdpdd_detran_csm_adm_case',            'SAC - Serviços Administrativos (Exclusivo para Servidores)'],
-    ['x_mdpdd_detran_csm_education_case',      'SAC - Todos casos (education_case)'],
-    ['x_mdpdd_detran_csm_driver_licence_case', 'SAC - Casos de habilitação'],
-    ['x_mdpdd_detran_csm_vehicle_case',        'SAC - Casos de veículos'],
-    ['x_mdpdd_detran_csm_inspection_case',     'SAC - Casos de fiscalização'],
-    ['x_mdpdd_detran_csm_general_case',        'SAC - Agentes Regulados'],
+    ['x_mdpdd_detran_csm_driver_licence_case',       'SAC - Casos de habilitação'],
+    ['x_mdpdd_detran_csm_vehicle_case',              'SAC - Casos de veículos'],
+    ['x_mdpdd_detran_csm_inspection_case',           'SAC - Casos de fiscalização'],
+    ['x_mdpdd_detran_csm_education_case',            'SAC - Todos casos (education_case)'],
+    ['x_mdpdd_detran_csm_customer_service_channels', 'SAC - Problemas ao usar o site ou aplicativo'],
+    ['x_mdpdd_detran_csm_adm_case',                  'SAC - Serviços Administrativos (Exclusivo para Servidores)'],
+    ['x_mdpdd_detran_csm_public_hiring',             'SAC - Contratação pública (public_hiring)'],
   ];
   const TABELA_SRV   = ['x_mdpdd_detran_srv_service_case', 'Caso (Serviços)'];   // destino "Serviços"
   const CAMPO_HTML   = 'close_notes';               // "Anotações de resolução"
@@ -910,7 +912,7 @@ ${corpo}
     <div class="pm-modos">
       <div class="pm-grupo"><span>SAC</span>
         <label><input type="radio" name="pm_modo" value="sac-alterar" checked> Alterar</label>
-        <label><input type="radio" name="pm_modo" value="sac-inserir"> Inserir (6 tabelas)</label></div>
+        <label><input type="radio" name="pm_modo" value="sac-inserir"> Inserir (7 tabelas)</label></div>
       <div class="pm-grupo"><span>SERVIÇOS</span>
         <label><input type="radio" name="pm_modo" value="srv-alterar"> Alterar</label>
         <label><input type="radio" name="pm_modo" value="srv-inserir"> Inserir (Caso)</label></div>
@@ -2079,7 +2081,7 @@ function copiarParaSN(d){
   if(d.modo === 'inserir' && !d.descricao) return toast('ESCOLHA A DESCRIÇÃO RESUMIDA', true);
   if(d.descricao) d.descricao = descricaoParaSN(d.descricao);
   copiarTexto(MARCA_SN + JSON.stringify(d), d.modo === 'inserir'
-    ? 'COPIADO! NO SERVICENOW: COLAR DO APP 01 → ENTER (INSERE NAS 6 TABELAS)'
+    ? 'COPIADO! NO SERVICENOW: COLAR DO APP 01 → ENTER (INSERE NAS 7 TABELAS)'
     : 'COPIADO! NO SERVICENOW: COLAR DO APP 01 → ENTER (ALTERA O MODELO)');
   registrar('Copiou para o ServiceNow', d.nome || d.nomeAtual, d.modo === 'inserir' ? 'inserir nova' : 'alterar existente: ' + d.nomeAtual);
 }
