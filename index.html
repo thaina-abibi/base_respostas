@@ -167,6 +167,17 @@ nav button svg{width:24px;height:24px;fill:currentColor}
 .ico-home{color:#f5b301}
 .sair-bottom{margin-top:auto;margin-bottom:20px;background:none;border:0;color:#eef0e8;font-size:24px;letter-spacing:3.5px;display:flex;align-items:center;gap:12px;transition:color .2s}
 .sair-bottom:hover{color:#fff7b0}
+.bt-push{margin-top:auto;margin-bottom:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.25);color:#eef0e8;border-radius:20px;padding:6px 14px;font-size:12.5px;letter-spacing:2px;cursor:pointer;font-family:inherit}
+.bt-push:hover{background:rgba(245,217,10,.18)}
+.bt-push.ativo{border-color:#9bb57f;color:#cfe3b8}
+.bt-push.chama{border-color:#f5d90a;color:#f5d90a;animation:chama 2s ease-in-out infinite}
+@keyframes chama{50%{box-shadow:0 0 0 6px rgba(245,217,10,.15)}}
+.bt-push+.sair-bottom{margin-top:10px}
+.side.closed .bt-push{display:none}
+.push-lista{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.push-lista span{background:#f5f6f9;border-radius:10px;padding:4px 10px;font-size:13px}
+#pushWeb{width:100%;min-height:110px;border:0;border-radius:12px;background:#f5f6f9;padding:10px 14px;font-family:monospace;font-size:12.5px}
+#pushVapid{width:100%;height:42px;border:0;border-radius:12px;background:#f5f6f9;padding:0 14px;font-family:monospace;font-size:12.5px;margin:6px 0 10px}
 .sair-bottom svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
 .quem{color:#c9dbb2;font-size:13px;letter-spacing:2px;margin:6px 0 0;text-align:center;opacity:.85}
 
@@ -459,6 +470,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 2h7.6L20 6.4V18a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V7h3.5z"/><path d="M4 6h1v13a2 2 0 0 0 2 2h10v1H6a3 3 0 0 1-3-3V7a1 1 0 0 1 1-1z" opacity=".8"/></svg>
       </button>
     </nav>
+    <button type="button" class="bt-push" id="btPush" hidden>🔔 ATIVAR NOTIFICAÇÕES</button>
     <button class="sair-bottom" data-sair>Sair <svg viewBox="0 0 24 24"><path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/></svg></button>
   </aside>
 
@@ -571,7 +583,23 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
             <div class="cfg-dest" id="avDest"></div>
             <label class="cfg-lin"><input type="checkbox" id="avAtrib"> Avisar a pessoa por e-mail quando uma sugestão for atribuída a ela</label>
             <div class="sn-bts"><button type="button" class="btn btn-dark" id="avSalvar">SALVAR AVISOS</button><button type="button" class="btn btn-ok" id="avCopiar">COPIAR SCRIPT DOS AVISOS</button></div>
-            <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted);letter-spacing:.3px;line-height:1.6">Os e-mails saem da sua conta Google por um Apps Script separado (botão acima): crie um projeto novo em script.google.com, cole, salve e rode <b>instalarAvisos</b> uma vez. Ele confere o Firebase a cada 5 minutos.</p>
+            <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted);letter-spacing:.3px;line-height:1.6">Os e-mails saem da sua conta Google por um Apps Script separado (botão acima): crie um projeto novo em script.google.com, cole, salve e rode <b>instalarAvisos</b> uma vez. Ele confere o Firebase a cada minuto.</p>
+          </div>
+
+          <hr class="adm-hr">
+          <div class="box-h">NOTIFICAÇÕES NO COMPUTADOR</div>
+          <div class="sn-card">
+            <div class="av-status off" id="pushStatus">Carregando…</div>
+            <div class="push-lista" id="pushQuem"></div>
+            <p style="margin:0 0 8px;font-size:14px;letter-spacing:.4px;line-height:1.6">Aviso no canto da tela do Windows, mesmo com o site fechado (o navegador precisa estar aberto ou minimizado). Vale para as mesmas situações dos e-mails acima. Cada pessoa ativa no próprio computador pelo botão <b>🔔 ATIVAR NOTIFICAÇÕES</b> do menu.</p>
+            <ol style="font-size:13.5px;line-height:1.7;letter-spacing:.3px;margin:0 0 10px;padding-left:20px">
+              <li>Firebase → ⚙️ <b>Configurações do projeto → Geral → Seus apps</b> → ícone <b>&lt;/&gt;</b> (Web) → nome "App 01" → <b>Registrar app</b>. Copie o bloco <code>firebaseConfig</code> e cole abaixo.</li>
+              <li>⚙️ <b>Configurações do projeto → Cloud Messaging → Certificados push da Web → Gerar par de chaves</b>. Copie a chave e cole abaixo.</li>
+              <li>⚙️ <b>Configurações do projeto → Contas de serviço → Gerar nova chave privada</b>. Abra o arquivo .json baixado e cole no <b>Avisos.gs</b>, em <code>AV_CONTA_SERVICO</code>. Essa chave é secreta: não coloque aqui.</li>
+            </ol>
+            <textarea id="pushWeb" spellcheck="false" placeholder="const firebaseConfig = { apiKey: &quot;…&quot;, authDomain: &quot;…&quot;, projectId: &quot;…&quot;, messagingSenderId: &quot;…&quot;, appId: &quot;…&quot; };"></textarea>
+            <input id="pushVapid" spellcheck="false" autocomplete="off" placeholder="Chave do certificado push da Web (começa com B…)">
+            <div class="sn-bts"><button type="button" class="btn btn-dark" id="pushSalvar">SALVAR CONFIGURAÇÃO</button></div>
           </div>
 
           <hr class="adm-hr">
@@ -1481,18 +1509,28 @@ ${corpo}
  * Como instalar (uma vez só):
  *   1) script.google.com → Novo projeto → apague o conteúdo e cole este código → Salvar.
  *   2) No menu de funções escolha  instalarAvisos  → Executar → autorize (Firebase + enviar e-mail).
- *   Pronto: a cada 5 minutos ele confere o Firebase e envia:
+ *   Pronto: a cada minuto ele confere o Firebase e envia (e-mail + notificação no computador):
  *     • para quem foi marcado em Edições ADM: sugestão ou sinalização nova vinda do App 02;
  *     • para a pessoa atribuída: aviso de que a sugestão é dela.
  *   Os e-mails saem da conta Google de quem instalou.
  *   Para parar: rode  desinstalarAvisos.
+ *
+ * Notificação no computador (opcional): cole em AV_CONTA_SERVICO, logo abaixo, o conteúdo do
+ * arquivo .json baixado em Firebase → Configurações do projeto → Contas de serviço → Gerar nova chave privada.
+ * Depois rode  testarPush  (quem ativou o 🔔 no App 01 recebe um aviso de teste).
  */
 
 const AV_FIREBASE_URL = '/*FIREBASE*/';          // mesmo link do Firebase dos dois apps
 const AV_RAIZ = 'respostasSAC';
 const AV_URL_APP01 = '/*APP01*/';               // link do App 01 (aparece no botão do e-mail)
-const AV_A_CADA_MINUTOS = 5;                    // 1, 5, 10, 15 ou 30
+const AV_A_CADA_MINUTOS = 1;                    // 1, 5, 10, 15 ou 30
 const AV_NOME_REMETENTE = 'Respostas SAC';
+
+/* Cole aqui o conteúdo INTEIRO do arquivo .json da conta de serviço, no lugar de null.
+   Fica assim:  const AV_CONTA_SERVICO = { "type": "service_account", "project_id": "...", ... };
+   É uma chave secreta: este projeto do Apps Script é só seu, não compartilhe. */
+const AV_CONTA_SERVICO = null;
+let avErroPush = '';
 
 /* ============================== INSTALAÇÃO ============================== */
 
@@ -1542,8 +1580,10 @@ function verificarAvisos() {
       // 1) sugestão/sinalização nova do App 02 → quem foi escolhido em Edições ADM
       if (s.origem === 'consulta' && !s.avisoNovaEm && Number(s.criadoEm) > desde) {
         if (cfg.novas !== false) {
-          const para = avDestinatarios_(cfg, usuarios);
+          const quem = avDestinatariosU_(cfg, usuarios), para = avEmails_(quem, usuarios);
           if (para.length) { avEnviar_(para.join(','), avAssuntoNova_(s), avCorpoNova_(s)); enviados++; }
+          const t = avTipo_(s);
+          avPush_(quem, t.icone + ' ' + t.nome + ' — App 02', (s.modelo || '') + (s.autor ? ' · por ' + s.autor : ''), 'n' + id);
         }
         marcas[id + '/avisoNovaEm'] = Date.now();
       }
@@ -1555,13 +1595,15 @@ function verificarAvisos() {
           avEnviar_(u.email, 'Sugestão atribuída a você: ' + (s.modelo || ''), avCorpoAtrib_(s, u));
           enviados++;
         }
+        if (cfg.atribuicao !== false && u && u.ativo !== false && String(u.ativo) !== 'false')
+          avPush_([s.atribuidoA], '🔔 Sugestão atribuída a você', (s.modelo || '') + ' · ' + avTipo_(s).nome, 'a' + id);
         marcas[id + '/avisoAtribPara'] = s.atribuidoA;
       }
     });
 
     if (Object.keys(marcas).length) avFb_('sugestoes', 'patch', marcas);
     avFb_('config/avisos/status', 'put', {
-      ultimaVerificacao: Date.now(), enviadosNaUltima: enviados, cota: MailApp.getRemainingDailyQuota(), erro: ''
+      ultimaVerificacao: Date.now(), enviadosNaUltima: enviados, cota: MailApp.getRemainingDailyQuota(), erro: '', erroPush: avErroPush
     });
   } catch (e) {
     try { avFb_('config/avisos/status', 'patch', { ultimaVerificacao: Date.now(), erro: String(e && e.message || e).slice(0, 300) }); } catch (x) {}
@@ -1571,11 +1613,15 @@ function verificarAvisos() {
   }
 }
 
-function avDestinatarios_(cfg, usuarios) {
-  const ativo = u => u && u.email && u.ativo !== false && String(u.ativo) !== 'false';
-  let lista = Array.isArray(cfg.destinatarios) ? cfg.destinatarios.map(k => usuarios[k]) : null;
-  if (!lista) lista = Object.keys(usuarios).map(k => usuarios[k]).filter(u => u && String(u.perfil || '').toLowerCase().indexOf('adm') === 0);
-  return lista.filter(ativo).map(u => String(u.email).trim()).filter((e, i, a) => e && a.indexOf(e) === i);
+/** Usuários (chaves) que recebem os avisos de sugestão nova. */
+function avDestinatariosU_(cfg, usuarios) {
+  const ativo = k => usuarios[k] && usuarios[k].ativo !== false && String(usuarios[k].ativo) !== 'false';
+  const lista = Array.isArray(cfg.destinatarios) ? cfg.destinatarios
+    : Object.keys(usuarios).filter(k => usuarios[k] && String(usuarios[k].perfil || '').toLowerCase().indexOf('adm') === 0);
+  return lista.filter(ativo);
+}
+function avEmails_(chaves, usuarios) {
+  return chaves.map(k => String((usuarios[k] && usuarios[k].email) || '').trim()).filter((e, i, a) => e && a.indexOf(e) === i);
 }
 
 /* ============================== E-MAILS ============================== */
@@ -1627,6 +1673,75 @@ const avBloco_ = (k, v) => '<div style="margin:10px 0 0"><div style="color:#6b75
 
 function avEnviar_(para, assunto, html) {
   MailApp.sendEmail({ to: para, subject: '[Respostas SAC] ' + assunto, htmlBody: html, name: AV_NOME_REMETENTE });
+}
+
+/* ============================== NOTIFICAÇÃO NO COMPUTADOR (FCM) ============================== */
+
+function avContaServico_() {
+  if (AV_CONTA_SERVICO && AV_CONTA_SERVICO.private_key) return AV_CONTA_SERVICO;
+  const p = PropertiesService.getScriptProperties().getProperty('CONTA_SERVICO');   // alternativa: propriedade do script
+  return p ? JSON.parse(p) : null;
+}
+
+/** Token de acesso do Google para a conta de serviço (guardado por 50 min). */
+function avTokenGoogle_(sa) {
+  const cache = CacheService.getScriptCache(), salvo = cache.get('av_fcm_token');
+  if (salvo) return salvo;
+  const b64 = t => Utilities.base64EncodeWebSafe(t).replace(/=+$/, '');
+  const agora = Math.floor(Date.now() / 1000);
+  const cab = b64(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const corpo = b64(JSON.stringify({ iss: sa.client_email, scope: 'https://www.googleapis.com/auth/firebase.messaging',
+    aud: 'https://oauth2.googleapis.com/token', iat: agora, exp: agora + 3600 }));
+  const assinatura = Utilities.base64EncodeWebSafe(Utilities.computeRsaSha256Signature(cab + '.' + corpo, sa.private_key)).replace(/=+$/, '');
+  const r = UrlFetchApp.fetch('https://oauth2.googleapis.com/token', { method: 'post', muteHttpExceptions: true,
+    payload: { grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: cab + '.' + corpo + '.' + assinatura } });
+  const j = JSON.parse(r.getContentText() || '{}');
+  if (!j.access_token) throw new Error('A conta de serviço foi recusada pelo Google: ' + r.getContentText().slice(0, 200));
+  cache.put('av_fcm_token', j.access_token, 3000);
+  return j.access_token;
+}
+
+/** Envia a notificação para todos os computadores em que essas pessoas ativaram o 🔔. Devolve quantos foram. */
+function avPush_(chaves, titulo, corpo, tag) {
+  const sa = avContaServico_();
+  if (!sa || !chaves || !chaves.length) return 0;
+  try {
+    const todos = avFb_('pushTokens') || {}, alvos = [];
+    chaves.forEach(u => Object.keys(todos[u] || {}).forEach(k => { if (todos[u][k] && todos[u][k].token) alvos.push({ u: u, k: k, token: todos[u][k].token }); }));
+    if (!alvos.length) return 0;
+    const acesso = avTokenGoogle_(sa);
+    const url = 'https://fcm.googleapis.com/v1/projects/' + sa.project_id + '/messages:send';
+    const pedidos = alvos.map(a => ({
+      url: url, method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      headers: { Authorization: 'Bearer ' + acesso },
+      payload: JSON.stringify({ message: { token: a.token,
+        data: { titulo: String(titulo || ''), corpo: String(corpo || ''), tag: String(tag || ''), url: AV_URL_APP01 + '?abrir=sugestoes' },
+        webpush: { headers: { Urgency: 'high', TTL: '86400' } } } })
+    }));
+    const respostas = UrlFetchApp.fetchAll(pedidos), apagar = {};
+    let ok = 0;
+    respostas.forEach((r, i) => {
+      const cod = r.getResponseCode(), txt = r.getContentText();
+      if (cod < 300) ok++;
+      else if (cod === 404 || /UNREGISTERED|registration token is not a valid/i.test(txt)) apagar[alvos[i].u + '/' + alvos[i].k] = null;   // computador desativou
+      else { Logger.log('Notificação não enviada (' + cod + '): ' + txt.slice(0, 200)); avErroPush = 'FCM ' + cod + ': ' + txt.slice(0, 200); }
+    });
+    if (Object.keys(apagar).length) avFb_('pushTokens', 'patch', apagar);
+    return ok;
+  } catch (e) {
+    Logger.log('Notificação no computador: ' + e.message);
+    avErroPush = String(e.message).slice(0, 300);
+    return 0;
+  }
+}
+
+/** Manda uma notificação de teste para todos que ativaram o 🔔 no App 01. */
+function testarPush() {
+  if (!avContaServico_()) throw new Error('Cole o .json da conta de serviço em AV_CONTA_SERVICO antes.');
+  const todos = avFb_('pushTokens') || {}, quem = Object.keys(todos);
+  if (!quem.length) throw new Error('Ninguém ativou as notificações ainda. No App 01, clique em 🔔 ATIVAR NOTIFICAÇÕES no menu.');
+  const n = avPush_(quem, '🔔 Teste do Respostas SAC', 'Se você está vendo isto, as notificações no computador estão funcionando.', 'teste');
+  Logger.log('Notificações enviadas: ' + n + ' (pessoas: ' + quem.join(', ') + ')');
 }
 
 /* ============================== UTILITÁRIOS ============================== */
@@ -2067,7 +2182,7 @@ function render(){
 }
 $$('#nav button[data-v]').forEach(b => b.onclick = () => go(b.dataset.v));
 $('#burger').onclick = () => $('#side').classList.toggle('closed');
-$$('[data-sair]').forEach(b => b.onclick = () => { me = null; esquecerSessao(); go('inicio'); showLogin(); });
+$$('[data-sair]').forEach(b => b.onclick = () => { desligarPushLocal(); me = null; esquecerSessao(); go('inicio'); showLogin(); atualizarBotaoPush(); });
 
 /* ---------- Sugestões ---------- */
 let aba = 'pendente';
@@ -3316,7 +3431,7 @@ function montarAdmExtras(){
   $('#avDest').innerHTML = us.map(u => `<label title="${esc(u.email || 'sem e-mail cadastrado')}"><input type="checkbox" data-dest="${esc(u.u)}"${(dest ? dest.includes(u.u) : u.perfil === 'admin') ? ' checked' : ''}${u.email ? '' : ' disabled'}>${esc(titulo(u.nome))}${u.email ? '' : ' <small>(sem e-mail)</small>'}</label>`).join('') || '<small>Nenhum usuário ativo.</small>';
   $('#rgPilar').innerHTML = '<option value="*">Todos os pilares</option>' + PILARES.map(p => `<option>${p}</option>`).join('');
   $('#rgUser').innerHTML = us.map(u => `<option value="${esc(u.u)}">${esc(titulo(u.nome))}</option>`).join('');
-  atualizarAdmExtras();
+  atualizarAdmExtras(); montarPushAdm();
 }
 function atualizarAdmExtras(){
   const st = cfgAvisos().status, el = $('#avStatus');
@@ -3324,7 +3439,7 @@ function atualizarAdmExtras(){
     const min = Math.round((Date.now() - st.ultimaVerificacao) / 60000), ok = min <= 15 && !st.erro;
     el.className = 'av-status' + (ok ? '' : ' off');
     el.innerHTML = (ok ? '✅ Avisos por e-mail funcionando' : '⚠ O script dos avisos não confere há ' + min + ' min') +
-      ` · última conferência: <b>${fmt(st.ultimaVerificacao)}</b>${st.cota !== undefined ? ` · e-mails restantes hoje: ${st.cota}` : ''}${st.erro ? `<br>Erro: ${esc(st.erro)}` : ''}`;
+      ` · última conferência: <b>${fmt(st.ultimaVerificacao)}</b>${st.cota !== undefined ? ` · e-mails restantes hoje: ${st.cota}` : ''}${st.erro ? `<br>Erro: ${esc(st.erro)}` : ''}${st.erroPush ? `<br>Notificação no computador: ${esc(st.erroPush)}` : ''}`;
   } else {
     el.className = 'av-status off';
     el.innerHTML = '⚠ Ainda não instalado: clique em <b>COPIAR SCRIPT DOS AVISOS</b> e siga as instruções abaixo.';
@@ -3391,6 +3506,126 @@ $('#avSalvar').onclick = async () => {
 $('#avCopiar').onclick = () => copiarTexto($('#codigo-avisos').textContent.trim().replace('/*FIREBASE*/', FIREBASE_URL.trim().replace(/\/+$/, '')).replace('/*APP01*/', location.origin + location.pathname),
   'SCRIPT DOS AVISOS COPIADO — COLE EM UM PROJETO NOVO DO APPS SCRIPT');
 $('#corrCopiar').onclick = () => copiarTexto($('#codigo-correcao').textContent.trim(), 'CORREÇÃO DE PILARES COPIADA — COLE NO CONSOLE (F12) DO SERVICENOW');
+
+/* ---------- Notificações no computador (Firebase Cloud Messaging) ----------
+   A pessoa permite uma vez; o token deste navegador fica em pushTokens/{usuário}.
+   O Avisos.gs (Apps Script) envia o aviso; o firebase-messaging-sw.js mostra na tela. */
+const FCM_VERSAO = '10.12.2';
+const pushCfg = () => (db.config && db.config.push) || {};
+const pushConfigurado = () => !!(pushCfg().web && pushCfg().web.apiKey && pushCfg().vapidKey);
+const pushSuportado = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window && location.protocol === 'https:';
+const CHAVE_PUSH_LOCAL = LOCAL_KEY + '_push';
+let fcmPronto = null, pushAtivoAqui = false;
+function carregarScript(src){
+  return new Promise((ok, erro) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => erro(new Error('Não foi possível carregar o Firebase Messaging.')); document.head.appendChild(s); });
+}
+function fcm(){
+  if(fcmPronto) return fcmPronto;
+  fcmPronto = (async () => {
+    if(!pushConfigurado()) throw new Error('As notificações ainda não foram configuradas em Edições ADM.');
+    if(!window.firebase || !firebase.messaging){
+      await carregarScript(`https://www.gstatic.com/firebasejs/${FCM_VERSAO}/firebase-app-compat.js`);
+      await carregarScript(`https://www.gstatic.com/firebasejs/${FCM_VERSAO}/firebase-messaging-compat.js`);
+    }
+    const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(pushCfg().web);
+    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    await navigator.serviceWorker.ready;
+    return { messaging: firebase.messaging(app), reg };
+  })();
+  fcmPronto.catch(() => { fcmPronto = null; });
+  return fcmPronto;
+}
+const chaveToken = t => { let x = 0; for(let i = 0; i < t.length; i++) x = (x * 31 + t.charCodeAt(i)) >>> 0; return 't' + x.toString(36) + t.length; };
+const pushLocal = () => { try{ return JSON.parse(localStorage.getItem(CHAVE_PUSH_LOCAL) || 'null'); }catch(e){ return null; } };
+function navegadorNome(){
+  const u = navigator.userAgent;
+  const nav = /Edg\//.test(u) ? 'Edge' : /OPR\//.test(u) ? 'Opera' : /Firefox\//.test(u) ? 'Firefox' : /Chrome\//.test(u) ? 'Chrome' : /Safari\//.test(u) ? 'Safari' : 'Navegador';
+  const so = /Windows/.test(u) ? 'Windows' : /Android/.test(u) ? 'Android' : /iPhone|iPad/.test(u) ? 'iOS' : /Mac OS/.test(u) ? 'Mac' : /Linux/.test(u) ? 'Linux' : '';
+  return nav + (so ? ' · ' + so : '');
+}
+async function registrarPush(pedir){
+  pushAtivoAqui = false;
+  if(!me || !FB_ON || !pushSuportado() || !pushConfigurado()) return false;
+  if(Notification.permission === 'denied') return false;
+  if(Notification.permission !== 'granted'){
+    if(!pedir) return false;
+    if(await Notification.requestPermission() !== 'granted') return false;
+  }
+  const { messaging, reg } = await fcm();
+  const token = await messaging.getToken({ vapidKey: pushCfg().vapidKey, serviceWorkerRegistration: reg });
+  if(!token) return false;
+  const k = chaveToken(token), ant = pushLocal();
+  if(ant && (ant.u !== me.u || ant.k !== k)) await fb(`pushTokens/${ant.u}/${ant.k}`, 'DELETE').catch(() => {});
+  await fb(`pushTokens/${me.u}/${k}`, 'PUT', { token, em: Date.now(), navegador: navegadorNome() });
+  try{ localStorage.setItem(CHAVE_PUSH_LOCAL, JSON.stringify({ u: me.u, k })); }catch(e){}
+  pushAtivoAqui = true;
+  return true;
+}
+function desligarPushLocal(){
+  const ant = pushLocal(); pushAtivoAqui = false;
+  try{ localStorage.removeItem(CHAVE_PUSH_LOCAL); }catch(e){}
+  if(ant) fb(`pushTokens/${ant.u}/${ant.k}`, 'DELETE').catch(() => {});
+}
+function atualizarBotaoPush(){
+  const b = $('#btPush'); if(!b) return;
+  const mostra = !!me && FB_ON && pushSuportado() && pushConfigurado();
+  b.hidden = !mostra; if(!mostra) return;
+  const perm = Notification.permission;
+  b.classList.toggle('ativo', perm === 'granted' && pushAtivoAqui);
+  b.classList.toggle('chama', perm === 'default');
+  b.textContent = perm === 'denied' ? '🔕 NOTIFICAÇÕES BLOQUEADAS' : perm === 'granted' && pushAtivoAqui ? '🔔 NOTIFICAÇÕES ATIVAS' : '🔔 ATIVAR NOTIFICAÇÕES';
+  b.title = perm === 'granted' && pushAtivoAqui ? 'Clique para ver uma notificação de teste' : '';
+}
+$('#btPush').onclick = async () => {
+  if(Notification.permission === 'denied')
+    return toast('NOTIFICAÇÕES BLOQUEADAS: CLIQUE NO CADEADO AO LADO DO ENDEREÇO → NOTIFICAÇÕES → PERMITIR', true);
+  if(Notification.permission === 'granted' && pushAtivoAqui){
+    const { reg } = await fcm();
+    reg.showNotification('Respostas SAC', { body: 'Tudo certo! Os avisos vão aparecer assim, mesmo com o site fechado.', icon: 'BaseResposta.png', tag: 'teste' });
+    return;
+  }
+  try{
+    const ok = await registrarPush(true);
+    toast(ok ? 'NOTIFICAÇÕES ATIVADAS NESTE COMPUTADOR' : 'AS NOTIFICAÇÕES NÃO FORAM PERMITIDAS', !ok);
+    if(ok) registrar('Ativou notificações', navegadorNome());
+  }catch(e){ toast('NÃO FOI POSSÍVEL ATIVAR: ' + e.message, true); }
+  atualizarBotaoPush();
+};
+if('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => {
+  if(e.data && e.data.abrir === 'sugestoes' && me){ aba = 'pendente'; $$('#tabs button').forEach(x => x.classList.toggle('on', x.dataset.t === 'pendente')); go('sugestoes'); }
+});
+/* lê o bloco firebaseConfig colado (aceita o código do console ou JSON) */
+function lerFirebaseConfig(t){
+  const o = {};
+  String(t || '').replace(/["']?(apiKey|authDomain|projectId|storageBucket|messagingSenderId|appId|databaseURL|measurementId)["']?\s*:\s*["']([^"']+)["']/g, (m, k, v) => { o[k] = v.trim(); });
+  return o;
+}
+async function montarPushAdm(){
+  const c = pushCfg();
+  $('#pushWeb').value = c.web ? 'const firebaseConfig = ' + JSON.stringify(c.web, null, 2) + ';' : '';
+  $('#pushVapid').value = c.vapidKey || '';
+  let tokens = {}; try{ tokens = (await fb('pushTokens')) || {}; }catch(e){}
+  const quem = Object.keys(tokens).filter(u => tokens[u] && Object.keys(tokens[u]).length);
+  const el = $('#pushStatus');
+  el.className = 'av-status' + (pushConfigurado() ? '' : ' off');
+  el.innerHTML = !pushConfigurado() ? '⚠ Ainda não configurado: siga os 3 passos abaixo.'
+    : `✅ Configurado · <b>${quem.length}</b> pessoa(s) ativaram em <b>${quem.reduce((n, u) => n + Object.keys(tokens[u]).length, 0)}</b> computador(es).`
+      + (!pushSuportado() ? '<br>Este navegador/endereço não aceita notificações (precisa ser https).' : '');
+  $('#pushQuem').innerHTML = quem.map(u => `<span title="${esc(Object.values(tokens[u]).map(t => t.navegador || '').join(' / '))}">🔔 ${esc(db.usuarios[u] ? titulo(db.usuarios[u].nome) : u)} <small>(${Object.keys(tokens[u]).length})</small></span>`).join('');
+}
+$('#pushSalvar').onclick = async () => {
+  const web = lerFirebaseConfig($('#pushWeb').value), vapidKey = $('#pushVapid').value.trim().replace(/\s+/g, '');
+  if(!web.apiKey || !web.projectId || !web.messagingSenderId || !web.appId) return toast('COLE O BLOCO firebaseConfig COMPLETO (apiKey, projectId, messagingSenderId, appId)', true);
+  if(!/^B[A-Za-z0-9_-]{60,}$/.test(vapidKey)) return toast('A CHAVE DO CERTIFICADO PUSH PARECE INCOMPLETA (COMEÇA COM B…)', true);
+  try{
+    await fb('config/push', 'PUT', { web, vapidKey, atualizadoEm: Date.now(), por: titulo(me.nome) });
+    db.config.push = { web, vapidKey };
+    fcmPronto = null;
+    registrar('Configurou notificações no computador', 'Firebase Cloud Messaging', web.projectId);
+    toast('CONFIGURAÇÃO SALVA — AGORA ATIVE NO BOTÃO 🔔 DO MENU');
+    montarPushAdm(); atualizarBotaoPush();
+  }catch(e){ toast('NÃO FOI POSSÍVEL SALVAR: ' + e.message, true); }
+};
 
 $('#snCopiar').onclick = () => {
   if(!FB_ON) return snLog('Configure o link do Firebase antes.', true);
@@ -3575,8 +3810,11 @@ function entrar(u){
   me = u; guardarSessao(u);
   $('#login').classList.remove('on');
   $$('[data-admin]').forEach(b => b.style.display = isAdmin() ? '' : 'none');
-  go('inicio');
+  const abrir = new URLSearchParams(location.search).get('abrir');
+  go(abrir === 'sugestoes' ? 'sugestoes' : 'inicio');
+  if(abrir) history.replaceState(null, '', location.pathname);
   setTimeout(() => checarAtribuicoes(true), 400);   // pop-up com as sugestões atribuídas a quem entrou
+  atualizarBotaoPush(); registrarPush(false).then(atualizarBotaoPush).catch(() => {});
 }
 $('#fLogin').onsubmit = async e => {
   e.preventDefault();
