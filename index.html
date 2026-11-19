@@ -199,6 +199,43 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 .tag.ENC b{background:#6941c6} .tag.CRED b{background:#0e7490} .tag.GERAL b{background:#52606d}
 .sug-nota{background:#fff8e6;border:1px solid #f1d48a;border-radius:10px;padding:8px 14px;margin:0 0 10px;font-size:14px;letter-spacing:.5px;line-height:1.5}
 .sug-nota b{letter-spacing:1.5px;font-size:12px}
+/* tipos de sugestão com cores diferentes */
+.sug .card{border-left:7px solid #9bb57f}
+.sug.t-sin .card{background:#fdeee9;border-left-color:#d9480f}
+.sug.t-alt .card{background:#e8f0fb;border-left-color:#2f6fc0}
+.sug.t-nova .card{background:#edf5e4;border-left-color:#5b8a2e}
+.tipo-pill{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:2px 14px!important;font-size:14px!important;letter-spacing:2.5px!important;color:#fff;font-weight:600!important}
+.t-sin .tipo-pill{background:#d9480f} .t-alt .tipo-pill{background:#2f6fc0} .t-nova .tipo-pill{background:#5b8a2e}
+.sug-rot{font-size:11.5px;letter-spacing:2px;font-weight:600;color:#55604a;margin:2px 0 4px}
+.sug textarea[readonly]{background:rgba(255,255,255,.65)}
+.sug-nota.rec{background:#fff0f0;border-color:#f3b4b4}
+.leg-tipos{display:flex;flex-wrap:wrap;gap:8px;margin:-12px 0 18px;font-size:12px;letter-spacing:1.5px}
+.leg-tipos span{border-radius:20px;padding:3px 12px;color:#fff;font-weight:600}
+/* aviso da sugestão dentro do editor */
+.sug-banner{border-radius:12px;padding:10px 14px;font-size:13.5px;line-height:1.5;letter-spacing:.3px;border:1.5px solid}
+.sug-banner.t-sin{background:#fdeee9;border-color:#f0a37f} .sug-banner.t-alt{background:#e8f0fb;border-color:#9dbbe6} .sug-banner.t-nova{background:#edf5e4;border-color:#a9c98a}
+.sug-banner .sb-cab{font-weight:700;letter-spacing:1.5px;font-size:12px;margin-bottom:4px}
+.sug-banner .sb-txt{background:#fff;border-radius:8px;padding:8px 10px;margin:6px 0;max-height:160px;overflow:auto;white-space:pre-wrap;font-size:13px}
+.sug-banner .btn{padding:6px 14px;font-size:12px}
+/* número sugerido */
+.num-info{display:block;font-size:12px;letter-spacing:.5px;color:#4d5b3f;margin-top:5px;font-weight:400;line-height:1.6}
+.num-info.aviso{color:#b42318}
+.num-chip{display:inline-block;border:1px solid #9bb57f;background:#f3f8ec;border-radius:14px;padding:0 9px;margin:0 3px;cursor:pointer;font-weight:600;color:#2f3d22}
+.num-chip:hover{background:#f5d90a;border-color:#d8bd00}
+/* Edições ADM: avisos, regras, correção */
+.cfg-lin{display:flex;align-items:center;gap:10px;font-size:14px;letter-spacing:.4px;margin:8px 0}
+.cfg-lin input[type=checkbox]{width:18px;height:18px;accent-color:#2f3d22}
+.cfg-dest{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px 28px}
+.cfg-dest label{display:flex;align-items:center;gap:6px;background:#f5f6f9;border-radius:10px;padding:5px 10px;font-size:13px}
+.cfg-dest small{color:var(--muted)}
+.regra-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0}
+.regra-form select{height:40px;border:0;border-radius:12px;background:#f5f6f9;padding:0 12px;font-family:inherit;font-size:14px}
+.regra{display:flex;align-items:center;gap:10px;background:#f5f6f9;border-radius:10px;padding:7px 12px;margin-bottom:6px;font-size:14px;letter-spacing:.4px}
+.regra b.n{background:#2f3d22;color:#fff;border-radius:50%;width:24px;height:24px;display:grid;place-items:center;font-size:12px;flex:none}
+.regra .sp{flex:1}
+.regra button{border:0;background:#fff;border-radius:8px;width:30px;height:28px;cursor:pointer}
+.av-status{font-size:13px;letter-spacing:.4px;border-radius:10px;padding:8px 12px;margin-bottom:10px;background:#eef3e6}
+.av-status.off{background:#fff8e6}
 .origem{display:inline-block;font-size:11px;letter-spacing:2px;background:#2f3d22;color:#fff;border-radius:6px;padding:2px 8px;margin-left:8px;vertical-align:middle}
 .rb-barra{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
 .rb-barra input,.rb-barra select{height:42px;border:0;border-radius:12px;background:#f5f6f9;padding:0 14px;font-size:15px;font-family:inherit;letter-spacing:.5px}
@@ -443,7 +480,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
           <button data-t="todos">COMPLETO</button>
         </div>
         <div class="sug-topo" id="sugTopo"></div>
-        <div id="sugList"></div>
+        <div class="leg-tipos"><span style="background:#d9480f">⚠ SINALIZAÇÃO</span><span style="background:#2f6fc0">✎ ALTERAÇÃO</span><span style="background:#5b8a2e">＋ RESPOSTA NOVA</span></div><div id="sugList"></div>
       </div>
     </section>
 
@@ -523,6 +560,44 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
               <label class="btn btn-ok sn-arq">IMPORTAR ARQUIVO DA COLETA<input type="file" id="snArquivo" accept=".json,application/json"></label>
             </div>
             <div class="sn-log" id="snLog"></div>
+          </div>
+
+          <hr class="adm-hr">
+          <div class="box-h">AVISOS POR E-MAIL</div>
+          <div class="sn-card">
+            <div class="av-status off" id="avStatus">Carregando…</div>
+            <label class="cfg-lin"><input type="checkbox" id="avNovas"> Avisar quando chegar sugestão ou sinalização do App 02</label>
+            <div class="cfg-dest" id="avDest"></div>
+            <label class="cfg-lin"><input type="checkbox" id="avAtrib"> Avisar a pessoa por e-mail quando uma sugestão for atribuída a ela</label>
+            <div class="sn-bts"><button type="button" class="btn btn-dark" id="avSalvar">SALVAR AVISOS</button><button type="button" class="btn btn-ok" id="avCopiar">COPIAR SCRIPT DOS AVISOS</button></div>
+            <p style="margin:10px 0 0;font-size:12.5px;color:var(--muted);letter-spacing:.3px;line-height:1.6">Os e-mails saem da sua conta Google por um Apps Script separado (botão acima): crie um projeto novo em script.google.com, cole, salve e rode <b>instalarAvisos</b> uma vez. Ele confere o Firebase a cada 5 minutos.</p>
+          </div>
+
+          <hr class="adm-hr">
+          <div class="box-h">ATRIBUIÇÃO AUTOMÁTICA</div>
+          <div class="sn-card">
+            <p style="margin:0 0 6px;font-size:14px;letter-spacing:.4px;line-height:1.6">Sugestões novas (do App 02 e daqui) vão sozinhas para a pessoa da <b>primeira regra</b> que combinar com o pilar e o número do modelo.</p>
+            <form class="regra-form" id="rgForm" autocomplete="off">
+              <select id="rgPilar" aria-label="Pilar"></select>
+              <select id="rgPar" aria-label="Número"><option value="todos">Qualquer número</option><option value="par">Número par</option><option value="impar">Número ímpar</option></select>
+              <span style="font-size:18px">→</span>
+              <select id="rgUser" aria-label="Pessoa"></select>
+              <button class="btn btn-dark" type="submit">ADICIONAR REGRA</button>
+            </form>
+            <div id="rgLista"></div>
+            <div class="sn-bts"><button type="button" class="btn btn-ok" id="rgAplicar">APLICAR ÀS PENDENTES SEM RESPONSÁVEL</button></div>
+          </div>
+
+          <hr class="adm-hr">
+          <div class="box-h">CORREÇÃO DE PILARES (SERVICENOW)</div>
+          <div class="sn-card">
+            <ol>
+              <li>Clique em <b>Copiar correção de pilares</b>.</li>
+              <li>No ServiceNow, abra a lista de <b>Modelos</b>, aperte <b>F12 → Console</b>, cole e tecle <b>Enter</b>.</li>
+              <li>O pop-up mostra os modelos que estão faltando em algum dos 7 pilares do SAC (Globais e Ativos).</li>
+              <li>Clique em <b>Iniciar correções</b>: ele cria um por vez, copiando o modelo mais recente, com pausas de mão humana (12 a 25 s, e 90 s de descanso a cada 15). A porcentagem aparece no pop-up — dá para minimizar, pausar e baixar o relatório.</li>
+            </ol>
+            <div class="sn-bts"><button type="button" class="btn btn-dark" id="corrCopiar">COPIAR CORREÇÃO DE PILARES</button></div>
           </div>
 
           <hr class="adm-hr">
@@ -609,7 +684,8 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
   <div class="dlg">
     <h2 class="cab-min"><span id="rTit">EDITAR RESPOSTA</span><button type="button" class="bt-min" data-min="mResp" title="Minimizar">—</button></h2>
     <form id="fResp">
-      <label class="full">NOME DO MODELO<input id="rNome" required></label>
+      <div class="full sug-banner" id="rSug" hidden></div>
+      <label class="full">NOME DO MODELO<input id="rNome" required><small id="rNumInfo" class="num-info"></small></label>
       <label id="rPilarWrap">PILAR<select id="rPilar"></select></label>
       <label id="rDescWrap">DESCRIÇÃO RESUMIDA<select id="rDesc"></select><input id="rDescLivre" hidden placeholder="Escreva a descrição resumida"></label>
       <label class="full" id="rCodWrap">CÓDIGO INVISÍVEL
@@ -689,6 +765,17 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
       <div class="senha-box" id="sVal"></div>
       <p class="txt" style="font-size:12px;color:#6b6b6b">Ela não será exibida de novo. No primeiro acesso, a pessoa escolhe a própria senha.</p>
       <div class="acts" style="grid-column:1"><button type="button" class="btn btn-ok" id="sCopiar">COPIAR</button><button class="btn btn-dark" type="submit">OK</button></div>
+    </form>
+  </div>
+</div>
+<!-- Recusar sugestão com motivo -->
+<div class="modal" id="mRecusa" role="dialog" aria-modal="true" aria-labelledby="rcTit" style="z-index:34">
+  <div class="dlg" style="width:min(540px,100%)">
+    <h2 id="rcTit">RECUSAR SUGESTÃO</h2>
+    <form id="fRecusa" style="grid-template-columns:1fr">
+      <p class="txt" id="rcInfo"></p>
+      <label class="full">MOTIVO DA RECUSA<textarea id="rcMotivo" required placeholder="Explique por que a sugestão não será aplicada"></textarea></label>
+      <div class="acts" style="grid-column:1"><button type="button" class="btn btn-no" id="rcCancelar">CANCELAR</button><button class="btn btn-dark" type="submit" id="rcOk">RECUSAR</button></div>
     </form>
   </div>
 </div>
@@ -1127,6 +1214,434 @@ ${corpo}
 
 </script>
 
+<script type="text/plain" id="codigo-correcao">
+/* ============================================================
+   CORREÇÃO DE PILARES – cria nos pilares que faltam (sys_template)
+   ServiceNow logado > F12 > Console > colar > Enter.
+   1) Lê todos os modelos Globais e Ativos das tabelas do SAC
+   2) Mostra quantos modelos estão sem algum dos 7 pilares
+   3) INICIAR CORREÇÕES: cria um por vez, com pausas longas de "mão humana"
+   ============================================================ */
+(async () => {
+  const PILARES = {
+    x_mdpdd_detran_csm_driver_licence_case:       'Habilitação',
+    x_mdpdd_detran_csm_vehicle_case:              'Veículos',
+    x_mdpdd_detran_csm_inspection_case:           'Fiscalização',
+    x_mdpdd_detran_csm_education_case:            'Todos casos',
+    x_mdpdd_detran_csm_customer_service_channels: 'Site/Aplicativo',
+    x_mdpdd_detran_csm_adm_case:                  'Serviços Administrativos',
+    x_mdpdd_detran_csm_public_hiring:             'Contratações Públicas',
+  };
+  // Mão humana (mais lenta que a API de modelos): pausa sorteada entre cada criação
+  const PAUSA_MIN_S = 12, PAUSA_MAX_S = 25;
+  const DESCANSO_A_CADA = 15, DESCANSO_S = 90;      // a cada 15 criações, um descanso maior
+  const ESPERA_LIMITE_S = 180;                       // se o ServiceNow responder 429/503
+  const DOMINIO = 'global';
+  const ADMIN_PADRAO = '6816f79cc0a8016401c5a33be04be441';
+
+  // ---------- token ----------
+  const getToken = () => {
+    const t = [
+      () => window.g_ck,
+      () => document.querySelector('iframe#gsft_main')?.contentWindow?.g_ck,
+      () => window.NOW?.g_ck,
+      () => document.querySelector('macroponent-f51912f4c700201072b211d4d8c26010')?.shadowRoot?.querySelector('iframe')?.contentWindow?.g_ck,
+      () => { for (let i = 0; i < window.frames.length; i++) { try { if (window.frames[i].g_ck) return window.frames[i].g_ck; } catch (e) {} } },
+    ];
+    for (const f of t) { try { const v = f(); if (v) return v; } catch (e) {} }
+    return null;
+  };
+  const ck = getToken();
+  if (!ck) { alert('Token de sessão não encontrado. Abra uma lista clássica do ServiceNow (ex.: Modelos) e rode de novo.'); return; }
+
+  const espera = ms => new Promise(r => setTimeout(r, ms));
+  const api = async (method, path, body) => {
+    for (let tent = 0; tent < 3; tent++) {
+      const r = await fetch('/api/now/table/' + path, {
+        method, credentials: 'same-origin',
+        headers: { Accept: 'application/json', 'Content-Type': 'application/json', 'X-UserToken': ck },
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      if ((r.status === 429 || r.status === 503) && tent < 2) {
+        log(`⏳ O ServiceNow pediu calma (${r.status}). Esperando ${ESPERA_LIMITE_S / 60} min…`);
+        await esperarComContagem(ESPERA_LIMITE_S, 'Aguardando o ServiceNow liberar');
+        continue;
+      }
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(`${r.status} - ${j?.error?.message || r.statusText}`);
+      return j.result;
+    }
+  };
+  const q = s => encodeURIComponent(s);
+  const val = v => v?.value ?? v ?? '';
+  const ehVerdade = v => String(val(v)) === 'true';
+  const norm = n => String(n || '').replace(/\s+/g, ' ').trim().toUpperCase();
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // ---------- pop-up ----------
+  document.getElementById('corr-pilares')?.remove();
+  const box = document.createElement('div');
+  box.id = 'corr-pilares';
+  box.style.cssText = 'position:fixed;top:80px;right:24px;width:460px;max-height:86vh;display:flex;flex-direction:column;z-index:2147483647;background:#fff;border-radius:12px;box-shadow:0 12px 44px rgba(0,0,0,.35);font:14px/1.45 "Segoe UI",Arial,sans-serif;color:#1f2a17;overflow:hidden';
+  box.innerHTML = `
+    <div id="cp-drag" style="background:#2f3d22;color:#fff;padding:10px 14px;cursor:move;display:flex;align-items:center;gap:10px">
+      <b style="letter-spacing:1.5px;flex:1">CORREÇÃO DE PILARES</b>
+      <span id="cp-mini-pct" style="background:#f5d90a;color:#2f3d22;border-radius:20px;padding:1px 10px;font-weight:700;display:none">0%</span>
+      <span id="cp-min" title="Minimizar" style="cursor:pointer;font-size:18px;padding:0 4px">—</span>
+      <span id="cp-x" title="Fechar" style="cursor:pointer;font-size:18px;padding:0 4px">✕</span>
+    </div>
+    <div id="cp-corpo" style="padding:14px 16px;overflow:auto">
+      <div id="cp-msg">Lendo os modelos do ServiceNow…</div>
+    </div>`;
+  document.body.appendChild(box);
+  const $ = s => box.querySelector(s);
+  (() => {
+    const alca = $('#cp-drag');
+    alca.onmousedown = e => {
+      if (/cp-x|cp-min/.test(e.target.id)) return;
+      const dx = e.clientX - box.offsetLeft, dy = e.clientY - box.offsetTop;
+      const mover = ev => { box.style.left = ev.clientX - dx + 'px'; box.style.top = ev.clientY - dy + 'px'; box.style.right = 'auto'; };
+      document.addEventListener('mousemove', mover);
+      document.addEventListener('mouseup', () => document.removeEventListener('mousemove', mover), { once: true });
+    };
+  })();
+  let minimizado = false;
+  $('#cp-min').onclick = () => { minimizado = !minimizado; $('#cp-corpo').style.display = minimizado ? 'none' : ''; $('#cp-min').textContent = minimizado ? '▢' : '—'; box.style.width = minimizado ? '300px' : '460px'; };
+  let parar = false, pausado = false, rodando = false;
+  $('#cp-x').onclick = () => { if (rodando && !confirm('As correções estão em andamento. Parar e fechar?')) return; parar = true; box.remove(); };
+
+  const linhasLog = [];
+  function log(t) {
+    linhasLog.push(new Date().toLocaleTimeString('pt-BR') + '  ' + t);
+    const el = $('#cp-log'); if (el) { el.textContent = linhasLog.slice(-80).join('\n'); el.scrollTop = el.scrollHeight; }
+    console.log('[Correção de pilares]', t);
+  }
+  async function esperarComContagem(seg, rotulo) {
+    for (let s = Math.round(seg); s > 0; s--) {
+      if (parar) return;
+      while (pausado && !parar) { $('#cp-pausa') && ($('#cp-pausa').textContent = 'Pausado — clique em CONTINUAR'); await espera(500); }
+      const el = $('#cp-pausa'); if (el) el.textContent = `${rotulo}: ${s}s`;
+      await espera(1000);
+    }
+    const el = $('#cp-pausa'); if (el) el.textContent = '';
+  }
+
+  // ---------- leitura ----------
+  const CAMPOS = 'sys_id,name,table,short_description,template,active,global,sys_domain,sys_updated_on,sys_updated_by';
+  let registros = [];
+  try {
+    const query = 'tableSTARTSWITHx_mdpdd_detran_csm_^global=true^active=true';
+    for (let off = 0; ; off += 500) {
+      const lote = await api('GET', `sys_template?sysparm_query=${q(query)}&sysparm_fields=${CAMPOS}&sysparm_limit=500&sysparm_offset=${off}`);
+      registros = registros.concat(lote || []);
+      $('#cp-msg').textContent = `Lendo os modelos do ServiceNow… ${registros.length}`;
+      if (!lote || lote.length < 500) break;
+    }
+  } catch (e) { $('#cp-msg').innerHTML = `<b style="color:#b3261e">Não foi possível ler os modelos:</b> ${esc(e.message)}`; return; }
+
+  let adminId = ADMIN_PADRAO;
+  try {
+    const u = await api('GET', `sys_user?sysparm_query=${q('user_name=admin^ORname=System Administrator')}&sysparm_fields=sys_id&sysparm_limit=1`);
+    if (u && u[0]) adminId = u[0].sys_id;
+  } catch (e) {}
+
+  const mapa = {};
+  for (const r of registros) {
+    const k = norm(r.name);
+    (mapa[k] ??= { chave: k, nome: String(r.name).trim(), regs: [] }).regs.push(r);
+  }
+  const tabelas = Object.keys(PILARES);
+  const modelos = Object.values(mapa).map(m => {
+    const tem = new Set(m.regs.map(r => r.table));
+    const nosPilares = m.regs.filter(r => PILARES[r.table]).sort((a, b) => String(b.sys_updated_on).localeCompare(String(a.sys_updated_on)));
+    return { ...m, faltando: tabelas.filter(t => !tem.has(t)), fora: m.regs.filter(r => !PILARES[r.table]), base: nosPilares[0] || m.regs[0] };
+  }).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR', { numeric: true, sensitivity: 'base' }));
+  const comFalta = modelos.filter(m => m.faltando.length);
+  const fila = comFalta.flatMap(m => m.faltando.map(t => ({ m, tabela: t })));
+  const fora = modelos.filter(m => m.fora.length);
+
+  const pausaMedia = (PAUSA_MIN_S + PAUSA_MAX_S) / 2 + 4;
+  const estimar = n => { const s = n * pausaMedia + Math.floor(n / DESCANSO_A_CADA) * DESCANSO_S; return s < 3600 ? Math.ceil(s / 60) + ' min' : (s / 3600).toFixed(1).replace('.', ',') + ' h'; };
+  const card = (n, t, cor) => `<div style="flex:1;background:${cor};border-radius:10px;padding:8px 10px;text-align:center"><div style="font-size:22px;font-weight:700">${n}</div><div style="font-size:11px;letter-spacing:1px">${t}</div></div>`;
+
+  $('#cp-corpo').innerHTML = `
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      ${card(modelos.length, 'MODELOS LIDOS', '#eef3e6')}
+      ${card(comFalta.length, 'COM PILAR FALTANDO', '#fde7e3')}
+      ${card(fila.length, 'PILARES A CRIAR', '#fff6c2')}
+    </div>
+    ${fora.length ? `<div style="background:#fff8e6;border:1px solid #f1d48a;border-radius:8px;padding:6px 10px;margin-bottom:10px;font-size:12px">${fora.length} modelo(s) também estão em tabelas fora dos 7 pilares. Eles não são alterados — confira no relatório.</div>` : ''}
+    <div id="cp-lista" style="max-height:170px;overflow:auto;border:1px solid #e3e8dc;border-radius:8px;padding:6px 10px;font-size:12px;margin-bottom:10px">
+      ${comFalta.length ? comFalta.map(m => `<div style="padding:3px 0;border-bottom:1px dashed #e8ece3"><b>${esc(m.nome)}</b><br><span style="color:#b3261e">falta: ${m.faltando.map(t => PILARES[t]).join(', ')}</span></div>`).join('') : '<div style="padding:8px;text-align:center">Nenhum pilar faltando. Tudo certo! 🎉</div>'}
+    </div>
+    <div id="cp-prog" style="display:none;text-align:center;margin:6px 0 10px">
+      <div id="cp-pct" style="font-size:46px;font-weight:800;color:#2f3d22;line-height:1">0%</div>
+      <div style="height:12px;background:#e3e8dc;border-radius:8px;margin:10px 0 6px;overflow:hidden"><div id="cp-barra" style="height:12px;width:0;background:linear-gradient(90deg,#6c8f3a,#f5d90a);transition:width .4s"></div></div>
+      <div id="cp-cont" style="font-size:12px;letter-spacing:.5px"></div>
+      <div id="cp-atual" style="font-size:12px;color:#5a6b4b;margin-top:4px"></div>
+      <div id="cp-pausa" style="font-size:12px;color:#8a6d00;margin-top:2px;min-height:16px"></div>
+    </div>
+    <div style="font-size:12px;color:#5a6b4b;margin-bottom:10px" id="cp-est">${fila.length ? `Tempo estimado: <b>${estimar(fila.length)}</b> (pausa de ${PAUSA_MIN_S}–${PAUSA_MAX_S}s entre cada criação e descanso de ${DESCANSO_S}s a cada ${DESCANSO_A_CADA}). Pode minimizar e continuar trabalhando nesta aba.` : ''}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${fila.length ? `<button id="cp-ini" style="flex:1;border:0;border-radius:8px;padding:9px 12px;font-weight:700;letter-spacing:1px;cursor:pointer;background:#2f3d22;color:#fff">INICIAR CORREÇÕES</button>` : ''}
+      <button id="cp-pau" style="display:none;border:0;border-radius:8px;padding:9px 12px;font-weight:700;cursor:pointer;background:#f5d90a;color:#2f3d22">PAUSAR</button>
+      <button id="cp-par" style="display:none;border:0;border-radius:8px;padding:9px 12px;font-weight:700;cursor:pointer;background:#b3261e;color:#fff">PARAR</button>
+      <button id="cp-csv" style="border:0;border-radius:8px;padding:9px 12px;font-weight:700;cursor:pointer;background:#dfe9cf;color:#2f3d22">RELATÓRIO (CSV)</button>
+    </div>
+    <pre id="cp-log" style="margin:10px 0 0;max-height:130px;overflow:auto;background:#f6f8f3;border-radius:8px;padding:8px;font-size:11px;white-space:pre-wrap"></pre>`;
+
+  const resultado = [];   // {nome, pilar, tabela, status, sys_id, obs}
+  $('#cp-csv').onclick = () => {
+    const linhas = [['Modelo', 'Pilar', 'Tabela', 'Situação', 'sys_id', 'Observação']];
+    resultado.forEach(r => linhas.push([r.nome, r.pilar, r.tabela, r.status, r.sys_id || '', r.obs || '']));
+    const feitos = new Set(resultado.map(r => r.nome + '|' + r.tabela));
+    fila.filter(f => !feitos.has(f.m.nome + '|' + f.tabela)).forEach(f => linhas.push([f.m.nome, PILARES[f.tabela], f.tabela, 'A criar', '', '']));
+    fora.forEach(m => m.fora.forEach(r => linhas.push([m.nome, '(fora dos pilares)', r.table, 'Conferir', r.sys_id, ''])));
+    const csv = '﻿' + linhas.map(l => l.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'correcao-pilares-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+  };
+  if (!fila.length) return;
+
+  const total = fila.length;
+  let feitos = 0, ok = 0, erros = 0, pulados = 0, inicio = 0;
+  function atualizar(texto) {
+    const pct = Math.floor(feitos / total * 100);
+    $('#cp-pct').textContent = pct + '%'; $('#cp-mini-pct').textContent = pct + '%';
+    $('#cp-barra').style.width = pct + '%';
+    const decorrido = (Date.now() - inicio) / 1000, restante = feitos ? decorrido / feitos * (total - feitos) : total * pausaMedia;
+    $('#cp-cont').innerHTML = `<b>${feitos}</b> de <b>${total}</b> · ✔ ${ok} criados · ✖ ${erros} erros · ↷ ${pulados} já existiam · faltam ~${restante < 3600 ? Math.ceil(restante / 60) + ' min' : (restante / 3600).toFixed(1).replace('.', ',') + ' h'}`;
+    if (texto !== undefined) $('#cp-atual').textContent = texto;
+  }
+
+  $('#cp-pau').onclick = () => { pausado = !pausado; $('#cp-pau').textContent = pausado ? 'CONTINUAR' : 'PAUSAR'; log(pausado ? '⏸ Pausado.' : '▶ Continuando.'); };
+  $('#cp-par').onclick = () => { if (confirm('Parar as correções? O que já foi criado continua criado.')) { parar = true; pausado = false; } };
+
+  $('#cp-ini').onclick = async () => {
+    if (!confirm(`Criar ${total} modelo(s) nos pilares que faltam?\nTempo estimado: ${estimar(total)}.`)) return;
+    rodando = true; inicio = Date.now();
+    $('#cp-ini').remove(); $('#cp-lista').style.display = 'none'; $('#cp-est').style.display = 'none';
+    $('#cp-prog').style.display = ''; $('#cp-pau').style.display = ''; $('#cp-par').style.display = ''; $('#cp-mini-pct').style.display = '';
+    log(`Iniciando: ${total} criação(ões). Usuário dos modelos: System Administrator.`);
+    atualizar('');
+    for (let i = 0; i < fila.length; i++) {
+      if (parar) break;
+      while (pausado && !parar) await espera(500);
+      const { m, tabela } = fila[i], pilar = PILARES[tabela];
+      atualizar(`Criando: ${m.nome} → ${pilar}`);
+      try {
+        // confere de novo se ninguém criou nesse meio tempo
+        const ja = await api('GET', `sys_template?sysparm_query=${q('name=' + m.base.name + '^table=' + tabela)}&sysparm_fields=sys_id&sysparm_limit=1`);
+        if (ja && ja.length) {
+          pulados++; resultado.push({ nome: m.nome, pilar, tabela, status: 'Já existia', sys_id: ja[0].sys_id });
+          log(`↷ ${m.nome} → ${pilar}: já existia.`);
+        } else {
+          const novo = await api('POST', 'sys_template', {
+            name: m.base.name, table: tabela, short_description: val(m.base.short_description), template: val(m.base.template),
+            active: 'true', global: 'true', sys_domain: DOMINIO, user: adminId,
+          });
+          let obs = '';
+          const conf = await api('GET', `sys_template/${novo.sys_id}?sysparm_fields=active,global,sys_domain`);
+          if (!ehVerdade(conf.global) || !ehVerdade(conf.active) || val(conf.sys_domain) !== DOMINIO) {
+            await espera(1500);
+            await api('PATCH', `sys_template/${novo.sys_id}`, { active: 'true', global: 'true', sys_domain: DOMINIO, user: adminId }).catch(() => {});
+            const c2 = await api('GET', `sys_template/${novo.sys_id}?sysparm_fields=active,global`);
+            if (!ehVerdade(c2.global)) obs = 'Criado, mas o ServiceNow não aceitou marcar Global';
+          }
+          ok++; resultado.push({ nome: m.nome, pilar, tabela, status: 'Criado', sys_id: novo.sys_id, obs });
+          log(`✔ ${m.nome} → ${pilar}${obs ? ' (⚠ ' + obs + ')' : ''}`);
+        }
+      } catch (e) {
+        erros++; resultado.push({ nome: m.nome, pilar, tabela, status: 'Erro', obs: e.message });
+        log(`✖ ${m.nome} → ${pilar}: ${e.message}`);
+      }
+      feitos++; atualizar();
+      if (feitos < total && !parar) {
+        if (feitos % DESCANSO_A_CADA === 0) await esperarComContagem(DESCANSO_S, 'Descanso da mão humana');
+        else await esperarComContagem(PAUSA_MIN_S + Math.random() * (PAUSA_MAX_S - PAUSA_MIN_S), 'Próxima criação em');
+      }
+    }
+    rodando = false;
+    $('#cp-pau').style.display = 'none'; $('#cp-par').style.display = 'none';
+    atualizar(parar ? 'Interrompido. Rode de novo para continuar de onde parou.' : 'Concluído! Baixe o relatório para conferir.');
+    if (!parar) { $('#cp-pct').textContent = '100%'; $('#cp-barra').style.width = '100%'; $('#cp-mini-pct').textContent = '100%'; }
+    log(`Fim: ${ok} criados, ${pulados} já existiam, ${erros} erros.`);
+  };
+})();
+</script>
+<script type="text/plain" id="codigo-avisos">
+/**
+ * AVISOS POR E-MAIL — Respostas SAC (App 01 + App 02)
+ * Projeto SEPARADO do Apps Script (não cole no projeto do App 02).
+ *
+ * Como instalar (uma vez só):
+ *   1) script.google.com → Novo projeto → apague o conteúdo e cole este código → Salvar.
+ *   2) No menu de funções escolha  instalarAvisos  → Executar → autorize (Firebase + enviar e-mail).
+ *   Pronto: a cada 5 minutos ele confere o Firebase e envia:
+ *     • para quem foi marcado em Edições ADM: sugestão ou sinalização nova vinda do App 02;
+ *     • para a pessoa atribuída: aviso de que a sugestão é dela.
+ *   Os e-mails saem da conta Google de quem instalou.
+ *   Para parar: rode  desinstalarAvisos.
+ */
+
+const FIREBASE_URL = '/*FIREBASE*/';          // mesmo link do Firebase dos dois apps
+const RAIZ = 'respostasSAC';
+const URL_APP01 = '/*APP01*/';               // link do App 01 (aparece no botão do e-mail)
+const A_CADA_MINUTOS = 5;                    // 1, 5, 10, 15 ou 30
+const NOME_REMETENTE = 'Respostas SAC';
+
+/* ============================== INSTALAÇÃO ============================== */
+
+function instalarAvisos() {
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'verificarAvisos')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('verificarAvisos').timeBased().everyMinutes(A_CADA_MINUTOS).create();
+  // só avisa o que acontecer daqui para frente (não dispara e-mails das pendentes antigas)
+  fb_('config/avisos', 'patch', { desde: Date.now() });
+  verificarAvisos();
+  Logger.log('Avisos instalados. Conferência a cada ' + A_CADA_MINUTOS + ' minutos. E-mails restantes hoje: ' + MailApp.getRemainingDailyQuota());
+}
+
+function desinstalarAvisos() {
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'verificarAvisos')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  fb_('config/avisos/status', 'patch', { erro: 'Avisos desinstalados', ultimaVerificacao: 0 });
+  Logger.log('Avisos desinstalados.');
+}
+
+/** Envia um e-mail de teste para você mesmo. */
+function testarEmail() {
+  const eu = Session.getEffectiveUser().getEmail();
+  enviar_(eu, 'Teste dos avisos', caixa_('Teste dos avisos', '<p>Se você recebeu este e-mail, os avisos do Respostas SAC estão funcionando.</p>'));
+  Logger.log('E-mail de teste enviado para ' + eu);
+}
+
+/* ============================== CONFERÊNCIA ============================== */
+
+function verificarAvisos() {
+  const trava = LockService.getScriptLock();
+  if (!trava.tryLock(20000)) return;
+  try {
+    const cfg = fb_('config/avisos') || {};
+    const desde = Number(cfg.desde) || Date.now();
+    const sug = fb_('sugestoes') || {};
+    const usuarios = fb_('usuarios') || {};
+    const marcas = {};
+    let enviados = 0;
+
+    Object.keys(sug).forEach(id => {
+      const s = sug[id];
+      if (!s || s.status !== 'pendente') return;
+
+      // 1) sugestão/sinalização nova do App 02 → quem foi escolhido em Edições ADM
+      if (s.origem === 'consulta' && !s.avisoNovaEm && Number(s.criadoEm) > desde) {
+        if (cfg.novas !== false) {
+          const para = destinatarios_(cfg, usuarios);
+          if (para.length) { enviar_(para.join(','), assuntoNova_(s), corpoNova_(s)); enviados++; }
+        }
+        marcas[id + '/avisoNovaEm'] = Date.now();
+      }
+
+      // 2) atribuída a alguém → a própria pessoa
+      if (s.atribuidoA && s.avisoAtribPara !== s.atribuidoA && Number(s.atribuidoEm || 0) > desde) {
+        const u = usuarios[s.atribuidoA];
+        if (cfg.atribuicao !== false && u && u.email && u.ativo !== false && String(u.ativo) !== 'false') {
+          enviar_(u.email, 'Sugestão atribuída a você: ' + (s.modelo || ''), corpoAtrib_(s, u));
+          enviados++;
+        }
+        marcas[id + '/avisoAtribPara'] = s.atribuidoA;
+      }
+    });
+
+    if (Object.keys(marcas).length) fb_('sugestoes', 'patch', marcas);
+    fb_('config/avisos/status', 'put', {
+      ultimaVerificacao: Date.now(), enviadosNaUltima: enviados, cota: MailApp.getRemainingDailyQuota(), erro: ''
+    });
+  } catch (e) {
+    try { fb_('config/avisos/status', 'patch', { ultimaVerificacao: Date.now(), erro: String(e && e.message || e).slice(0, 300) }); } catch (x) {}
+    throw e;
+  } finally {
+    trava.releaseLock();
+  }
+}
+
+function destinatarios_(cfg, usuarios) {
+  const ativo = u => u && u.email && u.ativo !== false && String(u.ativo) !== 'false';
+  let lista = Array.isArray(cfg.destinatarios) ? cfg.destinatarios.map(k => usuarios[k]) : null;
+  if (!lista) lista = Object.keys(usuarios).map(k => usuarios[k]).filter(u => u && String(u.perfil || '').toLowerCase().indexOf('adm') === 0);
+  return lista.filter(ativo).map(u => String(u.email).trim()).filter((e, i, a) => e && a.indexOf(e) === i);
+}
+
+/* ============================== E-MAILS ============================== */
+
+function tipo_(s) {
+  const t = String(s.tipo || '').toUpperCase();
+  if (t.indexOf('SINAL') === 0) return { nome: 'Sinalização', icone: '⚠', cor: '#d9480f' };
+  if (t.indexOf('ALTER') === 0) return { nome: 'Sugestão de alteração', icone: '✎', cor: '#2f6fc0' };
+  return { nome: 'Sugestão de resposta nova', icone: '＋', cor: '#5b8a2e' };
+}
+function assuntoNova_(s) { const t = tipo_(s); return t.icone + ' ' + t.nome + ': ' + (s.modelo || '(sem nome)'); }
+
+function corpoNova_(s) {
+  const t = tipo_(s);
+  let h = linha_('Tipo', '<span style="background:' + t.cor + ';color:#fff;border-radius:12px;padding:2px 10px">' + esc_(t.nome) + '</span>')
+    + linha_('Resposta', esc_(s.modelo))
+    + linha_('Enviada por', esc_(s.autor || 'Não informado') + (s.email ? ' &lt;' + esc_(s.email) + '&gt;' : ''))
+    + linha_('Em', data_(s.criadoEm));
+  if (s.problema) h += bloco_('Problema apontado', s.problema);
+  if (s.justificativa) h += bloco_('Por quê', s.justificativa);
+  if (s.texto && t.nome !== 'Sinalização') h += bloco_('Texto sugerido', String(s.texto).slice(0, 1500));
+  if (s.atribuidoNome) h += linha_('Atribuída a', esc_(s.atribuidoNome) + (s.atribuidoPor ? ' (' + esc_(s.atribuidoPor) + ')' : ''));
+  return caixa_(t.icone + ' ' + t.nome + ' no App 02', h);
+}
+
+function corpoAtrib_(s, u) {
+  const t = tipo_(s);
+  const quem = /autom/i.test(s.atribuidoPor || '') ? 'pela regra de atribuição automática' : 'por ' + esc_(s.atribuidoPor || 'um administrador');
+  let h = '<p style="margin:0 0 12px">Olá, ' + esc_(primeiroNome_(u.nome)) + '! Uma sugestão foi atribuída a você ' + quem + '.</p>'
+    + linha_('Tipo', '<span style="background:' + t.cor + ';color:#fff;border-radius:12px;padding:2px 10px">' + esc_(t.nome) + '</span>')
+    + linha_('Resposta', esc_(s.modelo))
+    + linha_('Enviada por', esc_(s.autor || 'Não informado'));
+  if (s.problema) h += bloco_('Problema apontado', s.problema);
+  if (s.justificativa) h += bloco_('Por quê', s.justificativa);
+  return caixa_('Sugestão atribuída a você', h);
+}
+
+function caixa_(titulo, miolo) {
+  return '<div style="font-family:Segoe UI,Arial,sans-serif;max-width:620px;margin:auto;border:1px solid #dfe5d6;border-radius:12px;overflow:hidden">'
+    + '<div style="background:#2f3d22;color:#fff;padding:14px 18px;font-size:16px;letter-spacing:1px"><b>' + esc_(titulo) + '</b>'
+    + '<div style="font-size:12px;color:#f5d90a;letter-spacing:2px;margin-top:2px">RESPOSTAS SAC · DETRAN-SP</div></div>'
+    + '<div style="padding:16px 18px;font-size:14px;color:#222;line-height:1.5">' + miolo
+    + '<p style="margin:18px 0 4px"><a href="' + URL_APP01 + '" style="background:#f5d90a;color:#2f3d22;text-decoration:none;font-weight:700;letter-spacing:1px;padding:10px 18px;border-radius:10px;display:inline-block">ABRIR O APP 01 → SUGESTÕES</a></p>'
+    + '</div><div style="background:#f3f6ee;color:#6b7560;font-size:11px;padding:8px 18px">Aviso automático. Para mudar quem recebe, vá em Edições ADM → Avisos por e-mail.</div></div>';
+}
+const linha_ = (k, v) => '<div style="margin:3px 0"><span style="color:#6b7560;font-size:12px;letter-spacing:1px;text-transform:uppercase">' + k + ':</span> ' + v + '</div>';
+const bloco_ = (k, v) => '<div style="margin:10px 0 0"><div style="color:#6b7560;font-size:12px;letter-spacing:1px;text-transform:uppercase">' + k + '</div>'
+  + '<div style="background:#f7f9f4;border-radius:8px;padding:8px 10px;white-space:pre-wrap">' + esc_(v) + '</div></div>';
+
+function enviar_(para, assunto, html) {
+  MailApp.sendEmail({ to: para, subject: '[Respostas SAC] ' + assunto, htmlBody: html, name: NOME_REMETENTE });
+}
+
+/* ============================== UTILITÁRIOS ============================== */
+
+function fb_(caminho, metodo, corpo) {
+  const url = FIREBASE_URL.replace(/\/+$/, '') + '/' + RAIZ + (caminho ? '/' + caminho : '') + '.json';
+  const op = { method: (metodo || 'get').toLowerCase(), muteHttpExceptions: true, contentType: 'application/json' };
+  if (corpo !== undefined) op.payload = JSON.stringify(corpo);
+  const r = UrlFetchApp.fetch(url, op);
+  const cod = r.getResponseCode(), txt = r.getContentText();
+  if (cod >= 300) throw new Error('Firebase respondeu ' + cod + ': ' + txt.slice(0, 200));
+  return txt ? JSON.parse(txt) : null;
+}
+function esc_(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+function data_(ts) { return ts ? Utilities.formatDate(new Date(Number(ts)), 'America/Sao_Paulo', "dd/MM/yyyy 'às' HH:mm") : '—'; }
+function primeiroNome_(n) { const p = String(n || '').trim().split(/\s+/)[0].toLowerCase(); return p.charAt(0).toUpperCase() + p.slice(1); }
+</script>
 <script type="text/plain" id="codigo-coletor">
 (function(){
 "use strict";
@@ -1367,7 +1882,7 @@ let FB_BASE = FIREBASE_URL.trim().replace(/\/+$/,'') + '/' + FIREBASE_RAIZ;
 const LOCAL_KEY = 'respostasSAC_local';
 
 /* ---------- Camada de dados ---------- */
-let db = {usuarios:{}, sugestoes:{}};
+let db = {usuarios:{}, sugestoes:{}, config:{}};
 
 let ultimoErroFB = '';
 async function fb(caminho, metodo='GET', corpo, tentativa=0){
@@ -1415,10 +1930,10 @@ function normalizar(us){
 async function carregar(){
   if(FB_ON){
     /* lê só os nós deste app: a base unificada também guarda as respostas do ServiceNow, que são grandes */
-    const [us, sg] = await Promise.all([fb('usuarios'), fb('sugestoes')]);
-    db = {usuarios:normalizar(us || {}), sugestoes:sg || {}};
+    const [us, sg, cf] = await Promise.all([fb('usuarios'), fb('sugestoes'), fb('config').catch(() => null)]);
+    db = {usuarios:normalizar(us || {}), sugestoes:sg || {}, config:cf || {}};
   } else {
-    try{ const d = JSON.parse(localStorage.getItem(LOCAL_KEY)); if(d) db = {usuarios:normalizar(d.usuarios||{}), sugestoes:d.sugestoes||{}}; }catch(e){}
+    try{ const d = JSON.parse(localStorage.getItem(LOCAL_KEY)); if(d) db = {usuarios:normalizar(d.usuarios||{}), sugestoes:d.sugestoes||{}, config:d.config||{}}; }catch(e){}
   }
 }
 async function gravar(colecao, id, obj){
@@ -1531,7 +2046,7 @@ let atual = 'inicio';
 function go(v){
   if(v === 'adm' && !isAdmin()){ toast('ACESSO RESTRITO AO ADMINISTRADOR', true); return; }
   atual = v;
-  if(v === 'adm'){ statusSN(); carregarBase(); }
+  if(v === 'adm'){ statusSN(); carregarBase(); montarAdmExtras(); }
   if(v === 'alteracoes') carregarBase(true);
   if(v === 'historico') carregarLog();
   if(v === 'painel'){ renderPainel(); carregarCaixinhas(true); if(!baseResp) carregarBase().then(() => { if(atual === 'painel') renderPainel(); }); }
@@ -1546,11 +2061,11 @@ function render(){
   if(atual === 'sugestoes') renderSug();
   if(atual === 'alteracoes') renderAlt();
   if(atual === 'historico') renderHist();
-  if(atual === 'adm') renderUsers();
+  if(atual === 'adm'){ renderUsers(); atualizarAdmExtras(); }
 }
 $$('#nav button[data-v]').forEach(b => b.onclick = () => go(b.dataset.v));
 $('#burger').onclick = () => $('#side').classList.toggle('closed');
-$$('[data-sair]').forEach(b => b.onclick = () => { me = null; try{ sessionStorage.removeItem(LOCAL_KEY + '_me'); }catch(e){} go('inicio'); showLogin(); });
+$$('[data-sair]').forEach(b => b.onclick = () => { me = null; esquecerSessao(); go('inicio'); showLogin(); });
 
 /* ---------- Sugestões ---------- */
 let aba = 'pendente';
@@ -1572,17 +2087,20 @@ function renderSug(){
   }
   $('#sugList').innerHTML = l.map(s => {
     const pode = s.status === 'pendente' && podeEditar();
-    return `<div class="sug">
+    const tp = tipoSug(s);
+    return `<div class="sug ${tp.cls}">
      ${tag(s)}
      <div>
        <div class="card-tit">${esc(s.modelo)}${s.origem ? `<span class="origem">${s.origem === 'consulta' ? 'APP 02' : esc(String(s.origem).toUpperCase())}</span>` : ''}</div>
        <div class="card">
-         <div class="card-head"><span class="k">${esc(s.tipo)}</span><span class="c">${esc(s.categoria)}</span></div>
-         ${s.problema ? `<div class="sug-nota"><b>PROBLEMA APONTADO:</b> ${esc(s.problema)}<br><small>O texto abaixo é a resposta atual. Corrija e clique em ACEITAR para publicar.</small></div>` : ''}
+         <div class="card-head"><span class="k tipo-pill">${tp.icone} ${esc(s.tipo || 'RESPOSTA NOVA')}</span><span class="c">${esc(s.categoria)}</span></div>
+         ${s.problema ? `<div class="sug-nota"><b>PROBLEMA APONTADO:</b> ${esc(s.problema)}</div>` : ''}
          ${s.justificativa ? `<div class="sug-nota"><b>POR QUÊ:</b> ${esc(s.justificativa)}</div>` : ''}
-         <textarea data-id="${s.id}" ${pode ? '' : 'readonly'}>${esc(s.texto)}</textarea>
+         ${s.status === 'recusado' && s.motivoRecusa ? `<div class="sug-nota rec"><b>MOTIVO DA RECUSA:</b> ${esc(s.motivoRecusa)}${s.responsavel ? ` <small>— ${esc(s.responsavel)}</small>` : ''}</div>` : ''}
+         <div class="sug-rot">${tp.cls === 't-sin' ? 'TEXTO ATUAL DA RESPOSTA' : 'TEXTO SUGERIDO'}</div>
+         <textarea data-id="${s.id}" readonly>${esc(s.texto)}</textarea>
          ${s.status !== 'recusado' ? `<div class="card-act" style="justify-content:flex-start;margin-bottom:-4px"><button class="btn btn-copiar" data-sn="${s.id}" title="Copia para colar na API do ServiceNow">📋 COPIAR</button></div>` : ''}
-         ${pode ? `<div class="card-act"><button class="btn btn-no" data-rec="${s.id}">RECUSAR</button><button class="btn btn-ok" data-ace="${s.id}">ACEITAR</button></div>` : ''}
+         ${pode ? `<div class="card-act"><button class="btn btn-no" data-rec="${s.id}">RECUSAR</button><button class="btn btn-ok" data-ace="${s.id}" title="Abre a resposta para alterar, com as informações da sugestão">ACEITAR</button></div>` : ''}
          ${s.status === 'pendente' && isAdmin() ? `<div class="atrib">ATRIBUIR A:
            <select data-atr="${s.id}"><option value="">— ninguém —</option>${usuariosAtivos().map(u => `<option value="${esc(u.u)}"${s.atribuidoA === u.u ? ' selected' : ''}>${esc(titulo(u.nome))}</option>`).join('')}</select></div>` : ''}
        </div>
@@ -1591,16 +2109,28 @@ function renderSug(){
        ${s.status !== 'pendente' ? `<p class="st ${s.status === 'aceito' ? 's-ace' : 's-rec'}">${s.status === 'aceito' ? 'ACEITO' : 'RECUSADO'}</p>` : ''}</div>
     </div>`;
   }).join('');
-  $$('[data-ace]').forEach(b => b.onclick = () => decidir(b.dataset.ace, 'aceito'));
-  $$('[data-rec]').forEach(b => b.onclick = () => decidir(b.dataset.rec, 'recusado'));
+  $$('[data-ace]').forEach(b => b.onclick = () => aceitarSugestao(b.dataset.ace));
+  $$('[data-rec]').forEach(b => b.onclick = () => abrirRecusa(b.dataset.rec));
   $$('[data-atr]').forEach(sel => sel.onchange = () => atribuir(sel.dataset.atr, sel.value));
   $$('[data-sn]').forEach(b => b.onclick = () => copiarSugestaoSN(b.dataset.sn));
+}
+function tipoSug(s){
+  const t = String(s.tipo || '').toUpperCase();
+  if(t.startsWith('SINAL')) return { cls:'t-sin', icone:'⚠' };
+  if(t.startsWith('ALTER')) return { cls:'t-alt', icone:'✎' };
+  return { cls:'t-nova', icone:'＋' };
+}
+/* lê a versão mais nova da sugestão antes de gravar (para não apagar marcas gravadas pelos avisos por e-mail) */
+async function sugAtual(id){
+  if(!FB_ON) return db.sugestoes[id];
+  try{ return (await fb('sugestoes/' + id)) || db.sugestoes[id]; }catch(e){ return db.sugestoes[id]; }
 }
 async function atribuir(id, usuario){
   if(!isAdmin()) return;
   const s = db.sugestoes[id]; if(!s) return;
   const u = usuario ? db.usuarios[usuario] : null;
-  const novo = {...s};
+  const novo = {...(await sugAtual(id))};
+  delete novo.avisoAtribPara;   // a pessoa nova recebe o e-mail
   if(u){ Object.assign(novo, { atribuidoA: u.u, atribuidoNome: titulo(u.nome), atribuidoPor: titulo(me.nome), atribuidoEm: Date.now() }); }
   else { ['atribuidoA','atribuidoNome','atribuidoPor','atribuidoEm'].forEach(k => delete novo[k]); }
   try{
@@ -1635,11 +2165,63 @@ $('#fAviso').onsubmit = e => {
   $$('#tabs button').forEach(x => x.classList.toggle('on', x.dataset.t === 'pendente'));
   go('sugestoes');
 };
-async function decidir(id, st){
+/* RECUSAR: pop-up para escrever o motivo */
+let recusando = null;
+function abrirRecusa(id){
   const s = db.sugestoes[id]; if(!s) return;
-  const ta = document.querySelector(`textarea[data-id="${id}"]`);
-  const novo = {...s, texto: ta ? ta.value : s.texto, status: st, atualizadoEm: Date.now(),
+  recusando = id;
+  $('#rcTit').textContent = 'RECUSAR ' + (s.tipo || 'SUGESTÃO');
+  $('#rcInfo').innerHTML = `<b>${esc(s.modelo)}</b><br><small>Enviada por ${esc(s.autor || '—')} em ${fmt(s.criadoEm)}</small>`;
+  $('#rcMotivo').value = '';
+  $('#mRecusa').classList.add('on'); setTimeout(() => $('#rcMotivo').focus(), 50);
+}
+const fecharRecusa = () => { $('#mRecusa').classList.remove('on'); recusando = null; };
+$('#rcCancelar').onclick = fecharRecusa;
+$('#mRecusa').onclick = e => { if(e.target.id === 'mRecusa') fecharRecusa(); };
+$('#fRecusa').onsubmit = async e => {
+  e.preventDefault();
+  const motivo = $('#rcMotivo').value.trim();
+  if(motivo.length < 5){ toast('ESCREVA O MOTIVO DA RECUSA', true); return; }
+  const id = recusando; if(!id) return fecharRecusa();
+  $('#rcOk').disabled = true;
+  await decidir(id, 'recusado', motivo);
+  $('#rcOk').disabled = false; fecharRecusa();
+};
+
+/* ACEITAR: abre a própria resposta no editor, com o aviso da sugestão em cima */
+let sugEmEdicao = null;
+async function aceitarSugestao(id){
+  const s = db.sugestoes[id]; if(!s) return;
+  if(!FB_ON) return decidir(id, 'aceito');
+  if(!baseResp) await carregarBase();
+  if(!baseResp) return;
+  let rid = s.respostaId && baseResp[s.respostaId] ? s.respostaId : '';
+  if(!rid && tipoSug(s).cls !== 't-nova') rid = Object.keys(baseResp).find(k => normN(baseResp[k].nome) === normN(s.modelo)) || '';
+  const pilar = PILARES_EDITOR.includes(s.pilar) ? s.pilar : (PILARES_EDITOR.includes(PILAR_SIGLA[s.area]) ? PILAR_SIGLA[s.area] : 'Geral');
+  abrirResp(rid, 'sac', rid ? null : { nome: s.modelo || '', texto: semCodigos(s.texto || ''), pilar });
+  sugEmEdicao = id;
+  mostrarBannerSug(s, !!rid);
+}
+function mostrarBannerSug(s, existente){
+  const tp = tipoSug(s), el = $('#rSug');
+  const podeUsarTexto = existente && tp.cls !== 't-sin' && s.texto;
+  el.className = 'full sug-banner ' + tp.cls;
+  el.innerHTML = `<div class="sb-cab">${tp.icone} ${esc(s.tipo || 'RESPOSTA NOVA')} · ${s.origem === 'consulta' ? 'APP 02 · ' : ''}enviada por ${esc(s.autor || '—')} em ${fmt(s.criadoEm)}</div>`
+    + (s.problema ? `<div><b>Problema apontado:</b> ${esc(s.problema)}</div>` : '')
+    + (s.justificativa ? `<div><b>Por quê:</b> ${esc(s.justificativa)}</div>` : '')
+    + (!existente ? `<div><b>${tp.cls === 't-nova' ? 'Resposta nova:' : 'Não achei esta resposta na base —'}</b> o texto sugerido já está no editor. Confira número, pilar e descrição antes de salvar.</div>` : '')
+    + (podeUsarTexto ? `<div class="sb-txt">${esc(semCodigos(s.texto))}</div><button type="button" class="btn btn-ok" id="rUsarSug">USAR TEXTO SUGERIDO NO EDITOR</button>` : '')
+    + `<div style="margin-top:6px;font-size:12px;color:#55604a">Ao SALVAR, a sugestão fica como ACEITA.</div>`;
+  el.hidden = false;
+  const bt = $('#rUsarSug');
+  if(bt) bt.onclick = () => { $('#rEditor').innerHTML = textoParaHtmlEditor(semCodigos(s.texto)); editorMexido = true; toast('TEXTO SUGERIDO COLOCADO NO EDITOR'); };
+}
+
+async function decidir(id, st, motivo){
+  const s = db.sugestoes[id]; if(!s) return;
+  const novo = {...(await sugAtual(id)), status: st, atualizadoEm: Date.now(),
                 responsavel: me ? titulo(me.nome) : '', descricao: st === 'aceito' ? 'Resposta Resolutiva' : 'Editar para enviar'};
+  if(motivo) novo.motivoRecusa = motivo;
   try{
     if(st === 'aceito' && FB_ON){
       novo.respostaId = await aplicarNaBase(novo);   // publica no app 02
@@ -1647,7 +2229,7 @@ async function decidir(id, st){
     }
     await gravar('sugestoes', id, novo); document.activeElement.blur(); render();
     registrar(st === 'aceito' ? 'Aceitou sugestão' : 'Recusou sugestão', s.modelo,
-      `${s.tipo || ''} · enviada por ${s.autor || '—'}${novo.respostaId ? ' · publicada como ' + novo.respostaId : ''}${s.atribuidoNome ? ' · estava atribuída a ' + s.atribuidoNome : ''}`);
+      `${s.tipo || ''} · enviada por ${s.autor || '—'}${novo.respostaId ? ' · publicada como ' + novo.respostaId : ''}${s.atribuidoNome ? ' · estava atribuída a ' + s.atribuidoNome : ''}${motivo ? ' · motivo: ' + motivo : ''}`);
     toast(st === 'aceito' ? 'SUGESTÃO ACEITA E PUBLICADA NO APP 02' : 'SUGESTÃO RECUSADA');
   }catch(e){ toast('NÃO FOI POSSÍVEL CONCLUIR: ' + e.message, true); }
 }
@@ -2281,10 +2863,11 @@ function atualizarCodigo(){
 }
 ['input','change'].forEach(ev => ['#rNome','#rPilar','#rDesc'].forEach(s => $(s).addEventListener(ev, atualizarCodigo)));
 let modoServico = false;   // true = resposta de Serviço (tabela Caso): pilar Geral, descrição livre, sem código, fora do App 02
-function abrirResp(id, tipo){
+function abrirResp(id, tipo, pre){
   editandoResp = id;
+  sugEmEdicao = null; $('#rSug').hidden = true; $('#rSug').innerHTML = '';
   modoServico = id ? destinoDe(baseResp[id]) === 'servicos' : tipo === 'servico';
-  const r = id ? baseResp[id] : modoServico
+  const r = id ? baseResp[id] : pre ? { pilar:'CNH', subtema:'A classificar', descricao:'', ativo:true, ...pre } : modoServico
     ? { nome:'', pilar:'Geral', subtema:'', descricao:'', texto:'Prezados(as),\n\nAtenciosamente,', ativo:false, tabelas:[TABELA_SERVICOS] }
     : { nome:'', pilar:'CNH', subtema:'A classificar', descricao:'Resposta Resolutiva', texto:'Prezado(a),\n\nInformamos que\n\nAgradecemos pelo contato e permanecemos à disposição.\n\nAtenciosamente,\nServiço de Atendimento ao Cidadão.', ativo:true };
   textoOriginal = r.texto || '';
@@ -2317,10 +2900,58 @@ function abrirResp(id, tipo){
   $('#rAtivo').checked = modoServico ? false : r.ativo !== false; $('#rNotif').checked = !modoServico;
   $('#rAtivo').disabled = $('#rNotif').disabled = modoServico;
   $('#rInfo').textContent = id ? `Última edição: ${r.atualizadoEm || '—'}${r.atualizadoPor ? ' por ' + r.atualizadoPor : ''}` : '';
+  if(!id && !pre){ const n = numerosLivres().proximo; if(n){ $('#rNome').value = n + ' - '; atualizarCodigo(); } }
+  infoNumero();
   $('#mResp').classList.remove('min'); $('#mResp .bt-min').textContent = '—';
   $('#mResp').classList.add('on'); setTimeout(() => $('#rNome').focus(), 50);
 }
-const fecharResp = () => $('#mResp').classList.remove('on', 'min');
+const fecharResp = () => { $('#mResp').classList.remove('on', 'min'); sugEmEdicao = null; };
+
+/* ---------- Numeração sugerida para respostas novas ----------
+   Conta os números já usados no início do nome (ex.: "012 - …"), por pilar (SAC) ou entre as de Serviço. */
+const NUMERACAO_POR_PILAR = true;
+function numerosLivres(){
+  const pilar = modoServico ? '' : $('#rPilar').value, usados = new Map();
+  let largura = 3;
+  Object.keys(baseResp || {}).forEach(k => {
+    const r = baseResp[k]; if(!r || !r.nome || k === editandoResp) return;
+    if((destinoDe(r) === 'servicos') !== modoServico) return;
+    if(!modoServico && NUMERACAO_POR_PILAR && (r.pilar || 'Geral') !== pilar) return;
+    const txt = numeroDe(r.nome), n = parseInt(txt, 10); if(!n) return;
+    largura = Math.max(largura, txt.length);
+    if(!usados.has(n)) usados.set(n, []); usados.get(n).push(r.nome);
+  });
+  const fmtN = n => String(n).padStart(largura, '0');
+  const max = usados.size ? Math.max(...usados.keys()) : 0, buracos = [];
+  for(let i = 1; i < max && buracos.length < 6; i++) if(!usados.has(i)) buracos.push(fmtN(i));
+  return { proximo: fmtN(max + 1), buracos, usados, fmtN, onde: modoServico ? 'nas respostas de Serviço' : (NUMERACAO_POR_PILAR ? 'no pilar ' + pilar : 'na base') };
+}
+function infoNumero(){
+  const el = $('#rNumInfo'); if(!el) return;
+  if(!baseResp){ el.innerHTML = ''; return; }
+  const L = numerosLivres(), n = parseInt(numeroDe($('#rNome').value), 10);
+  const chip = v => `<span class="num-chip" data-num="${v}" title="Usar este número">${v}</span>`;
+  if(n && L.usados.has(n)){
+    el.className = 'num-info aviso';
+    el.innerHTML = `⚠ O número ${L.fmtN(n)} já é usado ${L.onde} por: ${esc(L.usados.get(n).slice(0, 2).join(' · '))}. Livre: ${chip(L.proximo)}${L.buracos.slice(0, 3).map(chip).join('')}`;
+  } else {
+    el.className = 'num-info';
+    el.innerHTML = editandoResp && n ? `Número ${L.fmtN(n)} livre ${L.onde}.`
+      : `Próximo número livre ${L.onde}: ${chip(L.proximo)}${L.buracos.length ? ` · também livres: ${L.buracos.map(chip).join('')}` : ''}`;
+  }
+  $$('#rNumInfo [data-num]').forEach(c => c.onclick = () => usarNumero(c.dataset.num));
+}
+function usarNumero(v){
+  const nome = $('#rNome').value;
+  $('#rNome').value = /^\D*?\d+/.test(nome) ? nome.replace(/^(\D*?)\d+/, '$1' + v) : v + ' - ' + nome.replace(/^\s*-?\s*/, '');
+  atualizarCodigo(); infoNumero(); $('#rNome').focus();
+}
+$('#rNome').addEventListener('input', infoNumero);
+$('#rPilar').addEventListener('change', () => {
+  /* nome ainda só com o número sugerido: troca pelo próximo livre do pilar novo */
+  if(!editandoResp && /^\d+ - $/.test($('#rNome').value)){ $('#rNome').value = numerosLivres().proximo + ' - '; atualizarCodigo(); }
+  infoNumero();
+});
 /* minimizar: o pop-up vira uma barrinha no canto inferior direito e o app fica livre; clicar na barra restaura */
 $$('[data-min]').forEach(b => b.onclick = e => {
   e.stopPropagation();
@@ -2340,6 +2971,7 @@ $('#mResp').onclick = e => { if(e.target.id === 'mResp') fecharResp(); };
 $('#fResp').onsubmit = async e => {
   e.preventDefault();
   const bt = $('#rSalvar'); bt.disabled = true;
+  const sugId = sugEmEdicao, sugAc = sugId ? db.sugestoes[sugId] : null;
   try{
     const agora = fmt(Date.now()), adm = me ? titulo(me.nome) : '';
     const codigo = modoServico ? '' : gerarCodigo($('#rPilar').value, $('#rDesc').value, $('#rNome').value);
@@ -2366,10 +2998,17 @@ $('#fResp').onsubmit = async e => {
     await fb('respostas/' + id, 'PUT', obj);
     await fb('respostasHtml/' + id, 'PUT', htmlFinal);        // guarda a formatação (links, negrito…)
     baseResp[id] = obj;
-    if(!modoServico && $('#rNotif').checked && obj.ativo) await notificarApp02(editandoResp ? 'Resposta corrigida' : 'Nova resposta', id, obj.nome, '', '');
+    if(!modoServico && $('#rNotif').checked && obj.ativo) await notificarApp02(editandoResp ? 'Resposta corrigida' : 'Nova resposta', id, obj.nome,
+      sugAc ? sugAc.autor : '', sugAc ? (tipoSug(sugAc).cls === 't-sin' ? 'Sinalização' : 'Sugestão') : '');
+    if(sugAc){
+      const sNova = {...(await sugAtual(sugId)), status:'aceito', atualizadoEm: Date.now(), responsavel: adm, descricao:'Resposta Resolutiva', respostaId: id, publicadaComo: id};
+      await gravar('sugestoes', sugId, sNova);
+      registrar('Aceitou sugestão', sugAc.modelo, `${sugAc.tipo || ''} · enviada por ${sugAc.autor || '—'} · publicada como ${id}${sugAc.atribuidoNome ? ' · estava atribuída a ' + sugAc.atribuidoNome : ''}`);
+      render();
+    }
     await marcarVersao();
     registrar(antes ? 'Editou resposta' : 'Criou resposta', `${id} ${obj.nome}`, antes ? (camposMudados(antes, obj) || 'sem mudanças nos campos') : `${obj.pilar} · ${obj.descricao}`);
-    fecharResp(); renderBase(); if(atual === 'alteracoes') renderAlt(); if(atual === 'painel') renderItensCaixinha(); toast(modoServico ? (editandoResp ? 'RESPOSTA DE SERVIÇO SALVA' : 'NOVA RESPOSTA DE SERVIÇO CRIADA') : (editandoResp ? 'RESPOSTA SALVA NA BASE DOS DOIS APPS' : 'NOVA RESPOSTA CRIADA NA BASE DOS DOIS APPS'));
+    fecharResp(); renderBase(); if(atual === 'alteracoes') renderAlt(); if(atual === 'painel') renderItensCaixinha(); toast(sugAc ? 'SUGESTÃO ACEITA — RESPOSTA SALVA NA BASE DOS DOIS APPS' : modoServico ? (editandoResp ? 'RESPOSTA DE SERVIÇO SALVA' : 'NOVA RESPOSTA DE SERVIÇO CRIADA') : (editandoResp ? 'RESPOSTA SALVA NA BASE DOS DOIS APPS' : 'NOVA RESPOSTA CRIADA NA BASE DOS DOIS APPS'));
   }catch(err){ toast('NÃO FOI POSSÍVEL SALVAR: ' + err.message, true); }
   bt.disabled = false;
 };
@@ -2665,6 +3304,92 @@ async function statusSN(){
       : `Nenhuma coleta feita ainda. Respostas na base unificada: <b>${nResp}</b>.`;
   }catch(e){ el.textContent = 'Não foi possível ler a situação: ' + e.message; }
 }
+/* ---------- Edições ADM: avisos por e-mail ---------- */
+const cfgAvisos = () => (db.config && db.config.avisos) || {};
+const regras = () => { const r = db.config && db.config.regrasAtribuicao; return Array.isArray(r) ? r.filter(Boolean) : (r ? Object.values(r) : []); };
+function montarAdmExtras(){
+  const c = cfgAvisos(), us = usuariosAtivos();
+  $('#avNovas').checked = c.novas !== false; $('#avAtrib').checked = c.atribuicao !== false;
+  const dest = Array.isArray(c.destinatarios) ? c.destinatarios : null;
+  $('#avDest').innerHTML = us.map(u => `<label title="${esc(u.email || 'sem e-mail cadastrado')}"><input type="checkbox" data-dest="${esc(u.u)}"${(dest ? dest.includes(u.u) : u.perfil === 'admin') ? ' checked' : ''}${u.email ? '' : ' disabled'}>${esc(titulo(u.nome))}${u.email ? '' : ' <small>(sem e-mail)</small>'}</label>`).join('') || '<small>Nenhum usuário ativo.</small>';
+  $('#rgPilar').innerHTML = '<option value="*">Todos os pilares</option>' + PILARES.map(p => `<option>${p}</option>`).join('');
+  $('#rgUser').innerHTML = us.map(u => `<option value="${esc(u.u)}">${esc(titulo(u.nome))}</option>`).join('');
+  atualizarAdmExtras();
+}
+function atualizarAdmExtras(){
+  const st = cfgAvisos().status, el = $('#avStatus');
+  if(st && st.ultimaVerificacao){
+    const min = Math.round((Date.now() - st.ultimaVerificacao) / 60000), ok = min <= 15 && !st.erro;
+    el.className = 'av-status' + (ok ? '' : ' off');
+    el.innerHTML = (ok ? '✅ Avisos por e-mail funcionando' : '⚠ O script dos avisos não confere há ' + min + ' min') +
+      ` · última conferência: <b>${fmt(st.ultimaVerificacao)}</b>${st.cota !== undefined ? ` · e-mails restantes hoje: ${st.cota}` : ''}${st.erro ? `<br>Erro: ${esc(st.erro)}` : ''}`;
+  } else {
+    el.className = 'av-status off';
+    el.innerHTML = '⚠ Ainda não instalado: clique em <b>COPIAR SCRIPT DOS AVISOS</b> e siga as instruções abaixo.';
+  }
+  const l = regras(), nomeU = u => db.usuarios[u] ? titulo(db.usuarios[u].nome) : u + ' (não encontrado)';
+  $('#rgLista').innerHTML = l.length ? l.map((r, i) => `<div class="regra"><b class="n">${i + 1}</b><span class="sp">${r.pilar === '*' ? 'Todos os pilares' : esc(r.pilar)} · ${r.paridade === 'par' ? 'número <b>PAR</b>' : r.paridade === 'impar' ? 'número <b>ÍMPAR</b>' : 'qualquer número'} → <b>${esc(nomeU(r.usuario))}</b>${db.usuarios[r.usuario] && db.usuarios[r.usuario].ativo === false ? ' <small>(inativo — ignorada)</small>' : ''}</span>
+      <button type="button" data-rgm="${i}" data-d="-1" title="Subir">▲</button><button type="button" data-rgm="${i}" data-d="1" title="Descer">▼</button><button type="button" data-rgx="${i}" title="Excluir regra">✕</button></div>`).join('')
+    : '<div class="empty" style="padding:14px">Nenhuma regra. Ex.: CNH · número par → Maria; CNH · número ímpar → João.</div>';
+  $$('[data-rgx]').forEach(b => b.onclick = () => { const n = regras(); const [x] = n.splice(+b.dataset.rgx, 1); salvarRegras(n, 'Excluiu regra de atribuição', descRegra(x)); });
+  $$('[data-rgm]').forEach(b => b.onclick = () => { const n = regras(), i = +b.dataset.rgm, j = i + +b.dataset.d; if(j < 0 || j >= n.length) return; [n[i], n[j]] = [n[j], n[i]]; salvarRegras(n); });
+  const semResp = lista().filter(s => s.status === 'pendente' && !s.atribuidoA).length;
+  $('#rgAplicar').textContent = `APLICAR ÀS PENDENTES SEM RESPONSÁVEL (${semResp})`;
+}
+const descRegra = r => r ? `${r.pilar === '*' ? 'Todos' : r.pilar} · ${r.paridade} → ${r.usuario}` : '';
+async function salvarRegras(n, acao, det){
+  try{ await fb('config/regrasAtribuicao', 'PUT', n); db.config.regrasAtribuicao = n; atualizarAdmExtras(); if(acao) registrar(acao, 'Atribuição automática', det); }
+  catch(e){ toast('NÃO FOI POSSÍVEL SALVAR: ' + e.message, true); }
+}
+$('#rgForm').onsubmit = e => {
+  e.preventDefault();
+  const r = { pilar: $('#rgPilar').value, paridade: $('#rgPar').value, usuario: $('#rgUser').value };
+  if(!r.usuario) return toast('ESCOLHA A PESSOA', true);
+  if(regras().some(x => x.pilar === r.pilar && x.paridade === r.paridade)) return toast('JÁ EXISTE UMA REGRA PARA ESSE PILAR E NÚMERO', true);
+  salvarRegras(regras().concat([r]), 'Criou regra de atribuição', descRegra(r)); toast('REGRA ADICIONADA');
+};
+/* primeira regra que combina com o pilar e o número da sugestão */
+function regraPara(s){
+  const pilar = s.pilar || PILAR_SIGLA[s.area] || 'Geral';
+  const num = parseInt(String(s.cod || '').replace(/\D/g, ''), 10) || parseInt(numeroDe(s.modelo), 10) || 0;
+  return regras().find(r => (r.pilar === '*' || r.pilar === pilar)
+    && (r.paridade === 'todos' || (num > 0 && (num % 2 === 0) === (r.paridade === 'par')))
+    && db.usuarios[r.usuario] && db.usuarios[r.usuario].ativo !== false) || null;
+}
+function aplicarRegra(s){
+  const r = regraPara(s); if(!r) return false;
+  const u = db.usuarios[r.usuario];
+  Object.assign(s, { atribuidoA: u.u, atribuidoNome: titulo(u.nome), atribuidoPor: 'Automático (regra)', atribuidoEm: Date.now() });
+  return true;
+}
+$('#rgAplicar').onclick = async () => {
+  const pend = lista().filter(s => s.status === 'pendente' && !s.atribuidoA);
+  if(!pend.length) return toast('NENHUMA PENDENTE SEM RESPONSÁVEL');
+  if(!regras().length) return toast('CRIE UMA REGRA ANTES', true);
+  let n = 0;
+  for(const s0 of pend){
+    const s = {...(await sugAtual(s0.id))};
+    if(s.atribuidoA || s.status !== 'pendente' || !aplicarRegra(s)) continue;
+    try{ await gravar('sugestoes', s.id, s); n++; }catch(e){ break; }
+  }
+  registrar('Aplicou atribuição automática', 'Sugestões pendentes', n + ' atribuída(s)');
+  render(); toast(n ? n + ' SUGESTÃO(ÕES) ATRIBUÍDA(S)' : 'NENHUMA COMBINOU COM AS REGRAS');
+};
+$('#avSalvar').onclick = async () => {
+  const dados = { novas: $('#avNovas').checked, atribuicao: $('#avAtrib').checked,
+    destinatarios: $$('[data-dest]').filter(c => c.checked).map(c => c.dataset.dest) };
+  if(dados.novas && !dados.destinatarios.length) return toast('ESCOLHA PELO MENOS UMA PESSOA PARA RECEBER', true);
+  try{
+    await fb('config/avisos', 'PATCH', dados);
+    db.config.avisos = {...cfgAvisos(), ...dados};
+    registrar('Alterou avisos por e-mail', 'Configuração', `novas: ${dados.novas ? 'sim' : 'não'} · atribuição: ${dados.atribuicao ? 'sim' : 'não'} · para: ${dados.destinatarios.join(', ') || '—'}`);
+    toast('AVISOS SALVOS');
+  }catch(e){ toast('NÃO FOI POSSÍVEL SALVAR: ' + e.message, true); }
+};
+$('#avCopiar').onclick = () => copiarTexto($('#codigo-avisos').textContent.trim().replace('/*FIREBASE*/', FIREBASE_URL.trim().replace(/\/+$/, '')).replace('/*APP01*/', location.origin + location.pathname),
+  'SCRIPT DOS AVISOS COPIADO — COLE EM UM PROJETO NOVO DO APPS SCRIPT');
+$('#corrCopiar').onclick = () => copiarTexto($('#codigo-correcao').textContent.trim(), 'CORREÇÃO DE PILARES COPIADA — COLE NO CONSOLE (F12) DO SERVICENOW');
+
 $('#snCopiar').onclick = () => {
   if(!FB_ON) return snLog('Configure o link do Firebase antes.', true);
   const codigo = $('#codigo-coletor').textContent.trim().replace('/*FIREBASE*/', FB_BASE);
@@ -2796,14 +3521,16 @@ $$('#mTipoNova [data-tipo]').forEach(b => b.onclick = async () => {
 });
 $('#fCancel').onclick = fechar;
 $('#mNova').onclick = e => { if(e.target.id === 'mNova') fechar(); };
-document.addEventListener('keydown', e => { if(e.key === 'Escape') fechar(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ fechar(); if($('#mRecusa').classList.contains('on')) fecharRecusa(); } });
 $('#fNova').onsubmit = async e => {
   e.preventDefault();
   const id = novoId(), btn = $('#fEnviar'); btn.disabled = true;
   try{
-    await gravar('sugestoes', id, {id, area:$('#fArea').value, cod:$('#fCod').value.trim() || '-', modelo:$('#fModelo').value.trim(),
+    const sNova = {id, area:$('#fArea').value, cod:$('#fCod').value.trim() || '-', modelo:$('#fModelo').value.trim(),
       tipo:$('#fTipo').value, categoria:$('#fCat').value.trim(), texto:$('#fTexto').value,
-      autor: me ? me.nome : '', autorUsuario: me ? me.u : '', criadoEm: Date.now(), status:'pendente'});
+      autor: me ? me.nome : '', autorUsuario: me ? me.u : '', criadoEm: Date.now(), status:'pendente'};
+    aplicarRegra(sNova);
+    await gravar('sugestoes', id, sNova);
     fechar(); render(); toast('SUGESTÃO ENVIADA');
     registrar('Enviou sugestão', $('#fModelo').value.trim(), $('#fTipo').value);
   }catch(e){} finally{ btn.disabled = false; }
@@ -2830,8 +3557,20 @@ function pedirTroca(u){
   $('#tNova').value = $('#tConf').value = ''; msg($('#tMsg'), '');
   setTimeout(() => $('#tNova').focus(), 50);
 }
+/* A sessão fica guardada neste computador até a pessoa clicar em Sair.
+   Se a senha for trocada (ou o usuário inativado), a sessão guardada deixa de valer. */
+const CHAVE_SESSAO = LOCAL_KEY + '_sessao';
+const marcaSessao = u => u.u + '|' + String(u.hash || u.salt || '').slice(0, 16);
+function guardarSessao(u){ try{ localStorage.setItem(CHAVE_SESSAO, marcaSessao(u)); }catch(e){} }
+function esquecerSessao(){ try{ localStorage.removeItem(CHAVE_SESSAO); sessionStorage.removeItem(LOCAL_KEY + '_me'); }catch(e){} }
+function sessaoGuardada(){
+  let m = null; try{ m = localStorage.getItem(CHAVE_SESSAO); }catch(e){}
+  if(!m) return null;
+  const u = db.usuarios[m.split('|')[0]];
+  return u && marcaSessao(u) === m ? u : null;
+}
 function entrar(u){
-  me = u; try{ sessionStorage.setItem(LOCAL_KEY + '_me', u.u); }catch(e){}
+  me = u; guardarSessao(u);
   $('#login').classList.remove('on');
   $$('[data-admin]').forEach(b => b.style.display = isAdmin() ? '' : 'none');
   go('inicio');
@@ -2898,14 +3637,13 @@ if(innerWidth <= 760) $('#side').classList.add('closed');
 if(!FB_ON) $('#modo').classList.add('on');
 (async () => {
   try{ await carregar(); }catch(e){ toast('NÃO FOI POSSÍVEL CONECTAR AO FIREBASE', true); }
-  let salvo = null; try{ salvo = sessionStorage.getItem(LOCAL_KEY + '_me'); }catch(e){}
-  const u = salvo && db.usuarios[salvo];
-  if(u && u.ativo && !u.trocarSenha) entrar(u); else showLogin();
+  const u = sessaoGuardada();
+  if(u && u.ativo && !u.trocarSenha) entrar(u); else { esquecerSessao(); showLogin(); }
   if(FB_ON) setInterval(async () => {
     try{
       await carregar();
       if(me){ const u = db.usuarios[me.u];
-        if(!u || !u.ativo || u.trocarSenha){ me = null; try{ sessionStorage.removeItem(LOCAL_KEY + '_me'); }catch(e){} showLogin(); toast('SUA SESSÃO FOI ENCERRADA', true); return; }
+        if(!u || !u.ativo || u.trocarSenha || marcaSessao(u) !== marcaSessao(me)){ me = null; esquecerSessao(); showLogin(); toast('SUA SESSÃO FOI ENCERRADA', true); return; }
         me = u;
         /* perfil mudou em Edições ADM: ajusta o menu na hora */
         $$('[data-admin]').forEach(b => b.style.display = isAdmin() ? '' : 'none');
