@@ -172,7 +172,8 @@ nav button svg{width:24px;height:24px;fill:currentColor}
 .bt-push.ativo{border-color:#9bb57f;color:#cfe3b8}
 .bt-push.chama{border-color:#f5d90a;color:#f5d90a;animation:chama 2s ease-in-out infinite}
 @keyframes chama{50%{box-shadow:0 0 0 6px rgba(245,217,10,.15)}}
-.bt-push+.sair-bottom{margin-top:10px}
+.bt-push[hidden]{display:none}
+.bt-push:not([hidden])+.sair-bottom{margin-top:10px}
 .side.closed .bt-push{display:none}
 .push-lista{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
 .push-lista span{background:#f5f6f9;border-radius:10px;padding:4px 10px;font-size:13px}
