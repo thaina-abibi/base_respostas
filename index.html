@@ -440,6 +440,28 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 .sn-arq input{display:none}
 .sn-log{font-size:13px;letter-spacing:.4px;margin-top:10px;min-height:18px;color:#3d5a26;white-space:pre-wrap}
 .sn-log.err{color:var(--red)}
+.dv-resumo{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 10px;font-size:13px;letter-spacing:.4px}
+.dv-resumo b{font-size:15px}
+.dv-tag{display:inline-block;border-radius:20px;padding:2px 11px;font-size:11.5px;letter-spacing:1.5px;font-weight:600;border:1px solid}
+.dv-tag.nova{background:#dcebcd;color:#3b5d20;border-color:#b5d29a}
+.dv-tag.texto{background:#d6ede2;color:#2c6a50;border-color:#a9d4c0}
+.dv-tag.tab{background:#e9eec6;color:#55611c;border-color:#cbd38a}
+.dv-tag.ativo{background:#eef3e6;color:#3d4a30;border-color:#c8d4b8}
+.dv-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:10px;border-left:6px solid #9bb57f;transition:opacity .25s}
+.dv-card.saindo{opacity:0}
+.dv-cab{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}
+.dv-cab .n{flex:1;min-width:220px;font-size:15px;letter-spacing:.3px;font-weight:600;color:#1f2a17}
+.dv-info{font-size:12.5px;color:var(--muted);letter-spacing:.3px;margin-bottom:8px;line-height:1.6}
+.dv-info b{color:#2f3d22}
+.dv-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.dv-cols.um{grid-template-columns:1fr}
+.dv-col .t{font-size:11px;letter-spacing:2px;font-weight:600;color:#55604a;margin-bottom:4px}
+.dv-txt{background:#f6f8f3;border-radius:10px;padding:8px 10px;font-size:12.5px;line-height:1.5;max-height:200px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.dv-txt .sai{background:#f9dede;text-decoration:line-through;text-decoration-color:#c77}
+.dv-txt .ent{background:#dcefcf}
+.dv-bts{display:flex;justify-content:flex-end;gap:8px}
+.dv-bts .btn{padding:8px 16px;font-size:12.5px}
+@media (max-width:760px){.dv-cols{grid-template-columns:1fr}}
 .stcell{display:flex;flex-direction:column;align-items:center;gap:8px}
 .reset{background:none;border:0;font-size:11px;letter-spacing:2px;color:#4b5a40;text-decoration:underline;padding:2px}
 .reset:hover{color:var(--adm)}
@@ -773,7 +795,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
   </div>
 </div>
 <div class="modal" id="mColetor" role="dialog" aria-modal="true" style="z-index:22">
-  <div class="dlg" style="width:min(760px,100%)">
+  <div class="dlg" style="width:min(1000px,100%)">
     <h2 class="cab-min"><span>COLETOR SERVICENOW</span><button type="button" class="bt-min" data-fechar="mColetor" title="Fechar">✕</button></h2>
     <div class="adm-pop">
       <div class="sn-card">
@@ -782,15 +804,16 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
               <li>No ServiceNow, abra <b>Favoritos → Modelos Respostas</b> (a lista de modelos).</li>
               <li>Aperte <b>F12</b>, vá em <b>Console</b>, cole o código e tecle <b>Enter</b> (se o Chrome pedir, digite <code>allow pasting</code> antes).</li>
               <li>No painel verde que aparece, clique em <b>Coletar todos os modelos</b>. Ele lê Nome, Tabela, Descrição resumida, Ativo, datas, quem atualizou e o texto de cada modelo, e envia para o Firebase.</li>
-              <li>Volte aqui e clique em <b>Atualizar base de respostas</b>.</li>
+              <li>Volte aqui e clique em <b>Ver divergências</b>: aparecem só os modelos diferentes da base, para importar ou não, um por um.</li>
             </ol>
             <div class="sn-status" id="snStatus">Carregando situação da coleta…</div>
             <div class="sn-bts">
               <button type="button" class="btn btn-dark" id="snCopiar">COPIAR CÓDIGO DO COLETOR</button>
-              <button type="button" class="btn btn-ok" id="snAplicar">ATUALIZAR BASE DE RESPOSTAS</button>
+              <button type="button" class="btn btn-ok" id="snAplicar">VER DIVERGÊNCIAS</button>
               <label class="btn btn-ok sn-arq">IMPORTAR ARQUIVO DA COLETA<input type="file" id="snArquivo" accept=".json,application/json"></label>
             </div>
             <div class="sn-log" id="snLog"></div>
+            <div id="snDiv"></div>
       </div>
     </div>
   </div>
@@ -3498,7 +3521,7 @@ async function statusSN(){
     const nResp = resp ? Object.keys(resp).length : 0;
     el.innerHTML = meta
       ? `Última coleta: <b>${fmt(meta.coletadoEm)}</b> · ${meta.registros} registros do ServiceNow agrupados em <b>${meta.modelos} modelos</b>${meta.semNome ? ` (${meta.semNome} sem nome ignorados)` : ''}.<br>` +
-        (meta.aplicadoEm ? `Aplicada na base em <b>${fmt(meta.aplicadoEm)}</b>.` : `<b>Ainda não aplicada na base</b>: clique em Atualizar base de respostas.`) +
+        (meta.aplicadoEm ? `Divergências revisadas em <b>${fmt(meta.aplicadoEm)}</b>.` : `<b>Divergências ainda não revisadas</b>: clique em Ver divergências.`) +
         `<br>Respostas na base unificada: <b>${nResp}</b>.`
       : `Nenhuma coleta feita ainda. Respostas na base unificada: <b>${nResp}</b>.`;
   }catch(e){ el.textContent = 'Não foi possível ler a situação: ' + e.message; }
@@ -3740,7 +3763,7 @@ $('#snArquivo').onchange = async e => {
       snLog(`Enviando… ${Math.min(i + 150, ks.length)} de ${ks.length} modelos`);
     }
     await fb('servicenowMeta', 'PUT', d.meta);
-    snLog('Arquivo importado. Agora clique em Atualizar base de respostas.'); statusSN();
+    snLog('Arquivo importado. Agora clique em Ver divergências.'); statusSN();
     registrar('Importou arquivo da coleta do ServiceNow', `${ks.length} modelos`);
   }catch(err){ snLog('Não foi possível importar: ' + err.message, true); }
 };
@@ -3762,69 +3785,142 @@ function pilarDe(g){
   if(/customer_service_channels/.test(t)) return 'Portal';
   return 'Geral';
 }
+const listaTabelas = t => (Array.isArray(t) ? t : String(t || '').split(',')).map(s => String(s).trim()).filter(Boolean).sort();
+const NOME_TAB = { driver_licence_case:'Habilitação', vehicle_case:'Veículos', inspection_case:'Fiscalização', education_case:'Todos casos',
+  customer_service_channels:'Site/Aplicativo', adm_case:'Serv. Administrativos', public_hiring:'Contratações Públicas' };
+const nomeTab = t => NOME_TAB[String(t).replace(/^x_mdpdd_detran_(csm|srv)_/, '')] || String(t).replace(/^x_mdpdd_detran_(csm|srv)_/, '');
+function assinaturaSN(g){
+  const s = (g.texto || '').trim() + '|' + listaTabelas((g.tabelas || []).map(t => t.tabela)).join(',') + '|' + !!g.ativo;
+  let x = 0; for(let i = 0; i < s.length; i++) x = (x * 31 + s.charCodeAt(i)) >>> 0;
+  return x.toString(36) + s.length;
+}
+let dv = null;
+function linhasDiff(a, b){
+  const la = String(a || '').split('\n'), lb = String(b || '').split('\n');
+  const sa = new Set(la.map(l => l.trim())), sb = new Set(lb.map(l => l.trim()));
+  return [la.map(l => sb.has(l.trim()) ? esc(l) : `<span class="sai">${esc(l)}</span>`).join('\n'),
+          lb.map(l => sa.has(l.trim()) ? esc(l) : `<span class="ent">${esc(l)}</span>`).join('\n')];
+}
 $('#snAplicar').onclick = async () => {
   if(!FB_ON) return snLog('Configure o link do Firebase antes.', true);
   const bt = $('#snAplicar'); bt.disabled = true;
   try{
-    snLog('Lendo a coleta e a base de respostas…');
-    const [sn, resp, cont] = await Promise.all([fb('servicenow'), fb('respostas'), fb('contadores/R')]);
+    snLog('Comparando a coleta do ServiceNow com a base…'); $('#snDiv').innerHTML = '';
+    const [sn, resp, cont, ign] = await Promise.all([fb('servicenow'), fb('respostas'), fb('contadores/R'), fb('servicenowIgnorados')]);
     if(!sn) throw new Error('nenhuma coleta encontrada. Rode o coletor no ServiceNow primeiro');
-    const base = resp || {};
-    const porNome = {};
-    Object.keys(base).forEach(id => { porNome[normN(base[id].nome)] = id; });
-    let n = Math.max(Number(cont) || 0, Object.keys(base).reduce((m, id) => Math.max(m, parseInt(String(id).replace(/\D/g, ''), 10) || 0), 0));
-    const agora = fmt(Date.now()), mud = {}, nomesSN = new Set();
-    let novas = 0, atualizadas = 0, iguais = 0;
+    const base = resp || {}, ignorados = ign || {}, porNome = {};
+    Object.keys(base).forEach(id => { if(base[id] && base[id].nome) porNome[normN(base[id].nome)] = id; });
+    const itens = [], meta = {}, nomesSN = new Set();
+    let ignoradas = 0;
     Object.keys(sn).forEach(k => {
       const g = sn[k]; if(!g || !g.nome) return;
       nomesSN.add(normN(g.nome));
-      const tabelas = (g.tabelas || []).map(t => t.tabela).filter(Boolean);
+      const tabSN = listaTabelas((g.tabelas || []).map(t => t.tabela));
       const snInfo = { chave:k, descricao:g.descricao || '', atualizadoEm:g.atualizadoEm || '', atualizadoPor:g.atualizadoPor || '',
                        criadoEm:g.criadoEm || '', textosDiferentes:!!g.textosDiferentes, tabelas:g.tabelas || [] };
-      const id = porNome[normN(g.nome)];
-      if(id){
-        const ex = base[id];
-        const exTab = Array.isArray(ex.tabelas) ? ex.tabelas : String(ex.tabelas || '').split(',').map(s => s.trim()).filter(Boolean);
-        const mudou = (ex.texto || '').trim() !== (g.texto || '').trim()
-          || exTab.slice().sort().join(',') !== tabelas.slice().sort().join(',')
-          || (ex.ativo !== false) !== !!g.ativo;
-        if(mudou){
-          const obj = { ...ex, id, tabelas, campo:g.campo || ex.campo || 'close_notes', ativo:!!g.ativo, texto:g.texto || ex.texto || '',
-                        descricao:ex.descricao || g.descricao || '', codigo:ex.codigo || primeiroCodigo(g.texto),
-                        atualizadoEm:agora, atualizadoPor:'Coletor ServiceNow', sn:snInfo };
-          mud['respostas/' + id] = obj; if(g.html) mud['respostasHtml/' + id] = g.html;
-          atualizadas++;
-        } else {
-          mud['respostas/' + id + '/sn'] = snInfo; iguais++;
-          if(!ex.codigo && primeiroCodigo(g.texto)) mud['respostas/' + id + '/codigo'] = primeiroCodigo(g.texto);
-        }
-      } else {
-        n++; const nid = 'R' + String(n).padStart(4, '0'); porNome[normN(g.nome)] = nid;
-        mud['respostas/' + nid] = { id:nid, nome:g.nome, pilar:pilarDe(g), subtema:'A classificar', descricao:g.descricao || '', texto:g.texto || '',
-          tabelas, campo:g.campo || 'close_notes', codigo:primeiroCodigo(g.texto), ativo:!!g.ativo, criadoEm:agora, atualizadoEm:agora,
-          atualizadoPor:'Coletor ServiceNow', obs:'', sn:snInfo };
-        if(g.html) mud['respostasHtml/' + nid] = g.html;
-        novas++;
+      const id = porNome[normN(g.nome)], ex = id ? base[id] : null, tipos = [];
+      if(!ex) tipos.push('nova');
+      else {
+        if((ex.texto || '').trim() !== (g.texto || '').trim()) tipos.push('texto');
+        if(listaTabelas(ex.tabelas).join(',') !== tabSN.join(',')) tipos.push('tab');
+        if((ex.ativo !== false) !== !!g.ativo) tipos.push('ativo');
       }
+      if(!tipos.length){
+        meta['respostas/' + id + '/sn'] = snInfo;
+        if(!ex.codigo && primeiroCodigo(g.texto)) meta['respostas/' + id + '/codigo'] = primeiroCodigo(g.texto);
+        return;
+      }
+      if(ignorados[k] && ignorados[k].assinatura === assinaturaSN(g)){ ignoradas++; return; }
+      itens.push({ k, g, id, ex, tipos, tabSN, snInfo });
     });
-    mud['contadores/R'] = n;
-    const chaves = Object.keys(mud);
-    for(let i = 0; i < chaves.length; i += 200){
-      const parte = {}; chaves.slice(i, i + 200).forEach(c => parte[c] = mud[c]);
-      await fb('', 'PATCH', parte);
-      snLog(`Gravando… ${Math.min(i + 200, chaves.length)} de ${chaves.length} alterações`);
-    }
-    await fb('servicenowMeta/aplicadoEm', 'PUT', Date.now());
-    await marcarVersao();
-    const fora = Object.keys(base).filter(id => !nomesSN.has(normN(base[id].nome))).length;
-    registrar('Atualizou a base pelo Coletor ServiceNow', '', `${novas} novas · ${atualizadas} atualizadas · ${iguais} sem mudança`);
-    snLog(`Base atualizada: ${novas} respostas novas, ${atualizadas} atualizadas, ${iguais} sem mudança.` +
-      (fora ? ` ${fora} respostas da base não existem no ServiceNow e foram mantidas como estão.` : '') +
-      (novas ? ` As novas entram com o subtema "A classificar" no app de consulta.` : ''));
-    statusSN();
-  }catch(e){ snLog('Não foi possível atualizar: ' + e.message, true); }
+    const chaves = Object.keys(meta);
+    for(let i = 0; i < chaves.length; i += 300){ const parte = {}; chaves.slice(i, i + 300).forEach(c => parte[c] = meta[c]); await fb('', 'PATCH', parte); }
+    itens.sort((a, b) => a.g.nome.localeCompare(b.g.nome, 'pt-BR', { numeric:true }));
+    const fora = Object.keys(base).filter(id => base[id] && !nomesSN.has(normN(base[id].nome))).length;
+    dv = { itens, contador: Math.max(Number(cont) || 0, Object.keys(base).reduce((m, id) => Math.max(m, parseInt(String(id).replace(/\D/g, ''), 10) || 0), 0)),
+           ignoradas, fora, importadas: 0, recusadas: 0 };
+    snLog('');
+    renderDiv();
+    if(!itens.length) await fb('servicenowMeta/aplicadoEm', 'PUT', Date.now()).then(statusSN).catch(() => {});
+  }catch(e){ snLog('Não foi possível comparar: ' + e.message, true); }
   bt.disabled = false;
 };
+function renderDiv(){
+  if(!dv) return;
+  const l = dv.itens, cnt = t => l.filter(x => x.tipos.includes(t)).length;
+  const rot = { nova:'NOVA NO SERVICENOW', texto:'TEXTO DIFERENTE', tab:'TABELAS DIFERENTES', ativo:'ATIVO DIFERENTE' };
+  const resumo = `<div class="dv-resumo"><b>${l.length}</b> divergência${l.length === 1 ? '' : 's'} para revisar`
+    + (cnt('nova') ? ` <span class="dv-tag nova">${cnt('nova')} NOVA${cnt('nova') > 1 ? 'S' : ''}</span>` : '')
+    + (cnt('texto') ? ` <span class="dv-tag texto">${cnt('texto')} TEXTO</span>` : '')
+    + (cnt('tab') ? ` <span class="dv-tag tab">${cnt('tab')} TABELAS</span>` : '')
+    + (cnt('ativo') ? ` <span class="dv-tag ativo">${cnt('ativo')} ATIVO</span>` : '')
+    + (dv.importadas || dv.recusadas ? ` · ${dv.importadas} importada(s), ${dv.recusadas} não importada(s) agora` : '')
+    + (dv.ignoradas ? ` · ${dv.ignoradas} já marcada(s) antes como "não importar"` : '')
+    + (dv.fora ? ` · ${dv.fora} resposta(s) da base não existem no ServiceNow (ficam como estão)` : '') + '</div>';
+  if(!l.length){ $('#snDiv').innerHTML = resumo + '<div class="empty" style="padding:18px">Nada divergente: a base está igual ao ServiceNow. 🎉</div>'; return; }
+  $('#snDiv').innerHTML = resumo + l.map((it, i) => {
+    const { g, ex, tipos, tabSN } = it;
+    const tabEx = ex ? listaTabelas(ex.tabelas) : [];
+    let corpo = '';
+    if(tipos.includes('nova')) corpo += `<div class="dv-cols um"><div class="dv-col"><div class="t">TEXTO NO SERVICENOW</div><div class="dv-txt">${esc(g.texto || '')}</div></div></div>`;
+    if(tipos.includes('texto')){ const [a, b] = linhasDiff(ex.texto, g.texto);
+      corpo += `<div class="dv-cols"><div class="dv-col"><div class="t">NA BASE</div><div class="dv-txt">${a}</div></div><div class="dv-col"><div class="t">NO SERVICENOW</div><div class="dv-txt">${b}</div></div></div>`; }
+    const info = [];
+    if(tipos.includes('nova')) info.push(`Entra como resposta nova · pilar <b>${esc(pilarDe(g))}</b> · ${tabSN.length} tabela(s): ${esc(tabSN.map(nomeTab).join(', ') || '—')}`);
+    if(tipos.includes('tab')){
+      const mais = tabSN.filter(t => !tabEx.includes(t)), menos = tabEx.filter(t => !tabSN.includes(t));
+      info.push(`Tabelas — ${mais.length ? 'no ServiceNow a mais: <b>' + esc(mais.map(nomeTab).join(', ')) + '</b>' : ''}${mais.length && menos.length ? ' · ' : ''}${menos.length ? 'só na base: <b>' + esc(menos.map(nomeTab).join(', ')) + '</b>' : ''}`);
+    }
+    if(tipos.includes('ativo')) info.push(`Ativo — na base: <b>${ex.ativo !== false ? 'sim' : 'não'}</b> · no ServiceNow: <b>${g.ativo ? 'sim' : 'não'}</b>`);
+    if(g.atualizadoEm || g.atualizadoPor) info.push(`Atualizado no ServiceNow: ${esc(g.atualizadoEm || '—')}${g.atualizadoPor ? ' por ' + esc(g.atualizadoPor) : ''}`);
+    return `<div class="dv-card" data-dv="${i}"><div class="dv-cab"><span class="n">${esc(g.nome)}</span>${tipos.map(t => `<span class="dv-tag ${t}">${rot[t]}</span>`).join('')}</div>
+      ${info.length ? `<div class="dv-info">${info.join('<br>')}</div>` : ''}${corpo}
+      <div class="dv-bts"><button type="button" class="btn btn-no" data-dvn="${i}">NÃO IMPORTAR</button><button type="button" class="btn btn-ok" data-dvs="${i}">IMPORTAR</button></div></div>`;
+  }).join('');
+  $$('[data-dvs]').forEach(b => b.onclick = () => decidirDiv(+b.dataset.dvs, true));
+  $$('[data-dvn]').forEach(b => b.onclick = () => decidirDiv(+b.dataset.dvn, false));
+}
+async function decidirDiv(i, importar){
+  const it = dv && dv.itens[i]; if(!it) return;
+  const card = document.querySelector(`[data-dv="${i}"]`);
+  card && card.querySelectorAll('button').forEach(b => b.disabled = true);
+  const { k, g, ex, snInfo, tabSN } = it;
+  try{
+    if(importar){
+      const agora = fmt(Date.now()), mud = {};
+      let id = it.id;
+      if(ex){
+        mud['respostas/' + id] = { ...ex, id, tabelas: tabSN, campo: g.campo || ex.campo || 'close_notes', ativo: !!g.ativo, texto: g.texto || ex.texto || '',
+          descricao: ex.descricao || g.descricao || '', codigo: ex.codigo || primeiroCodigo(g.texto), atualizadoEm: agora, atualizadoPor: 'Coletor ServiceNow', sn: snInfo };
+      } else {
+        dv.contador = Math.max(dv.contador, Number(await fb('contadores/R')) || 0) + 1;
+        id = 'R' + String(dv.contador).padStart(4, '0');
+        mud['respostas/' + id] = { id, nome: g.nome, pilar: pilarDe(g), subtema: 'A classificar', descricao: g.descricao || '', texto: g.texto || '',
+          tabelas: tabSN, campo: g.campo || 'close_notes', codigo: primeiroCodigo(g.texto), ativo: !!g.ativo, criadoEm: agora, atualizadoEm: agora,
+          atualizadoPor: 'Coletor ServiceNow', obs: '', sn: snInfo };
+        mud['contadores/R'] = dv.contador;
+      }
+      if(g.html) mud['respostasHtml/' + id] = g.html;
+      mud['servicenowIgnorados/' + k] = null;
+      await fb('', 'PATCH', mud);
+      await marcarVersao();
+      if(baseResp) baseResp[id] = mud['respostas/' + id];
+      registrar('Importou do Coletor ServiceNow', id + ' ' + g.nome, it.tipos.map(t => ({ nova:'nova', texto:'texto', tab:'tabelas', ativo:'ativo' })[t]).join(', '));
+      dv.importadas++; toast(ex ? 'RESPOSTA ATUALIZADA COM O SERVICENOW' : 'RESPOSTA NOVA IMPORTADA (' + id + ')');
+    } else {
+      await fb('servicenowIgnorados/' + k, 'PUT', { assinatura: assinaturaSN(g), nome: g.nome, por: me ? titulo(me.nome) : '', em: Date.now() });
+      registrar('Não importou do Coletor ServiceNow', (it.id ? it.id + ' ' : '') + g.nome, it.tipos.join(', '));
+      dv.recusadas++;
+    }
+    if(card){ card.classList.add('saindo'); await new Promise(r => setTimeout(r, 250)); }
+    dv.itens.splice(i, 1);
+    renderDiv();
+    if(!dv.itens.length){ await fb('servicenowMeta/aplicadoEm', 'PUT', Date.now()); statusSN(); }
+  }catch(e){
+    toast('NÃO FOI POSSÍVEL ' + (importar ? 'IMPORTAR' : 'SALVAR') + ': ' + e.message, true);
+    card && card.querySelectorAll('button').forEach(b => b.disabled = false);
+  }
+}
 
 const TEXTO_PADRAO = 'Prezado(a),\n\nInformamos que\n\nAgradecemos pelo contato e permanecemos à disposição.\n\nAtenciosamente,\nServiço de Atendimento ao Cidadão.';
 function abrirForm(base){
