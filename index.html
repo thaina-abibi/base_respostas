@@ -138,6 +138,26 @@ nav button.nav-api:hover{color:#f5d90a;border-color:#f5d90a}
 .tn-op small{display:block;font-size:12px;color:#666;letter-spacing:.3px;line-height:1.45}
 .tn-op:hover{border-color:#2f3d22;background:#f3f8ee}
 .tn-op:focus-visible{outline:3px solid #f5d90a}
+.tn-op b{margin-bottom:0}
+.tn-excluir{display:block;margin:10px auto 0;border:0;background:none;color:#a33;font-size:12px;letter-spacing:2px;text-decoration:underline;cursor:pointer;font-family:inherit}
+.tn-excluir:hover{color:#7a1f1f}
+.flut{position:fixed;top:110px;right:30px;z-index:30;width:min(460px,calc(100vw - 32px));background:#f3f6ee;border-radius:14px;box-shadow:0 14px 44px rgba(0,0,0,.3);overflow:hidden}
+.flut[hidden]{display:none}
+.flut-cab{display:flex;align-items:center;gap:8px;background:#2f3d22;color:#fff;padding:12px 14px 12px 18px;cursor:move;user-select:none;font-family:'Ubuntu',sans-serif;font-weight:500;letter-spacing:.3em;font-size:14px}
+.flut-cab span{flex:1}
+.flut-bt{border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:8px;width:30px;height:28px;cursor:pointer;font-size:14px}
+.flut-bt:hover{background:#f5d90a;color:#2f3d22}
+.flut.min{width:300px}
+.flut.min .flut-corpo{display:none}
+.flut-corpo{padding:16px 18px 18px}
+.ex-l{font-size:11.5px;letter-spacing:2px;font-weight:600;color:#55604a;margin:0 0 6px}
+#exBusca{width:100%;height:42px;border:0;border-radius:12px;background:#fff;padding:0 14px;font-family:inherit;font-size:14px;margin-bottom:14px}
+.ex-nome{display:flex;align-items:center;gap:10px;background:#fff;border-radius:12px;padding:8px 8px 8px 14px;margin-bottom:12px}
+.ex-nome span{flex:1;font-size:14px;letter-spacing:.3px;overflow-wrap:anywhere}
+.ex-nome .btn{flex:none;font-size:12px;padding:7px 12px}
+.ex-passos{margin:0 0 14px;padding-left:20px;font-size:13px;line-height:1.6;letter-spacing:.2px}
+.ex-bts{display:flex;flex-wrap:wrap;gap:8px}
+.ex-bts .btn{font-size:12px;padding:9px 14px}
 #rDescLivre{border:1px solid #cfd4c6;border-radius:10px;background:#fff;padding:9px 12px;font-size:15px}
 .modo-servico .bolinhas{opacity:.55}
 .dlg [hidden]{display:none!important}
@@ -637,10 +657,32 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
     <div class="tn-corpo">
       <p>Para onde é esta resposta?</p>
       <div class="tn-ops">
-        <button type="button" class="tn-op" data-tipo="sac"><b>SAC</b><small>7 tabelas do SAC · pilar, descrição da lista e código invisível</small></button>
-        <button type="button" class="tn-op" data-tipo="servico"><b>SERVIÇO</b><small>tabela Caso · descrição livre, sem código e fora do App 02</small></button>
+        <button type="button" class="tn-op" data-tipo="sac"><b>SAC</b></button>
+        <button type="button" class="tn-op" data-tipo="servico"><b>SERVIÇO</b></button>
       </div>
+      <button type="button" class="tn-excluir" id="tnExcluir">excluir</button>
       <div class="acts" style="margin-top:14px"><button type="button" class="btn btn-no" id="tnCancelar">CANCELAR</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="flut" id="pExcluir" role="dialog" aria-labelledby="exTit" hidden>
+  <div class="flut-cab" id="exCab"><span id="exTit">EXCLUIR RESPOSTA</span><button type="button" class="flut-bt" id="exMin" title="Minimizar">—</button><button type="button" class="flut-bt" id="exFechar" title="Fechar">✕</button></div>
+  <div class="flut-corpo" id="exCorpo">
+    <div id="exEscolha">
+      <div class="ex-l">QUAL RESPOSTA VAI EXCLUIR?</div>
+      <input id="exBusca" list="exLista" placeholder="Digite para procurar a resposta" autocomplete="off">
+      <datalist id="exLista"></datalist>
+    </div>
+    <div class="ex-l">NOME DA RESPOSTA</div>
+    <div class="ex-nome"><span id="exNome">—</span><button type="button" class="btn btn-copiar" id="exCopiarNome">📋 COPIAR NOME</button></div>
+    <ol class="ex-passos">
+      <li>Clique em <b>COPIAR API DE EXCLUSÃO</b> e cole no console (F12) do ServiceNow, na lista das respostas.</li>
+      <li>Clique em <b>COPIAR NOME</b> e cole no painel "Excluir por nome" que aparece por lá.</li>
+    </ol>
+    <div class="ex-bts">
+      <button type="button" class="btn btn-dark" id="exCopiarApi">📋 COPIAR API DE EXCLUSÃO</button>
+      <button type="button" class="btn btn-no" id="exBase">EXCLUIR TAMBÉM DA BASE DO APP</button>
     </div>
   </div>
 </div>
@@ -1243,6 +1285,121 @@ ${corpo}
 
 </script>
 
+<script type="text/plain" id="codigo-excluir">
+(() => {
+  const TABELA_PADRAO = 'sys_cs_canned_response';
+  const SO_INATIVOS   = true;
+  const CONFIRMAR     = true;
+  const PARALELO      = 5;
+
+  const m = (location.href + document.referrer).match(/([a-z0-9_]+)_list\.do/i);
+  const tabela = m ? m[1] : TABELA_PADRAO;
+
+  const token = (() => {
+    try { return window.g_ck || window.top.g_ck || ''; } catch (e) { return window.g_ck || ''; }
+  })();
+  const headers = { Accept: 'application/json', ...(token && { 'X-UserToken': token }) };
+
+  async function buscar(nome, modo) {
+    const op = modo === 'exato' ? '=' : 'LIKE';
+    let q = `name${op}${nome}` + (SO_INATIVOS ? '^active=false' : '');
+    const qs = new URLSearchParams({ sysparm_query: q, sysparm_fields: 'sys_id,name', sysparm_limit: '10000' });
+    const r = await fetch(`/api/now/table/${tabela}?${qs}`, { headers, credentials: 'same-origin' });
+    if (!r.ok) throw new Error(`Busca falhou (HTTP ${r.status})`);
+    return (await r.json()).result;
+  }
+
+  async function excluir(ids, onProgress) {
+    let i = 0, ok = 0, erro = 0;
+    async function worker() {
+      while (i < ids.length) {
+        const id = ids[i++];
+        try {
+          const r = await fetch(`/api/now/table/${tabela}/${id}`, { method: 'DELETE', headers, credentials: 'same-origin' });
+          r.ok ? ok++ : erro++;
+        } catch (e) { erro++; }
+        onProgress(ok + erro, ids.length);
+      }
+    }
+    await Promise.all(Array.from({ length: PARALELO }, worker));
+    return { ok, erro };
+  }
+
+  document.getElementById('exr-painel')?.remove();
+  const p = document.createElement('div');
+  p.id = 'exr-painel';
+  p.style.cssText = 'position:fixed;top:80px;right:20px;z-index:2147483647;width:320px;background:#fdf3f3;' +
+    'border:1px solid #f1d0d0;border-radius:14px;padding:16px;box-shadow:0 6px 24px rgba(200,120,120,.25);' +
+    'font:14px system-ui,sans-serif;color:#5b2a2a';
+  p.innerHTML = `
+    <div id="exr-cab" style="font-weight:700;color:#8a3a3a;display:flex;align-items:center;gap:10px;cursor:move;user-select:none">
+      <span style="flex:1">Excluir por nome</span>
+      <span id="exr-min" title="Minimizar" style="cursor:pointer;color:#c98a8a;font-size:16px;line-height:1">—</span>
+      <span id="exr-x" title="Fechar" style="cursor:pointer;color:#c98a8a">✕</span></div>
+    <div id="exr-corpo" style="margin-top:10px">
+    <input id="exr-nome" placeholder="Nome da resposta" style="width:100%;padding:9px 10px;border:1px solid #f1d0d0;border-radius:9px;background:#fffafa;box-sizing:border-box">
+    <select id="exr-modo" style="width:100%;margin-top:8px;padding:8px;border:1px solid #f1d0d0;border-radius:9px;background:#fffafa">
+      <option value="exato">Nome exato</option><option value="contem">Contém o texto</option></select>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button id="exr-prev" style="flex:1;padding:10px;border:0;border-radius:9px;background:#fbe4e4;color:#8a3a3a;font-weight:600;cursor:pointer">Pré-visualizar</button>
+      <button id="exr-del"  style="flex:1;padding:10px;border:0;border-radius:9px;background:#eeaeae;color:#6b2222;font-weight:600;cursor:pointer">Excluir</button></div>
+    <div style="height:7px;background:#fbe4e4;border-radius:9px;margin-top:12px;overflow:hidden"><div id="exr-fill" style="height:100%;width:0;background:#e59595"></div></div>
+    <div id="exr-msg" style="margin-top:10px;font-size:12.5px;color:#8a3a3a;min-height:18px">Tabela: ${tabela}</div>
+    </div>`;
+  document.body.appendChild(p);
+
+  const $ = id => p.querySelector('#' + id);
+  const msg = t => ($('exr-msg').textContent = t);
+  const trava = v => { $('exr-prev').disabled = v; $('exr-del').disabled = v; };
+  $('exr-x').onclick = () => p.remove();
+
+  let minimizado = false;
+  $('exr-min').onclick = () => {
+    minimizado = !minimizado;
+    $('exr-corpo').style.display = minimizado ? 'none' : '';
+    $('exr-min').textContent = minimizado ? '▢' : '—';
+    $('exr-min').title = minimizado ? 'Restaurar' : 'Minimizar';
+    p.style.width = minimizado ? '220px' : '320px';
+    p.style.padding = minimizado ? '10px 16px' : '16px';
+  };
+
+  $('exr-cab').addEventListener('mousedown', e => {
+    if (e.target.id === 'exr-x' || e.target.id === 'exr-min') return;
+    e.preventDefault();
+    const r = p.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+    const mover = ev => {
+      p.style.left = Math.max(0, Math.min(window.innerWidth - 60, ev.clientX - dx)) + 'px';
+      p.style.top = Math.max(0, Math.min(window.innerHeight - 40, ev.clientY - dy)) + 'px';
+      p.style.right = 'auto';
+    };
+    document.addEventListener('mousemove', mover);
+    document.addEventListener('mouseup', () => document.removeEventListener('mousemove', mover), { once: true });
+  });
+
+  $('exr-prev').onclick = async () => {
+    const nome = $('exr-nome').value.trim(); if (!nome) return msg('Digite o nome.');
+    try { trava(true); const l = await buscar(nome, $('exr-modo').value); msg(`${l.length} registro(s) encontrado(s).`); console.table(l); }
+    catch (e) { msg('Erro: ' + e.message); } finally { trava(false); }
+  };
+
+  $('exr-del').onclick = async () => {
+    const nome = $('exr-nome').value.trim(); if (!nome) return msg('Digite o nome.');
+    try {
+      trava(true);
+      const l = await buscar(nome, $('exr-modo').value);
+      if (!l.length) return msg('Nenhum registro encontrado.');
+      if (CONFIRMAR && !confirm(`Excluir ${l.length} registro(s) de "${nome}"?\nNão pode ser desfeito.`)) return msg('Cancelado.');
+      const { ok, erro } = await excluir(l.map(x => x.sys_id), (f, t) => {
+        $('exr-fill').style.width = (f / t * 100) + '%'; msg(`Excluindo… ${f}/${t}`);
+      });
+      msg(`Concluído: ${ok} excluído(s), ${erro} erro(s).`);
+    } catch (e) { msg('Erro: ' + e.message); } finally { trava(false); }
+  };
+
+  $('exr-nome').addEventListener('keydown', e => { if (e.key === 'Enter') $('exr-del').click(); });
+  if (!token) msg('Aviso: token (g_ck) não encontrado. Se der HTTP 401, rode o código no frame da lista.');
+})();
+</script>
 <script type="text/plain" id="codigo-correcao">
 (async () => {
   const PILARES = {
@@ -2942,7 +3099,7 @@ $$('[data-min]').forEach(b => b.onclick = e => {
 ['copy','cut','dragstart','contextmenu'].forEach(ev => $('#rCod').addEventListener(ev, e => e.preventDefault()));
 
 
-$('#rExcluir').onclick = async () => { if(!editandoResp) return fecharResp(); const id = editandoResp; fecharResp(); await excluirRespostas([id]); };
+$('#rExcluir').onclick = () => { if(!editandoResp) return fecharResp(); const id = editandoResp; fecharResp(); abrirExcluir(id); };
 $('#rCancel').onclick = fecharResp;
 $('#mResp').onclick = e => { if(e.target.id === 'mResp') fecharResp(); };
 $('#fResp').onsubmit = async e => {
@@ -3658,6 +3815,58 @@ $('#btnNova').onclick = () => {
   $('#mTipoNova').classList.add('on'); setTimeout(() => $('#mTipoNova .tn-op').focus(), 50);
 };
 $('#tnCancelar').onclick = () => $('#mTipoNova').classList.remove('on');
+$('#tnExcluir').onclick = () => { $('#mTipoNova').classList.remove('on'); abrirExcluir(''); };
+
+let excluindoId = '';
+async function abrirExcluir(id){
+  const p = $('#pExcluir');
+  p.hidden = false; p.classList.remove('min'); $('#exMin').textContent = '—'; $('#exMin').title = 'Minimizar';
+  $('#exEscolha').hidden = !!id;
+  $('#exBusca').value = '';
+  escolherExcluir(id);
+  if(!id){
+    await carregarBase();
+    $('#exLista').innerHTML = Object.keys(baseResp || {}).map(k => baseResp[k] && baseResp[k].nome).filter(Boolean)
+      .sort((a, b) => a.localeCompare(b, 'pt-BR', { numeric:true })).map(n => `<option value="${esc(n)}"></option>`).join('');
+    setTimeout(() => $('#exBusca').focus(), 50);
+  }
+}
+function escolherExcluir(id){
+  const r = id && baseResp && baseResp[id];
+  excluindoId = r ? id : '';
+  $('#exNome').textContent = r ? r.nome : 'Escolha a resposta acima';
+  $('#exCopiarNome').disabled = !r;
+  $('#exBase').disabled = !r;
+}
+$('#exBusca').addEventListener('input', () => {
+  const v = normN($('#exBusca').value);
+  escolherExcluir(Object.keys(baseResp || {}).find(k => baseResp[k] && normN(baseResp[k].nome) === v) || '');
+});
+$('#exCopiarNome').onclick = () => { if(excluindoId) copiarTexto(baseResp[excluindoId].nome, 'NOME COPIADO — COLE NO PAINEL "EXCLUIR POR NOME"'); };
+$('#exCopiarApi').onclick = () => copiarTexto($('#codigo-excluir').textContent.trim(), 'API DE EXCLUSÃO COPIADA — COLE NO CONSOLE (F12) DO SERVICENOW');
+$('#exBase').onclick = async () => {
+  if(!excluindoId) return;
+  const id = excluindoId, nome = baseResp[id].nome;
+  await excluirRespostas([id]);
+  if(!baseResp[id]){ $('#exNome').textContent = nome + ' (excluída da base do app)'; excluindoId = ''; $('#exBase').disabled = true; }
+};
+$('#exFechar').onclick = () => { $('#pExcluir').hidden = true; };
+$('#exMin').onclick = () => {
+  const min = $('#pExcluir').classList.toggle('min');
+  $('#exMin').textContent = min ? '▢' : '—'; $('#exMin').title = min ? 'Restaurar' : 'Minimizar';
+};
+$('#exCab').addEventListener('mousedown', e => {
+  if(e.target.closest('.flut-bt')) return;
+  e.preventDefault();
+  const p = $('#pExcluir'), r = p.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+  const mover = ev => {
+    p.style.left = Math.max(0, Math.min(innerWidth - 80, ev.clientX - dx)) + 'px';
+    p.style.top = Math.max(0, Math.min(innerHeight - 50, ev.clientY - dy)) + 'px';
+    p.style.right = 'auto';
+  };
+  document.addEventListener('mousemove', mover);
+  document.addEventListener('mouseup', () => document.removeEventListener('mousemove', mover), { once: true });
+});
 $('#mTipoNova').onclick = e => { if(e.target.id === 'mTipoNova') $('#mTipoNova').classList.remove('on'); };
 $$('#mTipoNova [data-tipo]').forEach(b => b.onclick = async () => {
   $('#mTipoNova').classList.remove('on');
