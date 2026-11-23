@@ -460,6 +460,14 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
 .dv-txt .sai{background:#f9dede;text-decoration:line-through;text-decoration-color:#c77}
 .dv-txt .ent{background:#dcefcf}
 .dv-bts{display:flex;justify-content:flex-end;gap:8px}
+.dv-lote{position:sticky;top:-20px;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#e7eedd;border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;letter-spacing:.4px}
+.dv-lote .rot{font-weight:600;letter-spacing:1.5px;color:#3d4a30}
+.dv-sel{border:1px solid #b5c99d;background:#fff;color:#2f3d22;border-radius:20px;padding:4px 12px;font-size:11.5px;letter-spacing:1.5px;font-weight:600;cursor:pointer;font-family:inherit}
+.dv-sel:hover{background:#f5d90a;border-color:#d8bd00}
+.dv-lote .cont{margin-left:auto;font-weight:600}
+.dv-lote .btn{padding:7px 14px;font-size:12px}
+.dv-ck{width:18px;height:18px;accent-color:#2f3d22;cursor:pointer;flex:none}
+.dv-card.dv-marcada{box-shadow:0 0 0 2px #9bb57f}
 .dv-bts .btn{padding:8px 16px;font-size:12.5px}
 @media (max-width:760px){.dv-cols{grid-template-columns:1fr}}
 .stcell{display:flex;flex-direction:column;align-items:center;gap:8px}
@@ -3862,7 +3870,15 @@ function renderDiv(){
     + (dv.ignoradas ? ` · ${dv.ignoradas} já marcada(s) antes como "não importar"` : '')
     + (dv.fora ? ` · ${dv.fora} resposta(s) da base não existem no ServiceNow (ficam como estão)` : '') + '</div>';
   if(!l.length){ $('#snDiv').innerHTML = resumo + '<div class="empty" style="padding:18px">Nada divergente: a base está igual ao ServiceNow. 🎉</div>'; return; }
-  $('#snDiv').innerHTML = resumo + l.map((it, i) => {
+  dv.sel = new Set([...(dv.sel || [])].filter(x => l.includes(x)));
+  const nSel = dv.sel.size;
+  const lote = `<div class="dv-lote"><span class="rot">SELECIONAR:</span><button type="button" class="dv-sel" data-dvt="todas">TODAS</button>`
+    + ['nova','texto','tab','ativo'].filter(t => cnt(t)).map(t => `<button type="button" class="dv-sel" data-dvt="${t}">${rot[t]} (${cnt(t)})</button>`).join('')
+    + (nSel ? `<button type="button" class="dv-sel" data-dvt="nenhuma">LIMPAR</button>` : '')
+    + `<span class="cont">${nSel} selecionada${nSel === 1 ? '' : 's'}</span>`
+    + `<button type="button" class="btn btn-no" id="dvLoteNao"${nSel ? '' : ' disabled'}>NÃO IMPORTAR SELECIONADAS</button>`
+    + `<button type="button" class="btn btn-ok" id="dvLoteSim"${nSel ? '' : ' disabled'}>IMPORTAR SELECIONADAS</button></div>`;
+  $('#snDiv').innerHTML = resumo + lote + l.map((it, i) => {
     const { g, ex, tipos, tabSN } = it;
     const tabEx = ex ? listaTabelas(ex.tabelas) : [];
     let corpo = '';
@@ -3877,35 +3893,80 @@ function renderDiv(){
     }
     if(tipos.includes('ativo')) info.push(`Ativo — na base: <b>${ex.ativo !== false ? 'sim' : 'não'}</b> · no ServiceNow: <b>${g.ativo ? 'sim' : 'não'}</b>`);
     if(g.atualizadoEm || g.atualizadoPor) info.push(`Atualizado no ServiceNow: ${esc(g.atualizadoEm || '—')}${g.atualizadoPor ? ' por ' + esc(g.atualizadoPor) : ''}`);
-    return `<div class="dv-card" data-dv="${i}"><div class="dv-cab"><span class="n">${esc(g.nome)}</span>${tipos.map(t => `<span class="dv-tag ${t}">${rot[t]}</span>`).join('')}</div>
+    return `<div class="dv-card${dv.sel.has(it) ? ' dv-marcada' : ''}" data-dv="${i}"><div class="dv-cab"><input type="checkbox" class="dv-ck" data-dvc="${i}"${dv.sel.has(it) ? ' checked' : ''} title="Selecionar"><span class="n">${esc(g.nome)}</span>${tipos.map(t => `<span class="dv-tag ${t}">${rot[t]}</span>`).join('')}</div>
       ${info.length ? `<div class="dv-info">${info.join('<br>')}</div>` : ''}${corpo}
       <div class="dv-bts"><button type="button" class="btn btn-no" data-dvn="${i}">NÃO IMPORTAR</button><button type="button" class="btn btn-ok" data-dvs="${i}">IMPORTAR</button></div></div>`;
   }).join('');
   $$('[data-dvs]').forEach(b => b.onclick = () => decidirDiv(+b.dataset.dvs, true));
   $$('[data-dvn]').forEach(b => b.onclick = () => decidirDiv(+b.dataset.dvn, false));
+  $$('[data-dvc]').forEach(c => c.onchange = () => { const it = l[+c.dataset.dvc]; c.checked ? dv.sel.add(it) : dv.sel.delete(it); renderDiv(); });
+  $$('[data-dvt]').forEach(b => b.onclick = () => {
+    const t = b.dataset.dvt;
+    if(t === 'nenhuma') dv.sel.clear();
+    else l.filter(x => t === 'todas' || x.tipos.includes(t)).forEach(x => dv.sel.add(x));
+    renderDiv();
+  });
+  $('#dvLoteNao').onclick = () => decidirLote(false);
+  $('#dvLoteSim').onclick = () => decidirLote(true);
+}
+function montarImportacao(it, agora, mud){
+  const { k, g, ex, snInfo, tabSN } = it;
+  let id = it.id;
+  if(ex){
+    mud['respostas/' + id] = { ...ex, id, tabelas: tabSN, campo: g.campo || ex.campo || 'close_notes', ativo: !!g.ativo, texto: g.texto || ex.texto || '',
+      descricao: ex.descricao || g.descricao || '', codigo: ex.codigo || primeiroCodigo(g.texto), atualizadoEm: agora, atualizadoPor: 'Coletor ServiceNow', sn: snInfo };
+  } else {
+    dv.contador++;
+    id = 'R' + String(dv.contador).padStart(4, '0');
+    mud['respostas/' + id] = { id, nome: g.nome, pilar: pilarDe(g), subtema: 'A classificar', descricao: g.descricao || '', texto: g.texto || '',
+      tabelas: tabSN, campo: g.campo || 'close_notes', codigo: primeiroCodigo(g.texto), ativo: !!g.ativo, criadoEm: agora, atualizadoEm: agora,
+      atualizadoPor: 'Coletor ServiceNow', obs: '', sn: snInfo };
+    mud['contadores/R'] = dv.contador;
+  }
+  if(g.html) mud['respostasHtml/' + id] = g.html;
+  mud['servicenowIgnorados/' + k] = null;
+  return id;
+}
+async function decidirLote(importar){
+  const sel = dv.itens.filter(x => dv.sel.has(x)); if(!sel.length) return;
+  const n = sel.length;
+  if(!confirm(`${importar ? 'IMPORTAR' : 'NÃO IMPORTAR'} ${n} divergência${n > 1 ? 's' : ''} selecionada${n > 1 ? 's' : ''}?` +
+    (importar ? '\n\nA base de respostas vai ficar igual ao ServiceNow nesses modelos.' : '\n\nElas não voltam a aparecer, a não ser que o modelo mude de novo no ServiceNow.'))) return;
+  $$('#snDiv button, #snDiv input').forEach(b => b.disabled = true);
+  try{
+    const mud = {}, agora = fmt(Date.now()), quem = me ? titulo(me.nome) : '';
+    if(importar){
+      if(sel.some(x => !x.ex)) dv.contador = Math.max(dv.contador, Number(await fb('contadores/R')) || 0);
+      sel.forEach(it => { const id = montarImportacao(it, agora, mud); if(baseResp) baseResp[id] = mud['respostas/' + id]; });
+    } else {
+      sel.forEach(it => { mud['servicenowIgnorados/' + it.k] = { assinatura: assinaturaSN(it.g), nome: it.g.nome, por: quem, em: Date.now() }; });
+    }
+    const chaves = Object.keys(mud);
+    for(let i = 0; i < chaves.length; i += 200){
+      const parte = {}; chaves.slice(i, i + 200).forEach(c => parte[c] = mud[c]);
+      await fb('', 'PATCH', parte);
+      snLog(`Gravando… ${Math.min(i + 200, chaves.length)} de ${chaves.length}`);
+    }
+    if(importar) await marcarVersao();
+    registrar(importar ? 'Importou do Coletor ServiceNow (em lote)' : 'Não importou do Coletor ServiceNow (em lote)', `${n} modelo${n > 1 ? 's' : ''}`,
+      sel.map(x => x.g.nome).join('; ').slice(0, 1500));
+    importar ? dv.importadas += n : dv.recusadas += n;
+    dv.itens = dv.itens.filter(x => !dv.sel.has(x)); dv.sel.clear();
+    snLog(''); renderDiv();
+    toast(`${n} ${importar ? 'IMPORTADA' : 'MARCADA COMO NÃO IMPORTAR'}${n > 1 ? 'S' : ''}`);
+    if(!dv.itens.length){ await fb('servicenowMeta/aplicadoEm', 'PUT', Date.now()); statusSN(); }
+  }catch(e){ toast('NÃO FOI POSSÍVEL CONCLUIR: ' + e.message, true); snLog('Não foi possível concluir: ' + e.message, true); renderDiv(); }
 }
 async function decidirDiv(i, importar){
   const it = dv && dv.itens[i]; if(!it) return;
   const card = document.querySelector(`[data-dv="${i}"]`);
-  card && card.querySelectorAll('button').forEach(b => b.disabled = true);
-  const { k, g, ex, snInfo, tabSN } = it;
+  card && card.querySelectorAll('button, input').forEach(b => b.disabled = true);
+  const { k, g, ex } = it;
   try{
     if(importar){
-      const agora = fmt(Date.now()), mud = {};
-      let id = it.id;
-      if(ex){
-        mud['respostas/' + id] = { ...ex, id, tabelas: tabSN, campo: g.campo || ex.campo || 'close_notes', ativo: !!g.ativo, texto: g.texto || ex.texto || '',
-          descricao: ex.descricao || g.descricao || '', codigo: ex.codigo || primeiroCodigo(g.texto), atualizadoEm: agora, atualizadoPor: 'Coletor ServiceNow', sn: snInfo };
-      } else {
-        dv.contador = Math.max(dv.contador, Number(await fb('contadores/R')) || 0) + 1;
-        id = 'R' + String(dv.contador).padStart(4, '0');
-        mud['respostas/' + id] = { id, nome: g.nome, pilar: pilarDe(g), subtema: 'A classificar', descricao: g.descricao || '', texto: g.texto || '',
-          tabelas: tabSN, campo: g.campo || 'close_notes', codigo: primeiroCodigo(g.texto), ativo: !!g.ativo, criadoEm: agora, atualizadoEm: agora,
-          atualizadoPor: 'Coletor ServiceNow', obs: '', sn: snInfo };
-        mud['contadores/R'] = dv.contador;
-      }
-      if(g.html) mud['respostasHtml/' + id] = g.html;
-      mud['servicenowIgnorados/' + k] = null;
+      const mud = {};
+      if(!ex) dv.contador = Math.max(dv.contador, Number(await fb('contadores/R')) || 0);
+      const id = montarImportacao(it, fmt(Date.now()), mud);
       await fb('', 'PATCH', mud);
       await marcarVersao();
       if(baseResp) baseResp[id] = mud['respostas/' + id];
@@ -3917,12 +3978,13 @@ async function decidirDiv(i, importar){
       dv.recusadas++;
     }
     if(card){ card.classList.add('saindo'); await new Promise(r => setTimeout(r, 250)); }
-    dv.itens.splice(i, 1);
+    dv.itens.splice(dv.itens.indexOf(it), 1);
+    if(dv.sel) dv.sel.delete(it);
     renderDiv();
     if(!dv.itens.length){ await fb('servicenowMeta/aplicadoEm', 'PUT', Date.now()); statusSN(); }
   }catch(e){
     toast('NÃO FOI POSSÍVEL ' + (importar ? 'IMPORTAR' : 'SALVAR') + ': ' + e.message, true);
-    card && card.querySelectorAll('button').forEach(b => b.disabled = false);
+    card && card.querySelectorAll('button, input').forEach(b => b.disabled = false);
   }
 }
 
