@@ -1288,25 +1288,47 @@ ${corpo}
 <script type="text/plain" id="codigo-excluir">
 (() => {
   const TABELA_PADRAO = 'sys_cs_canned_response';
-  const SO_INATIVOS   = true;
   const CONFIRMAR     = true;
   const PARALELO      = 5;
 
-  const m = (location.href + document.referrer).match(/([a-z0-9_]+)_list\.do/i);
-  const tabela = m ? m[1] : TABELA_PADRAO;
+  const frame = (() => { try { return document.querySelector('iframe#gsft_main')?.contentWindow || null; } catch (e) { return null; } })();
+  const urls = [location.href, document.referrer, (() => { try { return frame?.location.href || ''; } catch (e) { return ''; } })()]
+    .map(u => { try { return decodeURIComponent(u); } catch (e) { return u; } }).join(' ');
+  const m = urls.match(/([a-z0-9_]+)_list\.do/i);
+  const tabelaInicial = m ? m[1] : TABELA_PADRAO;
+  const tabela = () => (p.querySelector('#exr-tab').value.trim() || TABELA_PADRAO);
+  const soInativos = () => p.querySelector('#exr-inat').checked;
 
   const token = (() => {
-    try { return window.g_ck || window.top.g_ck || ''; } catch (e) { return window.g_ck || ''; }
+    for (const f of [() => window.g_ck, () => frame?.g_ck, () => window.top.g_ck]) { try { const v = f(); if (v) return v; } catch (e) {} }
+    return '';
   })();
   const headers = { Accept: 'application/json', ...(token && { 'X-UserToken': token }) };
 
-  async function buscar(nome, modo) {
-    const op = modo === 'exato' ? '=' : 'LIKE';
-    let q = `name${op}${nome}` + (SO_INATIVOS ? '^active=false' : '');
-    const qs = new URLSearchParams({ sysparm_query: q, sysparm_fields: 'sys_id,name', sysparm_limit: '10000' });
-    const r = await fetch(`/api/now/table/${tabela}?${qs}`, { headers, credentials: 'same-origin' });
-    if (!r.ok) throw new Error(`Busca falhou (HTTP ${r.status})`);
+  async function consultar(q) {
+    const qs = new URLSearchParams({ sysparm_query: q, sysparm_fields: 'sys_id,name,active', sysparm_limit: '10000' });
+    const r = await fetch(`/api/now/table/${tabela()}?${qs}`, { headers, credentials: 'same-origin' });
+    if (!r.ok) throw new Error(`Busca falhou (HTTP ${r.status})` + (r.status === 403 ? ' — sem permissão nesta tabela' : r.status === 401 ? ' — sessão/token' : ''));
     return (await r.json()).result;
+  }
+  const limpar = t => String(t).replace(/\u00a0/g, ' ').replace(/\s+/g, ' ').trim();
+  async function buscar(nome, modo) {
+    nome = limpar(nome);
+    const inat = soInativos() ? '^active=false' : '';
+    if (modo !== 'exato') return consultar(`nameLIKE${nome}${inat}`);
+    let l = await consultar(`name=${nome}${inat}`);
+    if (!l.length) l = (await consultar(`nameLIKE${nome}${inat}`)).filter(x => limpar(x.name).toLowerCase() === nome.toLowerCase());
+    return l;
+  }
+  async function explicarZero(nome) {
+    nome = limpar(nome);
+    if (soInativos()) {
+      const todos = (await consultar(`nameLIKE${nome}`)).filter(x => limpar(x.name).toLowerCase() === nome.toLowerCase());
+      if (todos.length) return `0 inativos. Existem ${todos.length} registro(s) ATIVO(S) com esse nome — desmarque "Só inativos".`;
+    }
+    const parecidos = await consultar(`nameLIKE${nome.slice(0, 40)}`);
+    if (parecidos.length) return `0 com esse nome exato, mas ${parecidos.length} parecido(s) — veja a lista no Console (F12) ou use "Contém o texto".`;
+    return `Nenhum registro encontrado na tabela ${tabela()}. Confira a tabela acima.`;
   }
 
   async function excluir(ids, onProgress) {
@@ -1315,7 +1337,7 @@ ${corpo}
       while (i < ids.length) {
         const id = ids[i++];
         try {
-          const r = await fetch(`/api/now/table/${tabela}/${id}`, { method: 'DELETE', headers, credentials: 'same-origin' });
+          const r = await fetch(`/api/now/table/${tabela()}/${id}`, { method: 'DELETE', headers, credentials: 'same-origin' });
           r.ok ? ok++ : erro++;
         } catch (e) { erro++; }
         onProgress(ok + erro, ids.length);
@@ -1340,11 +1362,16 @@ ${corpo}
     <input id="exr-nome" placeholder="Nome da resposta" style="width:100%;padding:9px 10px;border:1px solid #f1d0d0;border-radius:9px;background:#fffafa;box-sizing:border-box">
     <select id="exr-modo" style="width:100%;margin-top:8px;padding:8px;border:1px solid #f1d0d0;border-radius:9px;background:#fffafa">
       <option value="exato">Nome exato</option><option value="contem">Contém o texto</option></select>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12.5px">
+      <span>Tabela</span>
+      <input id="exr-tab" list="exr-tabs" value="${tabelaInicial}" style="flex:1;min-width:0;padding:7px 9px;border:1px solid #f1d0d0;border-radius:9px;background:#fffafa;font-size:12.5px">
+      <datalist id="exr-tabs"><option value="sys_template"><option value="sys_cs_canned_response"></datalist></div>
+    <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12.5px;cursor:pointer"><input type="checkbox" id="exr-inat"> Só inativos (Ativo = falso)</label>
     <div style="display:flex;gap:8px;margin-top:10px">
       <button id="exr-prev" style="flex:1;padding:10px;border:0;border-radius:9px;background:#fbe4e4;color:#8a3a3a;font-weight:600;cursor:pointer">Pré-visualizar</button>
       <button id="exr-del"  style="flex:1;padding:10px;border:0;border-radius:9px;background:#eeaeae;color:#6b2222;font-weight:600;cursor:pointer">Excluir</button></div>
     <div style="height:7px;background:#fbe4e4;border-radius:9px;margin-top:12px;overflow:hidden"><div id="exr-fill" style="height:100%;width:0;background:#e59595"></div></div>
-    <div id="exr-msg" style="margin-top:10px;font-size:12.5px;color:#8a3a3a;min-height:18px">Tabela: ${tabela}</div>
+    <div id="exr-msg" style="margin-top:10px;font-size:12.5px;color:#8a3a3a;min-height:18px"></div>
     </div>`;
   document.body.appendChild(p);
 
@@ -1378,7 +1405,7 @@ ${corpo}
 
   $('exr-prev').onclick = async () => {
     const nome = $('exr-nome').value.trim(); if (!nome) return msg('Digite o nome.');
-    try { trava(true); const l = await buscar(nome, $('exr-modo').value); msg(`${l.length} registro(s) encontrado(s).`); console.table(l); }
+    try { trava(true); const l = await buscar(nome, $('exr-modo').value); msg(l.length ? `${l.length} registro(s) encontrado(s).` : await explicarZero(nome)); console.table(l); }
     catch (e) { msg('Erro: ' + e.message); } finally { trava(false); }
   };
 
@@ -1387,7 +1414,7 @@ ${corpo}
     try {
       trava(true);
       const l = await buscar(nome, $('exr-modo').value);
-      if (!l.length) return msg('Nenhum registro encontrado.');
+      if (!l.length) return msg(await explicarZero(nome));
       if (CONFIRMAR && !confirm(`Excluir ${l.length} registro(s) de "${nome}"?\nNão pode ser desfeito.`)) return msg('Cancelado.');
       const { ok, erro } = await excluir(l.map(x => x.sys_id), (f, t) => {
         $('exr-fill').style.width = (f / t * 100) + '%'; msg(`Excluindo… ${f}/${t}`);
