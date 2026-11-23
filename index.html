@@ -803,7 +803,7 @@ main{flex:1;min-width:0;height:100%;overflow:hidden;position:relative}
               <li>Clique em <b>Copiar código do coletor</b>.</li>
               <li>No ServiceNow, abra <b>Favoritos → Modelos Respostas</b> (a lista de modelos).</li>
               <li>Aperte <b>F12</b>, vá em <b>Console</b>, cole o código e tecle <b>Enter</b> (se o Chrome pedir, digite <code>allow pasting</code> antes).</li>
-              <li>No painel verde que aparece, clique em <b>Coletar todos os modelos</b>. Ele lê Nome, Tabela, Descrição resumida, Ativo, datas, quem atualizou e o texto de cada modelo, e envia para o Firebase.</li>
+              <li>No painel verde que aparece, clique em <b>Coletar todos os modelos</b>. Ele lê <b>só os modelos Globais</b>: Nome, Tabela, Descrição resumida, Ativo, datas, quem atualizou e o texto de cada modelo, e envia para o Firebase.</li>
               <li>Volte aqui e clique em <b>Ver divergências</b>: aparecem só os modelos diferentes da base, para importar ou não, um por um.</li>
             </ol>
             <div class="sn-status" id="snStatus">Carregando situação da coleta…</div>
@@ -1933,7 +1933,7 @@ cx.innerHTML =
     '<strong style="letter-spacing:2px;font-size:13px">COLETOR · RESPOSTAS SAC</strong>' +
     '<button id="sc-x" aria-label="Fechar" style="background:none;border:0;color:#c9dbb2;font-size:20px;line-height:1;cursor:pointer">×</button></div>' +
   '<div id="sc-num" style="font-size:19px;font-weight:700;color:#f5d90a;margin:8px 0 0">—</div>' +
-  '<div id="sc-msg" style="color:#c9dbb2;min-height:38px;white-space:pre-wrap">Coleta Nome, Tabela, Descrição resumida, informações complementares e o texto de todos os modelos.</div>' +
+  '<div id="sc-msg" style="color:#c9dbb2;min-height:38px;white-space:pre-wrap">Coleta só os modelos Globais: Nome, Tabela, Descrição resumida, informações complementares e o texto de todos os modelos.</div>' +
   '<div style="height:6px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden;margin:8px 0 4px"><div id="sc-bar" style="height:100%;width:0;background:#f5d90a;transition:width .2s"></div></div>';
 function botao(txt, principal){
   var b = document.createElement("button"); b.textContent = txt;
@@ -1991,10 +1991,10 @@ function chave(nome){
 
 async function buscarAPI(){
   var ck = token();
-  var campos = "sys_id,name,table,short_description,active,sys_updated_on,sys_updated_by,sys_created_on,template";
+  var campos = "sys_id,name,table,short_description,active,global,sys_updated_on,sys_updated_by,sys_created_on,template";
   var todos = [], off = 0, total = 0;
   while (true) {
-    var url = "/api/now/table/sys_template?sysparm_query=ORDERBYname&sysparm_fields=" + campos +
+    var url = "/api/now/table/sys_template?sysparm_query=" + encodeURIComponent("global=true^ORDERBYname") + "&sysparm_fields=" + campos +
       "&sysparm_display_value=all&sysparm_exclude_reference_link=true&sysparm_limit=" + LOTE_API + "&sysparm_offset=" + off;
     var h = { "Accept": "application/json" }; if (ck) h["X-UserToken"] = ck;
     var r = await fetch(url, { headers: h, credentials: "same-origin" });
@@ -2002,6 +2002,7 @@ async function buscarAPI(){
     if (!total) total = +r.headers.get("X-Total-Count") || 0;
     var res = ((await r.json()).result) || [];
     res.forEach(function(o){
+      if (val(o.global) !== "true") return;
       todos.push({ sysId: val(o.sys_id), nome: vis(o.name).trim(), tabela: val(o.table), rotulo: vis(o.table),
         descricao: vis(o.short_description), ativo: val(o.active) === "true",
         atualizadoEm: dataBR(vis(o.sys_updated_on)), atualizadoPor: vis(o.sys_updated_by),
@@ -2017,11 +2018,12 @@ async function buscarAPI(){
 async function buscarJSONv2(){
   var todos = [], ultimo = "";
   while (true) {
-    var q = "ORDERBYsys_id" + (ultimo ? "^sys_id>" + ultimo : "");
+    var q = "global=true" + (ultimo ? "^sys_id>" + ultimo : "") + "^ORDERBYsys_id";
     var r = await fetch("/sys_template_list.do?JSONv2&sysparm_record_count=" + LOTE_API + "&sysparm_query=" + encodeURIComponent(q), { credentials: "same-origin" });
     if (!r.ok) throw new Error("JSONv2 " + r.status);
     var rec = ((await r.json()).records) || [];
     rec.forEach(function(o){
+      if (String(o.global) !== "true") return;
       todos.push({ sysId: o.sys_id, nome: String(o.name || "").trim(), tabela: o.table || "", rotulo: o.table || "",
         descricao: o.short_description || "", ativo: String(o.active) === "true",
         atualizadoEm: dataBR(o.sys_updated_on), atualizadoPor: o.sys_updated_by || "",
@@ -2112,7 +2114,7 @@ bColetar.onclick = async function(){
     }
   }
   var g = agrupar(regs);
-  ultimo = { modelos: g.modelos, meta: { coletadoEm: Date.now(), registros: regs.length, modelos: Object.keys(g.modelos).length, semNome: g.semNome, origem: location.host } };
+  ultimo = { modelos: g.modelos, meta: { coletadoEm: Date.now(), registros: regs.length, modelos: Object.keys(g.modelos).length, semNome: g.semNome, soGlobais: true, origem: location.host } };
   $("sc-num").textContent = regs.length + " registros · " + ultimo.meta.modelos + " modelos";
   msg("Coleta concluída" + (g.semNome ? " (" + g.semNome + " sem nome foram ignorados)" : "") + ". Enviando ao Firebase…");
   await tentarEnviar();
@@ -3520,7 +3522,7 @@ async function statusSN(){
     const [meta, resp] = await Promise.all([fb('servicenowMeta'), fbQuery('respostas', 'shallow=true')]);
     const nResp = resp ? Object.keys(resp).length : 0;
     el.innerHTML = meta
-      ? `Última coleta: <b>${fmt(meta.coletadoEm)}</b> · ${meta.registros} registros do ServiceNow agrupados em <b>${meta.modelos} modelos</b>${meta.semNome ? ` (${meta.semNome} sem nome ignorados)` : ''}.<br>` +
+      ? `Última coleta: <b>${fmt(meta.coletadoEm)}</b> · ${meta.registros} registros do ServiceNow agrupados em <b>${meta.modelos} modelos</b>${meta.semNome ? ` (${meta.semNome} sem nome ignorados)` : ''}.${meta.soGlobais ? ' Só Globais.' : ' <b>Esta coleta é antiga e inclui modelos não Globais: colete de novo antes de ver as divergências.</b>'}<br>` +
         (meta.aplicadoEm ? `Divergências revisadas em <b>${fmt(meta.aplicadoEm)}</b>.` : `<b>Divergências ainda não revisadas</b>: clique em Ver divergências.`) +
         `<br>Respostas na base unificada: <b>${nResp}</b>.`
       : `Nenhuma coleta feita ainda. Respostas na base unificada: <b>${nResp}</b>.`;
@@ -3808,6 +3810,8 @@ $('#snAplicar').onclick = async () => {
     snLog('Comparando a coleta do ServiceNow com a base…'); $('#snDiv').innerHTML = '';
     const [sn, resp, cont, ign] = await Promise.all([fb('servicenow'), fb('respostas'), fb('contadores/R'), fb('servicenowIgnorados')]);
     if(!sn) throw new Error('nenhuma coleta encontrada. Rode o coletor no ServiceNow primeiro');
+    const metaSN = await fb('servicenowMeta');
+    if(!metaSN || !metaSN.soGlobais) throw new Error('esta coleta é antiga e inclui modelos que não são Globais. Rode o coletor de novo no ServiceNow (ele agora pega só os Globais)');
     const base = resp || {}, ignorados = ign || {}, porNome = {};
     Object.keys(base).forEach(id => { if(base[id] && base[id].nome) porNome[normN(base[id].nome)] = id; });
     const itens = [], meta = {}, nomesSN = new Set();
